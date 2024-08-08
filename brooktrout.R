@@ -3,6 +3,8 @@ library(tidyverse)
 library(ggplot2)
 library(gridExtra)
 library(moments)
+library(gplots)
+library(grid)
 
 #################### PREPROCESSING ####################
 
@@ -16,7 +18,7 @@ raw <- raw %>%
   mutate(logConc = (IPCGreen - 40.44) / -3.733,
          eDNAConc = ifelse(IPCGreen == 0, 0, 10^logConc))
 
-# isolate Hanlon September—other datasets have n/a values but we want complete data
+# isolate Hanlon September — other data has n/a values but we want complete data
 # 126 samples in total
 hsept <- raw %>%
   filter(Creek == "Hanlon", Month == "September")
@@ -28,6 +30,7 @@ hsept <- hsept %>%
 
 #################### PLOTTING ####################
 
+# don't really need bar plots
 bar <- function (data, xvar, xlab){
   plot <- data %>% ggplot(aes(x={{xvar}})) +
     geom_bar(fill = "cornflowerblue", colour = "black") +
@@ -61,6 +64,7 @@ grid.arrange(bpused, sites, efish, atemp, wtemp, ph, do, cond, edna, vol, ncol=2
 
 #################### STAT CALCS ####################
 
+# might be able to make this more efficient
 means <- hsept %>% 
   select(-BackpackUsed, -Site) %>%
   summarise(across(everything(), mean)) 
@@ -79,6 +83,33 @@ uni <- hsept %>%
 summary <- bind_rows(means, meds, skew, uni)
 print(summary)
 
+#################### MAKING CORRELATION PLOTS ####################
+
+labels = c("Air Temperature (°C)", "Water Temperature (°C)", "pH", "Dissolved Oxygen (mg/L)", "Conductivity (mS/cm)", "Volume Filtered (L)")
+variables <- c("AirTemp", "WaterTemp", "pH", "DO_mgL", "conductivity_mS", "volume_filtered")
+
+create_plot <- function(data, xV, yV, lab){
+  ggplot(data, aes_string(x = xV, y= yV)) +
+    geom_point() +
+    labs(x = lab,
+         y = "eDNA Concentration (copies/µL)") +
+    theme_minimal() +
+    theme(plot.margin = unit(c(1, 1, 1, 1), "cm"))
+}
+
+# seq_along is a function that generates a sequence of integers from 1 to the length of its argument
+# used for forloops
+plot_list <- list()
+for (i in seq_along(variables)) {
+  var <- variables[i]
+  lab <- labels[i]
+  p <- create_plot(hsept, var, "eDNAConc", lab)
+  plot_list[[i]] <- p
+}
+
+print(grid.arrange(grobs = plot_list, ncol = 2, nrow = 3))
+
+
 #################### DISCRETISATION PREPROCESSING ####################
 
 # helper function
@@ -86,10 +117,10 @@ dtize <- function (data, split, new_df) {
   
   for(col in colnames(split)){
     cut <- c(-Inf, split[[col]], Inf)
-    newcol <- discretize(discrete[[col]], method="fixed", breaks=cut, right=TRUE, labels = c("low", "high"))
+    newcol <- discretize(data[[col]], method="fixed", breaks=cut, right=TRUE, labels = c("low", "high"))
     new_df[[col]] <- newcol
   }
-
+  
   return(new_df)
 }
 
@@ -117,7 +148,7 @@ itemFrequencyPlot(tmed, support = 1/126, cex.names=0.8, main = "Item Frequency P
 
 # let's mine
 med_rules <- apriori(tmed, parameter = list(support=1/126, confidence = 1/126),
-                    appearance = list(rhs="eDNAConc=high"))
+                     appearance = list(rhs="eDNAConc=high"))
 
 # remove redundancies, statistically insignif, and then sort
 med_rules <-med_rules %>%
@@ -141,7 +172,7 @@ tmean <- as(mean_df, "transactions")
 itemFrequencyPlot(tmean, support = 1/126, cex.names=0.8, main = "Item Frequency Plot (Mean Discretisation)")
 
 mean_rules <- apriori(tmean, parameter = list(support=1/126, confidence = 1/126),
-                     appearance = list(rhs="eDNAConc=high"))
+                      appearance = list(rhs="eDNAConc=high"))
 
 mean_rules <- mean_rules %>%
   subset(!is.redundant(., measure = "confidence")) %>%
@@ -173,7 +204,7 @@ tog <- as(og_df, "transactions")
 itemFrequencyPlot(tog, support = 1/126, cex.names=0.8, main = "Item Frequency Plot (Original Discretisation)")
 
 og_rules <- apriori(tog, parameter = list(support=1/126, confidence = 1/126),
-                      appearance = list(rhs="eDNAConc=high"))
+                    appearance = list(rhs="eDNAConc=high"))
 
 og_rules <- og_rules %>%
   subset(!is.redundant(., measure = "confidence")) %>%
@@ -218,7 +249,7 @@ tbio <- as(bio_df, "transactions")
 itemFrequencyPlot(tbio, support = 1/126, cex.names=0.8, main = "Item Frequency Plot (Biological Discretisation)")
 
 bio_rules <- apriori(tbio, parameter = list(support=1/126, confidence = 1/126),
-                    appearance = list(rhs="eDNAConc=high"))
+                     appearance = list(rhs="eDNAConc=high"))
 
 bio_rules <- bio_rules %>%
   subset(!is.redundant(., measure = "confidence")) %>%
@@ -227,7 +258,74 @@ bio_rules <- bio_rules %>%
 
 write(bio_rules, file = "bio_rules.csv", sep = ",", col.names = NA)
 
+
+#################### COMPARISON FUNCTIONS ####################
+
+# compare two rules
+rule_by_rule <- function (rules1, rules2) {
+  
+  # add error checking, i.e. what if no rules are in common, valid rule objects
+  
+  # isolate the rules
+  labels1 <- labels(rules1)
+  labels2 <- labels(rules2)
+  
+  # find common rules
+  common <- intersect(labels1, labels2)
+  
+  # collect interestingness measures for each rule from each dataset
+  crules1 <- rules1[labels1 %in% common]
+  crules2 <- rules2[labels2 %in% common]
+  quality1 <- quality(crules1)
+  quality2 <- quality(crules2) 
+  
+  # store in dataframe
+  df <- data.frame(
+    Rules = common,
+    Support_1 = quality1$support,
+    Support_2 = quality2$support,
+    Confidence_1 = quality1$confidence,
+    Confidence_2 = quality2$confidence,
+    Lift_1 = quality1$lift,
+    Lift_2 = quality2$lift
+  )  
+  
+  print(sprintf("Number of rules in common: %d", length(common)))
+  print(df)
+}
+
+rule_by_rule(med_rules, og_rules)
+
+rule_compare <- function (...) {
+  
+  
+  
+}
+
 #################### VENN DIAGRAMS ####################
+
+vennrules <- function(rules, names){
+  
+  # check if sets = names
+  # sets should be a list of sets
+  
+  # initialise empty list  
+  sets <- list()
+  
+  for (i in seq_along(rules)) {
+    items <- labels(rules[[i]])
+    sets[[names[i]]] <- items
+  }
+  diagram <- venn(sets)
+  
+  print(diagram)
+}
+
+rules <- list(med_rules, bio_rules, og_rules)
+names <- c("Median", "Bio", "OG")
+vennrules(rules, names)
+
+
 
 ogitems <- as(tog, "list") %>% 
   unlist() %>% 
@@ -257,4 +355,10 @@ dev.off()
 ##### compare discretisation of first mined, redundant, and insignif rules
 ##### profiling, microbenchmark
 ##### arulesviz
+plot(bio_rules, interactive=TRUE)
+plot(bio_rules, method="grouped")
+plot(bio_rules, method="graph")
+plot(bio_rules, method="paracoord")
+
+
 ##### hadley wickham, R for datascience, R visualisation
