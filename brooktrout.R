@@ -296,34 +296,86 @@ rule_by_rule <- function (rules1, rules2) {
 
 rule_by_rule(med_rules, og_rules)
 
+
+# compare indefinite number of rules
 rule_compare <- function (...) {
   
+  # collect arguments
+  rules <- list(...)
   
+  # check if all arguments are rules
+  if(!all(sapply(rules, inherits, "rules"))) {
+    stop("Arguments must be objects of class 'rules'")
+  }
+  
+  # make sure user gives names
+  if (is.null(names(rules)) || any(names(rules) == "")) {
+    stop("Please provide names for all arguments.")
+  }
+  
+  # isolate rules without interestingness data
+  labels <- sapply(rules, labels)
+  names <- names(rules)
+  
+  # find common rules by repeatedly intersecting rule lists together
+  common <- Reduce(intersect, labels)
+  
+  # inform user if no common rules found
+  # TEST THIS
+  if (length(common) == 0) {
+    print("No common rules found.")
+    return(NULL)
+  }
+  
+  # initialise dataframe
+  df <- data.frame(Rules = common)
+
+  # iterate over all rules and collect interestingness measures in df 
+  for (i in seq_along(rules)) {
+    
+    # find common rules in original rule objects
+    crules <- rules[[i]][labels[[i]] %in% common]
+    # get the quality dataframe from a particular set
+    quality <- quality(crules)
+    
+    # add support/conf/lift to df using user-inputted names for origin set
+    df[paste0("Support_", names[i])] <- quality$support
+    df[paste0("Confidence_", names[i])] <- quality$confidence
+    df[paste0("Lift_", names[i])] <- quality$lift
+  }
+  
+  print(sprintf("Number of rules in common: %d", length(common)))
+  print(df)
   
 }
 
+rule_compare(Med=med_rules, Mean=mean_rules, Bio=bio_rules)
+
 #################### VENN DIAGRAMS ####################
 
-vennrules <- function(rules, names){
+
+
+# REWRITE in combo with new comparison function
+#vennrules <- function(rules, names){
   
   # check if sets = names
   # sets should be a list of sets
   
   # initialise empty list  
-  sets <- list()
+  # sets <- list()
   
-  for (i in seq_along(rules)) {
-    items <- labels(rules[[i]])
-    sets[[names[i]]] <- items
-  }
-  diagram <- venn(sets)
+  #for (i in seq_along(rules)) {
+   # items <- labels(rules[[i]])
+  #  sets[[names[i]]] <- items
+ # }
+#  diagram <- venn(sets)
   
-  print(diagram)
-}
+#  print(diagram)
+#}
 
-rules <- list(med_rules, bio_rules, og_rules)
-names <- c("Median", "Bio", "OG")
-vennrules(rules, names)
+#rules <- list(med_rules, bio_rules, og_rules)
+#names <- c("Median", "Bio", "OG")
+#vennrules(rules, names)
 
 
 
