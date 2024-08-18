@@ -90,11 +90,19 @@ variables <- c("AirTemp", "WaterTemp", "pH", "DO_mgL", "conductivity_mS", "volum
 
 create_plot <- function(data, xV, yV, lab){
   ggplot(data, aes_string(x = xV, y= yV)) +
-    geom_point() +
+    geom_point(color = "#ebc349") +  # Set the points to white
     labs(x = lab,
          y = "eDNA Concentration (copies/µL)") +
-    theme_minimal() +
-    theme(plot.margin = unit(c(1, 1, 1, 1), "cm"))
+    theme_minimal(base_size = 12) +
+    theme(
+      plot.background = element_rect(fill = "#4cbca6", color = NA),  # Background color
+      panel.background = element_rect(fill = "#4cbca6", color = NA), # Panel background
+      axis.title = element_text(color = "white"),  # Axis title color
+      axis.text = element_text(color = "white"),   # Axis text color
+      axis.line = element_line(color = "#14303f"),   # Axis line color
+      axis.ticks = element_line(color = "white"),  # Axis ticks color
+      plot.margin = unit(c(1, 1, 1, 1), "cm")
+    )
 }
 
 # seq_along is a function that generates a sequence of integers from 1 to the length of its argument
@@ -107,7 +115,49 @@ for (i in seq_along(variables)) {
   plot_list[[i]] <- p
 }
 
-print(grid.arrange(grobs = plot_list, ncol = 2, nrow = 3))
+plotss <- grid.arrange(grobs = plot_list, ncol = 2, nrow = 3)
+ggsave(filename = "corr.png", plot = plotss, dpi = 300)
+
+
+#################### LAZY CHAT CODE ####################
+
+create_plot <- function(data, xV, yV, lab){
+  # Calculate correlation and p-value
+  corr_test <- cor.test(data[[xV]], data[[yV]], method = "pearson")
+  corr_coeff <- round(corr_test$estimate, 2)
+  p_value <- round(corr_test$p.value, 3)
+  
+  # Create plot
+  ggplot(data, aes_string(x = xV, y = yV)) +
+    geom_point(color = "#000000") +  # Set the points to #ebc349
+    labs(x = lab,
+         y = "eDNA Concentration (copies/µL)") +
+    theme_minimal(base_size = 12) +
+    theme(
+      plot.background = element_rect(fill = "#ebc349", color = NA),  # Background color
+      panel.background = element_rect(fill = "#ebc349", color = NA), # Panel background
+      axis.title = element_text(color = "#000000"),  # Axis title color
+      axis.text = element_text(color = "#000000"),   # Axis text color
+      axis.line = element_line(color = "#000000"),   # Axis line color
+      axis.ticks = element_line(color = "000000"),  # Axis ticks color
+      plot.margin = unit(c(1, 1, 1, 1), "cm")
+    ) +
+    annotate("text", x = Inf, y = Inf, label = paste0("r = ", corr_coeff, "\np = ", p_value),
+             hjust = 1.1, vjust = 1.1, color = "#000000", size = 4)
+}
+
+# Generate the plots and combine them
+plot_list <- list()
+for (i in seq_along(variables)) {
+  var <- variables[i]
+  lab <- labels[i]
+  p <- create_plot(hsept, var, "eDNAConc", lab)
+  plot_list[[i]] <- p
+}
+
+# Combine the plots and save with high DPI
+plotss <- grid.arrange(grobs = plot_list, ncol = 3, nrow = 2)
+ggsave(filename = "corr.png", plot = plotss, dpi = 300)
 
 
 #################### DISCRETISATION PREPROCESSING ####################
@@ -349,7 +399,7 @@ rule_compare <- function (...) {
   
 }
 
-rule_compare(Med=med_rules, Mean=mean_rules, Bio=bio_rules)
+rule_compare(Original=og_rules, Bio=bio_rules)
 
 #################### VENN DIAGRAMS ####################
 
