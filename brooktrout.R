@@ -3,8 +3,10 @@ library(tidyverse)
 library(ggplot2)
 library(gridExtra)
 library(moments)
-library(gplots)
-library(grid)
+
+source("./plotting_funs.R")
+source("./assoc_funs.R")
+source("./ggvenn_custom.R")
 
 #################### PREPROCESSING ####################
 
@@ -30,24 +32,6 @@ hsept <- hsept %>%
 
 #################### PLOTTING ####################
 
-# don't really need bar plots
-bar <- function (data, xvar, xlab){
-  plot <- data %>% ggplot(aes(x={{xvar}})) +
-    geom_bar(fill = "cornflowerblue", colour = "black") +
-    labs(x = xlab,
-         y = "Count")
-  return(plot)
-}
-
-his <- function(data, xvar, xlab){
-  plot <- data %>% ggplot(aes(x={{xvar}})) +
-    geom_histogram(fill = "cornflowerblue", colour = "black") +
-    labs(x = xlab,
-         y = "Frequency")
-  return(plot)
-}
-
-
 bpused <- bar(hsept, BackpackUsed, "Backpack Used")
 sites <- bar(hsept, Site, "Site")
 # potentially change efish scale
@@ -64,21 +48,20 @@ grid.arrange(bpused, sites, efish, atemp, wtemp, ph, do, cond, edna, vol, ncol=2
 
 #################### STAT CALCS ####################
 
-# might be able to make this more efficient
-means <- hsept %>% 
-  select(-BackpackUsed, -Site) %>%
-  summarise(across(everything(), mean)) 
-
-meds <- hsept %>% 
-  select(-BackpackUsed, -Site) %>%
-  summarise(across(everything(), median))
-
-skew <- hsept %>%
-  select(-BackpackUsed, -Site) %>%
-  summarise(across(everything(), skewness)) 
-
 uni <- hsept %>% 
   summarise(across(everything(), n_distinct))
+
+cont_vars <- hsept %>% 
+  select(-BackpackUsed, -Site)
+
+means <- cont_vars %>%
+  summarise(across(everything(), mean)) 
+
+meds <- cont_vars %>%
+  summarise(across(everything(), median))
+
+skew <- cont_vars %>%
+  summarise(across(everything(), skewness)) 
 
 summary <- bind_rows(means, meds, skew, uni)
 print(summary)
@@ -88,30 +71,14 @@ print(summary)
 labels = c("Air Temperature (°C)", "Water Temperature (°C)", "pH", "Dissolved Oxygen (mg/L)", "Conductivity (mS/cm)", "Volume Filtered (L)")
 variables <- c("AirTemp", "WaterTemp", "pH", "DO_mgL", "conductivity_mS", "volume_filtered")
 
-create_plot <- function(data, xV, yV, lab){
-  ggplot(data, aes_string(x = xV, y= yV)) +
-    geom_point(color = "#ebc349") +  # Set the points to white
-    labs(x = lab,
-         y = "eDNA Concentration (copies/µL)") +
-    theme_minimal(base_size = 12) +
-    theme(
-      plot.background = element_rect(fill = "#4cbca6", color = NA),  # Background color
-      panel.background = element_rect(fill = "#4cbca6", color = NA), # Panel background
-      axis.title = element_text(color = "white"),  # Axis title color
-      axis.text = element_text(color = "white"),   # Axis text color
-      axis.line = element_line(color = "#14303f"),   # Axis line color
-      axis.ticks = element_line(color = "white"),  # Axis ticks color
-      plot.margin = unit(c(1, 1, 1, 1), "cm")
-    )
-}
-
 # seq_along is a function that generates a sequence of integers from 1 to the length of its argument
 # used for forloops
 plot_list <- list()
+
 for (i in seq_along(variables)) {
   var <- variables[i]
   lab <- labels[i]
-  p <- create_plot(hsept, var, "eDNAConc", lab)
+  p <- scatter(hsept, var, "eDNAConc", lab)
   plot_list[[i]] <- p
 }
 
@@ -119,60 +86,7 @@ plotss <- grid.arrange(grobs = plot_list, ncol = 2, nrow = 3)
 ggsave(filename = "corr.png", plot = plotss, dpi = 300)
 
 
-#################### LAZY CHAT CODE ####################
-
-create_plot <- function(data, xV, yV, lab){
-  # Calculate correlation and p-value
-  corr_test <- cor.test(data[[xV]], data[[yV]], method = "pearson")
-  corr_coeff <- round(corr_test$estimate, 2)
-  p_value <- round(corr_test$p.value, 3)
-  
-  # Create plot
-  ggplot(data, aes_string(x = xV, y = yV)) +
-    geom_point(color = "#000000") +  # Set the points to #ebc349
-    labs(x = lab,
-         y = "eDNA Concentration (copies/µL)") +
-    theme_minimal(base_size = 12) +
-    theme(
-      plot.background = element_rect(fill = "#ebc349", color = NA),  # Background color
-      panel.background = element_rect(fill = "#ebc349", color = NA), # Panel background
-      axis.title = element_text(color = "#000000"),  # Axis title color
-      axis.text = element_text(color = "#000000"),   # Axis text color
-      axis.line = element_line(color = "#000000"),   # Axis line color
-      axis.ticks = element_line(color = "000000"),  # Axis ticks color
-      plot.margin = unit(c(1, 1, 1, 1), "cm")
-    ) +
-    annotate("text", x = Inf, y = Inf, label = paste0("r = ", corr_coeff, "\np = ", p_value),
-             hjust = 1.1, vjust = 1.1, color = "#000000", size = 4)
-}
-
-# Generate the plots and combine them
-plot_list <- list()
-for (i in seq_along(variables)) {
-  var <- variables[i]
-  lab <- labels[i]
-  p <- create_plot(hsept, var, "eDNAConc", lab)
-  plot_list[[i]] <- p
-}
-
-# Combine the plots and save with high DPI
-plotss <- grid.arrange(grobs = plot_list, ncol = 3, nrow = 2)
-ggsave(filename = "corr.png", plot = plotss, dpi = 300)
-
-
 #################### DISCRETISATION PREPROCESSING ####################
-
-# helper function
-dtize <- function (data, split, new_df) {
-  
-  for(col in colnames(split)){
-    cut <- c(-Inf, split[[col]], Inf)
-    newcol <- discretize(data[[col]], method="fixed", breaks=cut, right=TRUE, labels = c("low", "high"))
-    new_df[[col]] <- newcol
-  }
-  
-  return(new_df)
-}
 
 # site and backpack used must be factorised to work
 hsept$Site <- as.factor(hsept$Site)
@@ -309,158 +223,30 @@ bio_rules <- bio_rules %>%
 write(bio_rules, file = "bio_rules.csv", sep = ",", col.names = NA)
 
 
-#################### COMPARISON FUNCTIONS ####################
+#################### COMPARISONS ####################
 
-# compare two rules
-rule_by_rule <- function (rules1, rules2) {
-  
-  # add error checking, i.e. what if no rules are in common, valid rule objects
-  
-  # isolate the rules
-  labels1 <- labels(rules1)
-  labels2 <- labels(rules2)
-  
-  # find common rules
-  common <- intersect(labels1, labels2)
-  
-  # collect interestingness measures for each rule from each dataset
-  crules1 <- rules1[labels1 %in% common]
-  crules2 <- rules2[labels2 %in% common]
-  quality1 <- quality(crules1)
-  quality2 <- quality(crules2) 
-  
-  # store in dataframe
-  df <- data.frame(
-    Rules = common,
-    Support_1 = quality1$support,
-    Support_2 = quality2$support,
-    Confidence_1 = quality1$confidence,
-    Confidence_2 = quality2$confidence,
-    Lift_1 = quality1$lift,
-    Lift_2 = quality2$lift
-  )  
-  
-  print(sprintf("Number of rules in common: %d", length(common)))
-  print(df)
-}
-
-rule_by_rule(med_rules, og_rules)
-
-
-# compare indefinite number of rules
-rule_compare <- function (...) {
-  
-  # collect arguments
-  rules <- list(...)
-  
-  # check if all arguments are rules
-  if(!all(sapply(rules, inherits, "rules"))) {
-    stop("Arguments must be objects of class 'rules'")
-  }
-  
-  # make sure user gives names
-  if (is.null(names(rules)) || any(names(rules) == "")) {
-    stop("Please provide names for all arguments.")
-  }
-  
-  # isolate rules without interestingness data
-  labels <- sapply(rules, labels)
-  names <- names(rules)
-  
-  # find common rules by repeatedly intersecting rule lists together
-  common <- Reduce(intersect, labels)
-  
-  # inform user if no common rules found
-  # TEST THIS
-  if (length(common) == 0) {
-    print("No common rules found.")
-    return(NULL)
-  }
-  
-  # initialise dataframe
-  df <- data.frame(Rules = common)
-
-  # iterate over all rules and collect interestingness measures in df 
-  for (i in seq_along(rules)) {
-    
-    # find common rules in original rule objects
-    crules <- rules[[i]][labels[[i]] %in% common]
-    # get the quality dataframe from a particular set
-    quality <- quality(crules)
-    
-    # add support/conf/lift to df using user-inputted names for origin set
-    df[paste0("Support_", names[i])] <- quality$support
-    df[paste0("Confidence_", names[i])] <- quality$confidence
-    df[paste0("Lift_", names[i])] <- quality$lift
-  }
-  
-  print(sprintf("Number of rules in common: %d", length(common)))
-  print(df)
-  
-}
-
-rule_compare(Original=og_rules, Bio=bio_rules)
+rule_by_rule(Original=og_rules, Bio=bio_rules)
 
 #################### VENN DIAGRAMS ####################
 
+bio_labels <- labels(bio_rules)
+bio_labels <- paste0(bio_labels, "\n")
 
+og_labels <- labels(og_rules)
+og_labels <- paste0(og_labels, "\n")
 
-# REWRITE in combo with new comparison function
-#vennrules <- function(rules, names){
-  
-  # check if sets = names
-  # sets should be a list of sets
-  
-  # initialise empty list  
-  # sets <- list()
-  
-  #for (i in seq_along(rules)) {
-   # items <- labels(rules[[i]])
-  #  sets[[names[i]]] <- items
- # }
-#  diagram <- venn(sets)
-  
-#  print(diagram)
-#}
+mean_labels <- labels(mean_rules)
+mean_labels <- paste0(mean_labels, "\n")
 
-#rules <- list(med_rules, bio_rules, og_rules)
-#names <- c("Median", "Bio", "OG")
-#vennrules(rules, names)
+med_labels <- labels(med_rules)
+med_labels <- paste0(med_labels, "\n")
 
+input <- list(bio = bio_labels, og = og_labels, mean = mean_labels, med = med_labels)
 
-
-ogitems <- as(tog, "list") %>% 
-  unlist() %>% 
-  unique()
-
-meditems <- as(tmed, "list") %>%
-  unlist() %>%
-  unique()
-
-meanitems <- as(tmean, "list") %>%
-  unlist() %>%
-  unique()
-
-venn.plot <- venn.diagram(
-  x = list("Original Discretisation" = ogitems,
-           "Median Discretisation" = meditems,
-           "Mean Discretisation" = meanitems),
-  category.names = c("Original Discretisation", "Median Discretisation", "Mean Discretisation"),
-  filename = NULL,
-  output = TRUE
-)
-
-grid.draw(venn.plot)
-dev.off()
+ggvenn_custom(input)
 
 
 ##### compare discretisation of first mined, redundant, and insignif rules
 ##### profiling, microbenchmark
 ##### arulesviz
-plot(bio_rules, interactive=TRUE)
-plot(bio_rules, method="grouped")
-plot(bio_rules, method="graph")
-plot(bio_rules, method="paracoord")
-
-
 ##### hadley wickham, R for datascience, R visualisation
