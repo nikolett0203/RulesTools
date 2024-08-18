@@ -1,4 +1,7 @@
-# don't really need bar plots
+# helper function to generate styled barplots for categorical data
+# @param data: dataframe containing column to be plotted
+# @param xvar: column name for plotting data
+# @param xlab: label for x-axis of plot
 bar <- function (data, xvar, xlab){
   plot <- data %>% ggplot(aes(x={{xvar}})) +
     geom_bar(fill = "cornflowerblue", colour = "black") +
@@ -8,7 +11,10 @@ bar <- function (data, xvar, xlab){
 }
 
 
-
+# helper function to generate styled histograms for continuous data
+# @param data: dataframe containing column to be plotted
+# @param xvar: column name for plotting data
+# @param xlab: label for x-axis of plot
 his <- function(data, xvar, xlab){
   plot <- data %>% ggplot(aes(x={{xvar}})) +
     geom_histogram(fill="cornflowerblue", colour = "black") +
@@ -17,9 +23,13 @@ his <- function(data, xvar, xlab){
   return(plot)
 }
 
-
-
-scatter <- function(data, xV, yV, lab){
+# helper function to generate styled scatterplots on a single grid (pearson correlation)
+# @param data: dataframe containing column to be plotted
+# @param xV: column name for x-axis plotting data
+# @param yV: column name for y-axis plotting data
+# @param labx: x-axis label
+# @param laby: y-axis label
+scatter <- function(data, xV, yV, labx, laby){
   
   corr_test <- cor.test(data[[xV]], data[[yV]], method = "pearson")
   corr_coeff <- round(corr_test$estimate, 2)
@@ -27,8 +37,8 @@ scatter <- function(data, xV, yV, lab){
   
   ggplot(data, aes_string(x = xV, y= yV)) +
     geom_point(color = "#ebc349") +  # Set the points to white
-    labs(x = lab,
-         y = "eDNA Concentration (copies/µL)") +
+    labs(x = labx,
+         y = laby) +
     theme_minimal(base_size = 12) +
     theme(
       plot.background = element_rect(fill = "#4cbca6", color = NA),  # Background color

@@ -78,11 +78,12 @@ plot_list <- list()
 for (i in seq_along(variables)) {
   var <- variables[i]
   lab <- labels[i]
-  p <- scatter(hsept, var, "eDNAConc", lab)
+  p <- scatter(hsept, var, "eDNAConc", lab, "eDNA Concentration (copies/µL)")
   plot_list[[i]] <- p
 }
 
 plotss <- grid.arrange(grobs = plot_list, ncol = 2, nrow = 3)
+print(plotss)
 ggsave(filename = "corr.png", plot = plotss, dpi = 300)
 
 
@@ -229,20 +230,8 @@ rule_by_rule(Original=og_rules, Bio=bio_rules)
 
 #################### VENN DIAGRAMS ####################
 
-bio_labels <- labels(bio_rules)
-bio_labels <- paste0(bio_labels, "\n")
-
-og_labels <- labels(og_rules)
-og_labels <- paste0(og_labels, "\n")
-
-mean_labels <- labels(mean_rules)
-mean_labels <- paste0(mean_labels, "\n")
-
-med_labels <- labels(med_rules)
-med_labels <- paste0(med_labels, "\n")
-
-input <- list(bio = bio_labels, og = og_labels, mean = mean_labels, med = med_labels)
-
+input <- extract_labels(bio=bio_rules, og=og_rules, mean=mean_rules, med=med_rules)
+length(input)
 ggvenn_custom(input)
 
 

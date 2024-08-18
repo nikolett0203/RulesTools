@@ -1,3 +1,7 @@
+# helper function to discretise data along provided splits
+# @param data: dataframe that user intends to discretise
+# @param split: vector containing split thresholds (must be written in order corresponding to column order in data)
+# @param new_df: dataframe initialised with the number of columns needed for new discretised data
 dtize <- function (data, split, new_df) {
   
   for(col in colnames(split)){
@@ -9,14 +13,10 @@ dtize <- function (data, split, new_df) {
   return(new_df)
 }
 
-
-
-
-
-# compare two rules
+# function to compare two rulesets by displaying common rules and their interestingness values
+# @param rules1: first rules object to be compared (must be named argument)
+# @param rules2: second rules object to be compared (must be named argument)
 rule_by_two <- function (rules1, rules2) {
-  
-  # add error checking, i.e. what if no rules are in common, valid rule objects
   
   # isolate the rules
   labels1 <- labels(rules1)
@@ -44,27 +44,17 @@ rule_by_two <- function (rules1, rules2) {
   
   print(sprintf("Number of rules in common: %d", length(common)))
   print(df)
+
 }
 
-
-
-
-
-# compare indefinite number of rules
+# function to compare indefinite number of rules by finding common rules and displaying their interestingness measures
+# params: indefinite number of rules objects (must be named arguments)
 rule_by_rule <- function (...) {
   
   # collect arguments
   rules <- list(...)
   
-  # check if all arguments are rules
-  if(!all(sapply(rules, inherits, "rules"))) {
-    stop("Arguments must be objects of class 'rules'")
-  }
-  
-  # make sure user gives names
-  if (is.null(names(rules)) || any(names(rules) == "")) {
-    stop("Please provide names for all arguments.")
-  }
+  verify_inputs(rules)
   
   # obtain counts, isolate rules without interestingness data
   counts <- sapply(rules, length)
@@ -109,5 +99,42 @@ rule_by_rule <- function (...) {
   print("Common rules:")  
   print(df)
   
+  return(df)
+  
 }
 
+# helper function to verify that function arguments are arules objects and named
+# @param rule_list: a list containing items to be verified as rules
+verify_inputs <- function(rule_list){
+  
+  # check if all arguments are rules
+  if(!all(sapply(rule_list, inherits, "rules"))) {
+    stop("Arguments must be objects of class 'rules'")
+  }
+  
+  # make sure user gives names
+  if (is.null(names(rule_list)) || any(names(rule_list) == "")) {
+    stop("Please provide names for all arguments.")
+  }
+  
+}
+
+# helper function to extract labels from indefinite number of rules objects to prepare for input to ggvenn
+# @params: list of rules objects (must be named arguments)
+extract_labels <- function(...) {
+  
+  rules <- list(...)
+  
+  verify_inputs(rules)
+  
+  rules <- sapply(rules, edit_rule)
+  return(rules)
+  
+  
+}
+
+# helper function to reformat rules by extracting labels and adding newlines
+# @ param rule: single rule object to be reformatted and extracted
+edit_rule <- function(rule) {
+  return(paste0(labels(rule), "\n"))
+}
