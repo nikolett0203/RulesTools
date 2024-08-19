@@ -644,3 +644,15 @@ prepare_venn_data <- function(data, columns = NULL,
     paste0(name, ":\n ", combo, "\n")
   }
   
+# helper function to extract labels from indefinite number of rules objects to prepare for input to ggvenn
+# @params: list of rules objects (must be named arguments)
+extract_labels <- function(...) {
+  
+  rules <- list(...)
+  
+  verify_inputs(rules)
+  
+  rules <- sapply(rules, edit_rule)
+  return(rules)
+
+}

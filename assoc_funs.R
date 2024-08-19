@@ -119,20 +119,6 @@ verify_inputs <- function(rule_list){
   
 }
 
-# helper function to extract labels from indefinite number of rules objects to prepare for input to ggvenn
-# @params: list of rules objects (must be named arguments)
-extract_labels <- function(...) {
-  
-  rules <- list(...)
-  
-  verify_inputs(rules)
-  
-  rules <- sapply(rules, edit_rule)
-  return(rules)
-  
-  
-}
-
 # helper function to reformat rules by extracting labels and adding newlines
 # @ param rule: single rule object to be reformatted and extracted
 edit_rule <- function(rule) {
