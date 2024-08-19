@@ -37,7 +37,7 @@ It includes functions for barplots, histograms, and scatterplots.
   ph_plot <- his(df, pH, "pH")
   print(ph_plot)
 
-### `scatter` Function
+#### `scatter` Function
 
 - **Purpose:** Generates a styled scatterplot to visualize the relationship between two continuous variables, and annotates the plot with the Pearson correlation coefficient and p-value.
 - **Parameters:**
@@ -48,10 +48,10 @@ It includes functions for barplots, histograms, and scatterplots.
   - `laby`: The label (as a string) for the y-axis of the plot.
 - **Example Usage:**
 ```r
-# Assuming 'df' is your dataframe, 'Temperature' is plotted on the x-axis, and 'eDNA_Concentration' on the y-axis:
-scatter_plot <- scatter(df, 
-                        "Temperature", 
-                        "eDNA_Concentration", 
-                        "Water Temperature", 
-                        "eDNA Concentration")
-print(scatter_plot)
+  # Assuming 'df' is your dataframe, 'Temperature' is plotted on the x-axis, and 'eDNA_Concentration' on the y-axis:
+  scatter_plot <- scatter(df, 
+                          "Temperature", 
+                          "eDNA_Concentration", 
+                          "Water Temperature", 
+                          "eDNA Concentration")
+  print(scatter_plot)
