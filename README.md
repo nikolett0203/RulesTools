@@ -21,7 +21,8 @@ This file contains helper functions to create formatted plots of eDNA data prior
   sites_plot <- bar(df, Site, "Site")
   print(sites_plot)
 - **Example Output:** 
-  - ![Alt text](./images/barplots.jpeg)
+
+![Alt text](./images/barplot.jpeg)
 
 #### `his` Function
 
@@ -35,6 +36,9 @@ This file contains helper functions to create formatted plots of eDNA data prior
   # Assuming 'df' is your dataframe and 'pH' is a column name in the dataframe:
   ph_plot <- his(df, pH, "pH")
   print(ph_plot)
+- **Example Output:** 
+
+![Alt text](./images/hisplot.jpeg)
 
 #### `scatter` Function
 
@@ -50,6 +54,9 @@ This file contains helper functions to create formatted plots of eDNA data prior
   # Assuming 'df' is your dataframe, 'Temperature' is plotted on the x-axis, and 'eDNA_Concentration' on the y-axis:
   scatter_plot <- scatter(df, "Temperature", "eDNA_Concentration", "Water Temperature", "eDNA Concentration")
   print(scatter_plot)
+- **Example Output:** 
+
+![Alt text](./images/corr_plot.jpeg)
 
 ### assoc_funs.R
 
@@ -79,6 +86,13 @@ This file contains helper functions to facilitate the discretization of data and
   # Assuming 'rules1', 'rules2', and 'rules3' are three rules objects you want to compare:
   comparison_df <- rule_by_rule(R1 = rules1, R2 = rules2, R3 = rules3)
   print(comparison_df)
+- **Example Output:** 
+
+Before `dtize()`:
+![Alt text](./images/before_dtize.png)
+
+After `dtize()`:
+![Alt text](./images/after_dtize.png)
 
 
 ### ggvenn_custom.R
@@ -104,8 +118,11 @@ This file contains a customized version of the ggvenn function from the ggvenn p
 - **Example Usage:**
   ```r
   # Shown with extract_labels because functions should be jointly used
-  venn_rules <- extract_labels(bio=bio_rules, mean=mean_rules)
-  ggvenn_custom(venn_rules)
+  venn_rules <- extract_labels(mean=mean_rules, med=med_rules)
+  ggvenn_custom(venn_rules, display_element=TRUE)
+- **Example Output:** 
+
+![Alt text](./images/venn.jpeg)
 
 ### Citations
 
