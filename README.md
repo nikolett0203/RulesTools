@@ -20,6 +20,8 @@ This file contains helper functions to create formatted plots of eDNA data prior
   # Assuming 'df' is your dataframe and 'Site' is a column of categorical data in the dataframe:
   sites_plot <- bar(df, Site, "Site")
   print(sites_plot)
+- **Example Output:** 
+  - ![Alt text](./images/barplots.jpeg)
 
 #### `his` Function
 
