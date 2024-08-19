@@ -226,7 +226,7 @@ write(bio_rules, file = "bio_rules.csv", sep = ",", col.names = NA)
 
 #################### COMPARISONS ####################
 
-rule_by_rule(Original=og_rules, Bio=bio_rules)
+rule_by_rule(mean=mean_rules, med=med_rules)
 
 #################### VENN DIAGRAMS ####################
 

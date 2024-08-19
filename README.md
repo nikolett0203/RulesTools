@@ -2,6 +2,20 @@
 
 This project applies association rule mining to eDNA datasets in order to determine which environmental metadata variables contribute most strongly to high eDNA concentrations in aquatic samples. 
 
+## Navigate To...
+- [Usage](#usage)
+  - [plotting_funs.R](#plotting_funsr)
+    - [`bar` Function](#bar-function)
+    - [`his` Function](#his-function)
+    - [`scatter` Function](#scatter-function)
+  - [assoc_funs.R](#assoc_funsr)
+    - [`dtize` Function](#dtize-function)
+    - [`rule_by_rule` Function](#rule_by_rule-function)
+  - [ggvenn_custom.R](#ggvenn_customr)
+    - [`extract_labels` Function](#extract_labels-function)
+    - [`ggvenn_custom` Function](#ggvenn_custom-function)
+- [Citations](#citations)
+
 ## Usage
 
 ### plotting_funs.R
@@ -45,8 +59,8 @@ This file contains helper functions to create formatted plots of eDNA data prior
 - **Purpose:** Generates a styled scatterplot to visualize the relationship between two continuous variables, and annotates the plot with the Pearson correlation coefficient and p-value.
 - **Parameters:**
   - `data`: The dataframe containing the columns to be plotted.
-  - `xV`: The column name for the data you want to plot on the x-axis.
-  - `yV`: The column name for the data you want to plot on the y-axis.
+  - `xV`: The column name (as a string) for the data you want to plot on the x-axis.
+  - `yV`: The column name (as a string) for the data you want to plot on the y-axis.
   - `labx`: The label (as a string) for the x-axis of the plot.
   - `laby`: The label (as a string) for the y-axis of the plot.
 - **Example Usage:**
@@ -60,14 +74,14 @@ This file contains helper functions to create formatted plots of eDNA data prior
 
 ### assoc_funs.R
 
-This file contains helper functions to facilitate the discretization of data and the comparison of association rule sets. It includes functions for discretizing continuous variables, comparing two or more rulesets, and extracting rule labels for visualization.
+This file contains helper functions to facilitate the discretization of data and the comparison of association rule sets. It includes functions for discretizing continuous variables and comparing two or more rulesets.
 
 #### `dtize` Function
 
 - **Purpose:** Discretizes continuous data in a dataframe based on provided split thresholds.
 - **Parameters:**
   - `data`: The dataframe containing the columns to be discretized.
-  - `split`: A datafram containing the split thresholds for each column in the `data` dataframe. The splits must correspond to the order of columns in the dataframe.
+  - `split`: A dataframe containing the split thresholds for each column in the `data` dataframe. The splits must correspond to the order of columns in the dataframe.
   - `new_df`: An empty dataframe initialized with the number of columns needed to store the discretized data.
 - **Example Usage:**
   ```r
@@ -75,17 +89,6 @@ This file contains helper functions to facilitate the discretization of data and
   ew_df <- data.frame(matrix(nrow = nrow(df), ncol = 0))
   splits <- data.frame(AirTemp = 16, WaterTemp = 25, pH = 7.75, eDNAConc = 13.3)
   discretized_df <- dtize(df, splits, new_df)
-
-#### `rule_by_rule` Function
-
-- **Purpose:** Compares an indefinite number of rulesets by finding common rules and displaying their interestingness measures, such as support, confidence, and lift.
-- **Parameters:**
-  - `...`: An indefinite number of `rules` objects (each must be a named argument).
-- **Example Usage:**
-  ```r
-  # Assuming 'rules1', 'rules2', and 'rules3' are three rules objects you want to compare:
-  comparison_df <- rule_by_rule(R1 = rules1, R2 = rules2, R3 = rules3)
-  print(comparison_df)
 - **Example Output:** 
 
 Before `dtize()`:
@@ -94,6 +97,18 @@ Before `dtize()`:
 After `dtize()`:
 ![Alt text](./images/after_dtize.png)
 
+#### `rule_by_rule` Function
+
+- **Purpose:** Compares an indefinite number of rulesets by finding common rules and displaying their interestingness measures, such as support, confidence, and lift.
+- **Parameters:**
+  - `...`: An indefinite number of `rules` objects (each must be a named argument).
+- **Example Usage:**
+  ```r
+  # Assuming 'mean_rules' and 'med_rules' are two rules objects you want to compare:
+  comparison_df <- rule_by_rule(mean=mean_rules, med=med_rules)
+- **Example Output:** 
+
+![Alt text](./images/rule_by_rule.png)
 
 ### ggvenn_custom.R
 
@@ -107,7 +122,7 @@ This file contains a customized version of the ggvenn function from the ggvenn p
 - **Example Usage:**
   ```r
   # Assuming 'bio_rules', and 'mean_rules' are two rules objects:
-  venn_rules <- extract_labels(bio=bio_rules, mean=mean_rules)
+  venn_rules <- extract_labels(mean=mean_rules, med=med_rules)
 
 #### `ggvenn_custom` Function
 
