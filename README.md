@@ -22,7 +22,7 @@ It includes functions for barplots, histograms, and scatterplots.
   ```r
   # Assuming 'df' is your dataframe and 'Site' is a column of categorical data in the dataframe:
   sites_plot <- bar(df, Site, "Site")
-  print(sites_plot)
+  print(sites_plot)```
 
 #### `his` Function
 
@@ -35,11 +35,12 @@ It includes functions for barplots, histograms, and scatterplots.
   ```r
   # Assuming 'df' is your dataframe and 'pH' is a column name in the dataframe:
   ph_plot <- his(df, pH, "pH")
-  print(ph_plot)
+  print(ph_plot)```
 
 #### `scatter` Function
 
-- **Purpose:** Generates a styled scatterplot to visualize the relationship between two continuous variables, and annotates the plot with the Pearson correlation coefficient and p-value.
+- **Purpose:** Generates a styled scatterplot to visualize the relationship between two continuous 
+variables, and annotates the plot with the Pearson correlation coefficient and p-value.
 - **Parameters:**
   - `data`: The dataframe containing the columns to be plotted.
   - `xV`: The column name for the data you want to plot on the x-axis.
@@ -54,4 +55,9 @@ It includes functions for barplots, histograms, and scatterplots.
                           "eDNA_Concentration", 
                           "Water Temperature", 
                           "eDNA Concentration")
-  print(scatter_plot)
+  print(scatter_plot)```
+
+### assoc_funs.R
+
+This file contains helper functions to facilitate the discretization of data and the comparison of 
+association rule sets. It includes functions for discretizing continuous variables, comparing two or more rulesets, and extracting rule labels for visualization.
