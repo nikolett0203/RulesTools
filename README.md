@@ -77,3 +77,36 @@ This file contains helper functions to facilitate the discretization of data and
   # Assuming 'rules1', 'rules2', and 'rules3' are three rules objects you want to compare:
   comparison_df <- rule_by_rule(R1 = rules1, R2 = rules2, R3 = rules3)
   print(comparison_df)
+
+
+### ggvenn_custom.R
+
+This file contains a customized version of the ggvenn function from the ggvenn package by Linlin Yan. This function allows users to see the items contained in each intersection by having it printed to the R console or (optionally) displaying it directly on the venn diagram plot.
+
+#### `extract_labels` Function
+
+- **Purpose:** Prepares arules objects for `ggvenn_custom` by extracting the rule labels and adding newlines to improve formatting. 
+- **Parameters:**
+  - `...`: List of rules objects (must be named arguments).
+- **Example Usage:**
+  ```r
+  # Assuming 'bio_rules', and 'mean_rules' are two rules objects:
+  venn_rules <- extract_labels(bio=bio_rules, mean=mean_rules)
+
+#### `ggvenn_custom` Function
+
+- **Purpose:** Creates venn diagram from a list of rules labels and displays the items in each intersection to the console. Optionally, the user can set `display_element=TRUE` to annotate the venn diagram plot with the rule intersection items.
+- **Parameters:**
+  - `display_element`: Set to `TRUE` to annotate the venn plot with the rule intersection items.
+  - All other parameters are consistent with the original ggvenn function (see citations)
+- **Example Usage:**
+  ```r
+  # Shown with extract_labels because functions should be jointly used
+  venn_rules <- extract_labels(bio=bio_rules, mean=mean_rules)
+  ggvenn_custom(venn_rules)
+
+### Citations
+
+- Hahsler M, Buchta C, Gruen B, Hornik K (2023). arules: Mining Association Rules and Frequent Itemsets. R package version 1.7-7, https://CRAN.R-project.org/package=arules.
+
+- Yan, Linlin. (2023). ggvenn: Draw Venn Diagram by 'ggplot2'. R package version 0.1.10. https://CRAN.R-project.org/package=ggvenn
