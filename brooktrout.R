@@ -234,6 +234,9 @@ input <- extract_labels(bio=bio_rules, og=og_rules, mean=mean_rules, med=med_rul
 length(input)
 ggvenn_custom(input)
 
+input2 <- extract_labels(mean=mean_rules, med=med_rules)
+length(input2)
+ggvenn_custom(input2, display_element=TRUE)
 
 ##### compare discretisation of first mined, redundant, and insignif rules
 ##### profiling, microbenchmark

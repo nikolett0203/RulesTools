@@ -80,7 +80,7 @@ ggvenn_custom <- function(data, columns = NULL,
                    set_name_size = 6,
                    text_color = "black",
                    text_size = 4,
-                   label_sep = "\t",
+                   label_sep = " ",
                    count_column = NULL,
                    show_outside = c("auto", "none", "always"),
                    auto_scale = FALSE,
@@ -415,7 +415,7 @@ gen_label_pos_4 <- function() {
 
 prepare_venn_data <- function(data, columns = NULL,
                               show_elements = FALSE, show_stats = "cp", digits = 1,
-                              label_sep = "\t", count_column = NULL,
+                              label_sep = " ", count_column = NULL,
                               show_outside = c("auto", "none", "always"),
                               auto_scale = FALSE, comma_sep=FALSE) {
   show_outside <- match.arg(show_outside)
@@ -641,6 +641,6 @@ prepare_venn_data <- function(data, columns = NULL,
   
   # function that formats the names and intersection data in a way that's easier to read when displayed
   format_string <- function (name, combo) {
-    paste0(name, ":\n\t", combo, "\n")
+    paste0(name, ":\n ", combo, "\n")
   }
   
