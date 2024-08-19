@@ -1,6 +1,6 @@
 # Association Rule Mining of eDNA Datasets
 
-This project applies association rule mining to eDNA datasets in order to determine which environmental metadata variables contribute most strongly to high eDNA concentrations in aquatic samples. 
+This project applies association rule mining to eDNA datasets using custom scripts and R's `arules` and `ggvenn` packages in order to determine which environmental metadata variables contribute most strongly to high eDNA concentrations in aquatic samples. 
 
 ## Navigate To...
 - [Usage](#usage)
