@@ -29,9 +29,9 @@ his <- function(data, xvar, xlab){
 # @param yV: column name for y-axis plotting data
 # @param labx: x-axis label
 # @param laby: y-axis label
-scatter <- function(data, xV, yV, labx, laby){
+scatter <- function(data, xV, yV, labx, laby, method){
   
-  corr_test <- cor.test(data[[xV]], data[[yV]], method = "pearson")
+  corr_test <- cor.test(data[[xV]], data[[yV]], method = method)
   corr_coeff <- round(corr_test$estimate, 2)
   p_value <- round(corr_test$p.value, 3)
   

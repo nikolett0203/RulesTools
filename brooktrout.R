@@ -78,7 +78,7 @@ plot_list <- list()
 for (i in seq_along(variables)) {
   var <- variables[i]
   lab <- labels[i]
-  p <- scatter(hsept, var, "eDNAConc", lab, "eDNA Concentration (copies/µL)")
+  p <- scatter(hsept, var, "eDNAConc", lab, "eDNA Concentration (copies/µL)", method="pearson")
   plot_list[[i]] <- p
 }
 
