@@ -18,8 +18,17 @@ dtize_col <- function (column,
                        labels=c("low", "high"),
                        right=TRUE,
                        infinity=TRUE){
-  # error check that right and infinity are also okay?
-  # handling na values
+  # error check that right and infinity are valid?
+  # provide functionality to handle NA values?
+  # maybe don't allow user to enter intervals for which values exist beyond? because that will introduce NAs
+  # check if any of the input values are null? column, splits, labels, right, infinity (does code already do some of this?)
+  # check for empty labels or splits?
+  # handle NULL values?
+  # check that split points are unique?
+  # chat says "Since the input should be numeric, you could add a check to ensure there are no non-numeric values in the column vector (e.g., Inf, NaN)"
+  # include lowest?
+  # check missing values in breaks?
+  # check for negative values?
   
   # step 1: validate that input column is a non-empty, numeric vector
   if(!is.vector(column))
@@ -45,7 +54,6 @@ dtize_col <- function (column,
   }
   
   # make sure cutoffs are sorted in increasing order
-
   splits <- sort(splits)
   
   # add infinite bounds if user selects this option
@@ -70,8 +78,16 @@ dtize_col <- function (column,
   }
   
   # check that number of labels matches number of intervals
+  num_labels = length(labels)
+  num_intervals = length(cutoffs) - 1
+  if (num_intervals != num_labels) 
+    stop(sprintf("Discretization requires %d labels for %d intervals. Please provide a label for each interval.", num_labels, num_intervals))
   
-  
+  return(cut(column,
+             breaks = cutoffs,
+             labels = labels, 
+             right = right,  
+             include.lowest = TRUE))  # always include the lowest value in the first interval???????????????????
   
 }
 
