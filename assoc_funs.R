@@ -13,6 +13,73 @@ dtize <- function (data, split, new_df) {
   return(new_df)
 }
 
+dtize_col <- function (column,
+                       splits="median",
+                       labels=c("low", "high"),
+                       right=TRUE,
+                       infinity=TRUE){
+  # error check that right and infinity are also okay?
+  # handling na values
+  
+  # step 1: validate that input column is a non-empty, numeric vector
+  if(!is.vector(column))
+    stop("`column` must be a vector. Please provide a non-empty numeric vector.")
+  if(!is.numeric(column))
+    stop("`column` must be numeric. Please provide a non-empty numeric vector.")
+  if (length(column) == 0) 
+    stop("`column` is empty. Please provide a non-empty numeric vector.")
+
+  # ensure function is case insensitive
+  if (is.character(splits))
+    splits <- tolower(splits)
+  
+  # validate split method
+  if(splits=="median"){
+    cutoffs <- median(column)
+  } else if (splits=="mean"){
+    cutoffs <- mean(column)
+  } else if (is.vector(splits) && is.numeric(splits) && length(splits)!= 0){
+    cutoffs <- splits
+  } else {
+    stop("`splits` must be either `median`, `mean`, or a non-empty numeric vector.")
+  }
+  
+  # make sure cutoffs are sorted in increasing order
+
+  splits <- sort(splits)
+  
+  # add infinite bounds if user selects this option
+  if (infinity) {
+    cutoffs <- c(-Inf, cutoffs, Inf)
+  } else {
+    
+    # check that there are at least two cutoff points
+    if(length(cutoffs) < 2)
+      stop("Please provide at least two split points (upper and lower bound) if `infinity = FALSE`.")
+    
+    # provide warning if values are beyond upper or lower bounds
+    # nas will occur
+    if(right){
+      if (min(column) <= min(cutoffs) || max(column) > max(cutoffs))
+        warning("Some values fall outside the specified cutoff range. These values will be replaced by NA.")
+    }else{
+      if (min(column) < min(cutoffs) || max(column) >= max(cutoffs))
+        warning("Some values fall outside the specified cutoff range. These values will be replaced by NA.")    
+    }
+
+  }
+  
+  # check that number of labels matches number of intervals
+  
+  
+  
+}
+
+
+
+
+
+
 # function to compare two rulesets by displaying common rules and their interestingness values
 # @param rules1: first rules object to be compared (must be named argument)
 # @param rules2: second rules object to be compared (must be named argument)
