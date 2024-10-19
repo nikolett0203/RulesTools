@@ -36,14 +36,33 @@ validvalues <-c(3.1)
 test_that("dtize_col handles invalid column inputs correctly", {
   
   # test if function throws an error when column is not a vector
-  expect_error(dtize_col(hsept, NULL, NULL, NULL, NULL), 
+  expect_error(dtize_col(hsept), 
                regexp = "`column` must be a vector. Please provide a non-empty numeric vector.")
   
   # Test if the function throws an error when the column is not numeric
-  expect_error(dtize_col(nonnumeric, NULL, NULL, NULL, NULL), 
+  expect_error(dtize_col(nonnumeric), 
                regexp = "`column` must be numeric. Please provide a non-empty numeric vector.")
   
   # Test if the function throws an error when the column is empty
-  expect_error(dtize_col(empty, NULL, NULL, NULL, NULL), 
+  expect_error(dtize_col(empty), 
                regexp = "`column` is empty. Please provide a non-empty numeric vector.")
 })
+
+# These aren't working
+test_that("dtize_col handles invalid split types correctly", {
+  
+  # test if function throws an error when column is not a vector
+  expect_error(dtize_col(hsept$pH, splits = "mode"), 
+               regexp = "`splits` must be either `median`, `mean`, or a non-empty numeric vector.")
+  
+  expect_error(dtize_col(hsept$AirTemp, splits = nonnumeric), 
+               regexp = "`splits` must be either `median`, `mean`, or a non-empty numeric vector.")
+
+  expect_error(dtize_col(hsept$WaterTemp, splits = empty), 
+               regexp = "`splits` must be either `median`, `mean`, or a non-empty numeric vector.")
+  
+  expect_error(dtize_col(hsept$pH, splits = hsept),          # not a vector
+               regexp = "`splits` must be either `median`, `mean`, or a non-empty numeric vector.")  
+  
+})
+

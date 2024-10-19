@@ -17,16 +17,15 @@ dtize_col <- function (column,
                        splits="median",
                        labels=c("low", "high"),
                        right=TRUE,
-                       infinity=TRUE){
+                       infinity=TRUE,
+                       lowest=TRUE){
   # error check that right and infinity are valid?
   # provide functionality to handle NA values?
-  # maybe don't allow user to enter intervals for which values exist beyond? because that will introduce NAs
   # check if any of the input values are null? column, splits, labels, right, infinity (does code already do some of this?)
   # check for empty labels or splits?
   # handle NULL values?
   # check that split points are unique?
   # chat says "Since the input should be numeric, you could add a check to ensure there are no non-numeric values in the column vector (e.g., Inf, NaN)"
-  # include lowest?
   # check missing values in breaks?
   # check for negative values?
   
@@ -43,6 +42,7 @@ dtize_col <- function (column,
     splits <- tolower(splits)
   
   # validate split method
+  # MAKE SURE NO NAS
   if(splits=="median"){
     cutoffs <- median(column)
   } else if (splits=="mean"){
@@ -61,19 +61,35 @@ dtize_col <- function (column,
     cutoffs <- c(-Inf, cutoffs, Inf)
   } else {
     
-    # check that there are at least two cutoff points
-    if(length(cutoffs) < 2)
-      stop("Please provide at least two split points (upper and lower bound) if `infinity = FALSE`.")
+  # check that there are at least two cutoff points
+  if(length(cutoffs) < 2)
+    stop("Please provide at least two split points (upper and lower bound) if `infinity = FALSE`.")
     
-    # provide warning if values are beyond upper or lower bounds
-    # nas will occur
+  # provide warning if values are beyond upper or lower bounds or else NAs will occur
     if(right){
-      if (min(column) <= min(cutoffs) || max(column) > max(cutoffs))
-        warning("Some values fall outside the specified cutoff range. These values will be replaced by NA.")
+      if(max(column) > max(cutoffs))
+        stop("Values exceed the maximum split. Please ensure all values are within the defined range.")
     }else{
-      if (min(column) < min(cutoffs) || max(column) >= max(cutoffs))
-        warning("Some values fall outside the specified cutoff range. These values will be replaced by NA.")    
+      if(max(column) >= max(cutoffs))
+        stop("Values exceed the maximum split. Please ensure all values are within the defined range.")
     }
+    
+    if(lowest || !right){
+      if(min(column) < min(cutoffs))
+        stop("Values fall below the minimum split. Please ensure all values are within the defined range.")
+    }else{
+      if(min(column) <= min (cutoffs))
+        stop("Values fall below the minimum split. Please ensure all values are within the defined range.")        
+    }
+    
+    
+#    if(right){
+#      if (min(column) <= min(cutoffs) || max(column) > max(cutoffs))
+#        warning("Some values fall outside the specified cutoff range. These values will be replaced by NA.")
+#    }else{
+#      if (min(column) < min(cutoffs) || max(column) >= max(cutoffs))
+#        warning("Some values fall outside the specified cutoff range. These values will be replaced by NA.")    
+#    }
 
   }
   
@@ -87,7 +103,7 @@ dtize_col <- function (column,
              breaks = cutoffs,
              labels = labels, 
              right = right,  
-             include.lowest = TRUE))  # always include the lowest value in the first interval???????????????????
+             include.lowest = lowest))  # always include the lowest value in the first interval???????????????????
   
 }
 
