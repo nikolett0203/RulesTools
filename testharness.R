@@ -31,7 +31,6 @@ hsept <- hsept %>%
 nonnumeric <- c("Zurich", "Budapest", "Vienna", "Frankfurt", "Prague")
 navalues <- c(1, 2, 3, 4, 5, NA, 7, 8, 9, NA)
 empty <- numeric(0)
-validvalues <-c(3.1)
 
 test_that("dtize_col handles invalid column inputs correctly", {
   
@@ -65,6 +64,39 @@ test_that("dtize_col handles invalid split types correctly", {
   
   expect_error(dtize_col(hsept$pH, splits = NA),
                regexp = "`splits` must be either `median`, `mean`, or a non-empty numeric vector.")    
+
+  expect_error(dtize_col(hsept$pH, splits = navalues),
+               regexp = "`splits` cannot contain NA values.")  
+  
+})
+
+valid_col = c(1, 2, 3, 4, 5, 6, 7, 8, 9, 10)
+
+test_that("dtize_col handles boundaries correctly", {
+  
+  #right-closed finite upper boundary exceeded
+  expect_error(dtize_col(valid_col, splits = c(1, 5, 9), right=TRUE, infinity=FALSE), 
+               regexp = ("Values exceed the maximum split. Please ensure all values are within the defined range."))
+
+  #left-closed finite upper boundary exceeded
+  expect_error(dtize_col(valid_col, splits = c(1, 5, 10), right=FALSE, infinity=FALSE), 
+               regexp = ("Values exceed the maximum split. Please ensure all values are within the defined range."))
+
+  #right-closed finite lower boundary exceeded
+  expect_error(dtize_col(valid_col, splits = c(1, 5, 11), right=TRUE, infinity=FALSE, lowest = FALSE), 
+               regexp = ("Values fall below the minimum split. Please ensure all values are within the defined range."))
+  
+  #left-closed finite lower boundary exceeded
+  expect_error(dtize_col(valid_col, splits = c(2, 5, 11), right=FALSE, infinity=FALSE, lowest = FALSE), 
+               regexp = ("Values fall below the minimum split. Please ensure all values are within the defined range."))
+  
+  #right-closed + lowest included lower boundary exceeded
+  expect_error(dtize_col(valid_col, splits = c(2, 5, 11), right=TRUE, infinity=FALSE, lowest = TRUE), 
+               regexp = ("Values fall below the minimum split. Please ensure all values are within the defined range."))
+
+  #left-closed + lowest included lower boundary exceeded
+  expect_error(dtize_col(valid_col, splits = c(2, 5, 11), right=FALSE, infinity=FALSE, lowest = TRUE), 
+               regexp = ("Values fall below the minimum split. Please ensure all values are within the defined range."))
   
 })
 

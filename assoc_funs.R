@@ -26,7 +26,6 @@ dtize_col <- function (column,
   # handle NULL values?
   # check that split points are unique?
   # chat says "Since the input should be numeric, you could add a check to ensure there are no non-numeric values in the column vector (e.g., Inf, NaN)"
-  # check missing values in breaks?
   # check for negative values?
   
   # step 1: validate that input column is a non-empty, numeric vector
@@ -48,6 +47,8 @@ dtize_col <- function (column,
   } else if (identical(splits, "mean")) {
     cutoffs <- mean(column, na.rm = TRUE)
   } else if (is.numeric(splits) && is.vector(splits) && length(splits) > 0) {
+    if(any(is.na(splits)))
+      stop("`splits` cannot contain NA values.")
     cutoffs <- splits
   } else {
     stop("`splits` must be either `median`, `mean`, or a non-empty numeric vector.")
@@ -103,7 +104,7 @@ dtize_col <- function (column,
              breaks = cutoffs,
              labels = labels, 
              right = right,  
-             include.lowest = lowest))  # always include the lowest value in the first interval???????????????????
+             include.lowest = lowest))
   
 }
 
