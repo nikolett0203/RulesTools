@@ -2,6 +2,10 @@
 # @param data: dataframe that user intends to discretise
 # @param split: vector containing split thresholds (must be written in order corresponding to column order in data)
 # @param new_df: dataframe initialised with the number of columns needed for new discretised data
+
+
+### HEATMAP for confidence, lift, support
+
 dtize <- function (data, split, new_df) {
   
   for(col in colnames(split)){
@@ -18,11 +22,11 @@ dtize_col <- function (column,
                        labels=c("low", "high"),
                        right=TRUE,
                        infinity=TRUE,
-                       lowest=TRUE){
+                       lowest=TRUE) {
   # error check that right and infinity are valid?
   # provide functionality to handle NA values?
   # check if any of the input values are null? column, splits, labels, right, infinity (does code already do some of this?)
-  # check for empty labels or splits?
+  # check for empty labels
   # handle NULL values?
   # check that split points are unique?
   # chat says "Since the input should be numeric, you could add a check to ensure there are no non-numeric values in the column vector (e.g., Inf, NaN)"
@@ -62,11 +66,11 @@ dtize_col <- function (column,
     cutoffs <- c(-Inf, cutoffs, Inf)
   } else {
     
-  # check that there are at least two cutoff points
-  if(length(cutoffs) < 2)
-    stop("Please provide at least two split points (upper and lower bound) if `infinity = FALSE`.")
-    
-  # provide warning if values are beyond upper or lower bounds or else NAs will occur
+    # check that there are at least two cutoff points
+    if(length(cutoffs) < 2)
+      stop("Please provide at least two split points (upper and lower bound) if infinity is FALSE.")
+
+    # provide warning if values are beyond upper or lower bounds or else NAs will occur
     if(right){
       if(max(column) > max(cutoffs))
         stop("Values exceed the maximum split. Please ensure all values are within the defined range.")
@@ -76,29 +80,20 @@ dtize_col <- function (column,
     }
     
     if(lowest || !right){
-      if(min(column) < min(cutoffs))
+      if(min(column) < min (cutoffs))
         stop("Values fall below the minimum split. Please ensure all values are within the defined range.")
     }else{
       if(min(column) <= min (cutoffs))
         stop("Values fall below the minimum split. Please ensure all values are within the defined range.")        
     }
     
-    
-#    if(right){
-#      if (min(column) <= min(cutoffs) || max(column) > max(cutoffs))
-#        warning("Some values fall outside the specified cutoff range. These values will be replaced by NA.")
-#    }else{
-#      if (min(column) < min(cutoffs) || max(column) >= max(cutoffs))
-#        warning("Some values fall outside the specified cutoff range. These values will be replaced by NA.")    
-#    }
-
   }
   
   # check that number of labels matches number of intervals
   num_labels = length(labels)
   num_intervals = length(cutoffs) - 1
   if (num_intervals != num_labels) 
-    stop(sprintf("Discretization requires %d labels for %d intervals. Please provide a label for each interval.", num_labels, num_intervals))
+    stop(sprintf("Discretization requires %d labels, but %d was given. Please provide a label for each interval.", num_intervals, num_labels))
   
   return(cut(column,
              breaks = cutoffs,

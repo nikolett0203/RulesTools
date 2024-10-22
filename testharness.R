@@ -98,5 +98,27 @@ test_that("dtize_col handles boundaries correctly", {
   expect_error(dtize_col(valid_col, splits = c(2, 5, 11), right=FALSE, infinity=FALSE, lowest = TRUE), 
                regexp = ("Values fall below the minimum split. Please ensure all values are within the defined range."))
   
+  #only one boundary, no infinity
+  #expect_error(dtize_col(valid_col, splits = c(7), right=TRUE, infinity=FALSE, lowest=TRUE), 
+  #             regexp = ("Please provide at least two split points (upper and lower bound) if infinity is FALSE.")) 
+  # not working WHYYYYYYY
+  
 })
 
+test_that("dtize_col handles mismatched labels correctly", {
+  
+  # too few labels
+  expect_error(dtize_col(valid_col, splits = c(1, 5, 10), labels=c("high"), right=TRUE, infinity=FALSE), 
+               regexp = ("Discretization requires 2 labels, but 1 was given. Please provide a label for each interval."))
+  
+  # too many labels
+  expect_error(dtize_col(valid_col, splits = c(1, 4, 8, 10), labels=c("low", "medium", "high", "extra high"), right=TRUE, infinity=FALSE), 
+               regexp = ("Discretization requires 3 labels, but 4 was given. Please provide a label for each interval."))
+
+  # no labels
+  # check for NA, NULL, list with NAs in it
+  # what datatypes can labels be?
+  expect_error(dtize_col(valid_col, splits = c(1, 5, 10), labels=c(NA, NA), right=TRUE, infinity=FALSE), 
+               regexp = ("Discretization requires 3 labels, but 4 was given. Please provide a label for each interval."))
+    
+})
