@@ -48,10 +48,9 @@ test_that("dtize_col handles invalid column inputs correctly", {
                regexp = "`column` is empty. Please provide a non-empty numeric vector.")
 })
 
-# These aren't working
 test_that("dtize_col handles invalid split types correctly", {
   
-  # test if function throws an error when column is not a vector
+  #test if function throws an error when column is not a vector
   expect_error(dtize_col(hsept$pH, splits = "mode"), 
                regexp = "`splits` must be either `median`, `mean`, or a non-empty numeric vector.")
   
@@ -63,6 +62,9 @@ test_that("dtize_col handles invalid split types correctly", {
   
   expect_error(dtize_col(hsept$pH, splits = hsept),          # not a vector
                regexp = "`splits` must be either `median`, `mean`, or a non-empty numeric vector.")  
+  
+  expect_error(dtize_col(hsept$pH, splits = NA),
+               regexp = "`splits` must be either `median`, `mean`, or a non-empty numeric vector.")    
   
 })
 

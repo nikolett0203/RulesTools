@@ -43,11 +43,11 @@ dtize_col <- function (column,
   
   # validate split method
   # MAKE SURE NO NAS
-  if(splits=="median"){
-    cutoffs <- median(column)
-  } else if (splits=="mean"){
-    cutoffs <- mean(column)
-  } else if (is.vector(splits) && is.numeric(splits) && length(splits)!= 0){
+  if (identical(splits, "median")) {
+    cutoffs <- median(column, na.rm = TRUE)
+  } else if (identical(splits, "mean")) {
+    cutoffs <- mean(column, na.rm = TRUE)
+  } else if (is.numeric(splits) && is.vector(splits) && length(splits) > 0) {
     cutoffs <- splits
   } else {
     stop("`splits` must be either `median`, `mean`, or a non-empty numeric vector.")
