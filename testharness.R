@@ -3,6 +3,7 @@
 library(arules)
 library(tidyverse)
 library(testthat)
+library(mice)
 
 source("./assoc_funs.R")
 
@@ -127,17 +128,6 @@ test_that("dtize_col handles mismatched labels correctly", {
     
 })
 
-
-
-
-#test_that("More NULL, NA, Inf tests", {
-  
-  # right is NULL
- # expect_error(dtize_col(valid_col, right=NULL), 
-  #             regexp = ("2 labels required for discretisation, but 1 given. Please provide one label for each interval."))
-
-#})
-
 test_that("dtize_col verifies logical parameters correctly",{
   
   # non-logical values
@@ -172,6 +162,34 @@ test_that("dtize_col verifies logical parameters correctly",{
     
 })
 
+test_that("dtize_col checks for duplicate split values",{ 
+  
+  expect_error(dtize_col(valid_col, splits=c(1,1,10), infinity=FALSE),
+               regexp=("`split` cannot contain duplicate values. Please ensure all values are unique."))
+  
+  expect_error(dtize_col(valid_col, splits=c(5,5,5,5), labels=c("one", "two", "three", "four", "five")),
+               regexp=("`split` cannot contain duplicate values. Please ensure all values are unique."))
+  
+  # if infinity is TRUE but user also has infinity in splits
+  expect_error(dtize_col(valid_col, splits=c(-Inf, Inf), labels=c("1", "2", "3")),
+               regexp=("`splits` cannot include -Inf or Inf when `infinity = TRUE`. Please remove infinite values from `splits`."))
+    
+})
+
+test_that("dtize_col error checks na_fill inputs",{
+  expect_error(dtize_col(navalues, na_fill="dontfill"),
+               regexp=("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'."))
+  
+  expect_error(dtize_col(navalues, na_fill=NULL),
+               regexp=("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'."))
+
+  expect_error(dtize_col(navalues, na_fill=NA),
+               regexp=("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'."))
+  
+  expect_error(dtize_col(navalues, na_fill=c(1,2,3,4)),
+               regexp=("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'."))
+  
+})
 
 # what happens when labels is numeric or bool?
 # what about (as.factor) stuff?

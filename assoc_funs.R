@@ -17,20 +17,14 @@ dtize <- function (data, split, new_df) {
   return(new_df)
 }
 
+# LABELS SHOULDN'T BE LOGICAL (do character equivalent, e.g. "true"/"false)
 dtize_col <- function (column,
                        splits="median",
                        labels=c("low", "high"),
                        right=TRUE,
                        infinity=TRUE,
-                       lowest=TRUE) {
-  # error check that right and infinity are valid?
-  # provide functionality to handle NA values?
-  # check if any of the input values are null? column, splits, labels, right, infinity (does code already do some of this?)
-  # check for empty labels
-  # handle NULL values?
-  # check that split points are unique?
-  # chat says "Since the input should be numeric, you could add a check to ensure there are no non-numeric values in the column vector (e.g., Inf, NaN)"
-  # check for negative values?
+                       lowest=TRUE,
+                       na_fill="none") {
 
   # check if all logical parameters have acceptable values
   if (length(right)!=1 || !is.logical(right) || is.na(right))
@@ -66,8 +60,13 @@ dtize_col <- function (column,
     stop("`splits` must be either `median`, `mean`, or a non-empty numeric vector.")
   }
   
+  if(any(duplicated(cutoffs)))
+    stop("`split` cannot contain duplicate values. Please ensure all values are unique.")
+  if(any(is.infinite(cutoffs)) && infinity==TRUE)
+    stop("`splits` cannot include -Inf or Inf when `infinity = TRUE`. Please remove infinite values from `splits`.")
+  
   # make sure cutoffs are sorted in increasing order
-  splits <- sort(splits)
+  cutoffs <- sort(cutoffs)
   
   # add infinite bounds if user selects this option
   if (infinity) {
@@ -98,7 +97,6 @@ dtize_col <- function (column,
   }
   
   #check that labels doesn't contain null or NAs
-  # CAN LABELS BE NUMERIC? BOOL?
   if(is.null(labels))
     stop("`labels` cannot be NULL. Please provide valid labels for the intervals.")
   if(any(is.na(labels)))
@@ -109,7 +107,28 @@ dtize_col <- function (column,
   num_intervals = length(cutoffs) - 1
   if (num_intervals != num_labels) 
     stop(sprintf("%d labels required for discretisation, but %d given. Please provide one label for each interval.", num_intervals, num_labels))
-    
+ 
+  # ensure na_fill is case insensitive 
+  if(is.character(na_fill))
+    tolower(na_fill)
+  
+  # impute missing values
+  if(any(is.na(column))){
+    if(identical(na_fill, "none")){
+      warning("`column` contains NA values, but no imputation method was chosen (`na_fill = 'none'`). NA values will remain in the output.")
+    }else if(identical(na_fill, "mean")){
+      column <- (ifelse(is.na(column), mean(column, na.rm = TRUE), column))
+    }else if(identical(na_fill, "median")){
+      column <- (ifelse(is.na(column), median(column, na.rm = TRUE), column))      
+    }else if(identical(na_fill, "pmm")){
+      temp_column <- mice(data.frame(column), method="pmm")
+      column <- complete(temp_column)
+    }else{
+      stop("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'.")
+    }   
+  }
+  
+  # call helper   
   return(cut(column,
              breaks = cutoffs,
              labels = labels, 
@@ -117,8 +136,6 @@ dtize_col <- function (column,
              include.lowest = lowest))
   
 }
-
-
 
 
 
