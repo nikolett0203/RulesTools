@@ -38,13 +38,16 @@ test_that("dtize_col handles invalid column inputs correctly", {
   expect_error(dtize_col(hsept), 
                regexp = "`column` must be a vector. Please provide a non-empty numeric vector.")
   
-  # Test if the function throws an error when the column is not numeric
+  # test if the function throws an error when the column is not numeric
   expect_error(dtize_col(nonnumeric), 
                regexp = "`column` must be numeric. Please provide a non-empty numeric vector.")
   
-  # Test if the function throws an error when the column is empty
+  # test if the function throws an error when the column is empty
   expect_error(dtize_col(empty), 
                regexp = "`column` is empty. Please provide a non-empty numeric vector.")
+  
+  expect_error(dtize_col(NULL), 
+               regexp = "`column` must be a vector. Please provide a non-empty numeric vector.")
 })
 
 test_that("dtize_col handles invalid split types correctly", {
@@ -62,7 +65,7 @@ test_that("dtize_col handles invalid split types correctly", {
   expect_error(dtize_col(hsept$pH, splits = hsept),          # not a vector
                regexp = "`splits` must be either `median`, `mean`, or a non-empty numeric vector.")  
   
-  expect_error(dtize_col(hsept$pH, splits = NA),
+  expect_error(dtize_col(hsept$pH, splits = NULL),
                regexp = "`splits` must be either `median`, `mean`, or a non-empty numeric vector.")    
 
   expect_error(dtize_col(hsept$pH, splits = navalues),
@@ -76,32 +79,31 @@ test_that("dtize_col handles boundaries correctly", {
   
   #right-closed finite upper boundary exceeded
   expect_error(dtize_col(valid_col, splits = c(1, 5, 9), right=TRUE, infinity=FALSE), 
-               regexp = ("Values exceed the maximum split. Please ensure all values are within the defined range."))
+               regexp = ("Values in `column` exceed the maximum split. Please ensure all values are within the defined range."))
 
   #left-closed finite upper boundary exceeded
   expect_error(dtize_col(valid_col, splits = c(1, 5, 10), right=FALSE, infinity=FALSE), 
-               regexp = ("Values exceed the maximum split. Please ensure all values are within the defined range."))
+               regexp = ("Values in `column` exceed the maximum split. Please ensure all values are within the defined range."))
 
   #right-closed finite lower boundary exceeded
   expect_error(dtize_col(valid_col, splits = c(1, 5, 11), right=TRUE, infinity=FALSE, lowest = FALSE), 
-               regexp = ("Values fall below the minimum split. Please ensure all values are within the defined range."))
+               regexp = ("Values in `column` fall below the minimum split. Please ensure all values are within the defined range."))
   
   #left-closed finite lower boundary exceeded
   expect_error(dtize_col(valid_col, splits = c(2, 5, 11), right=FALSE, infinity=FALSE, lowest = FALSE), 
-               regexp = ("Values fall below the minimum split. Please ensure all values are within the defined range."))
+               regexp = ("Values in `column` fall below the minimum split. Please ensure all values are within the defined range."))
   
   #right-closed + lowest included lower boundary exceeded
   expect_error(dtize_col(valid_col, splits = c(2, 5, 11), right=TRUE, infinity=FALSE, lowest = TRUE), 
-               regexp = ("Values fall below the minimum split. Please ensure all values are within the defined range."))
+               regexp = ("Values in `column` fall below the minimum split. Please ensure all values are within the defined range."))
 
   #left-closed + lowest included lower boundary exceeded
   expect_error(dtize_col(valid_col, splits = c(2, 5, 11), right=FALSE, infinity=FALSE, lowest = TRUE), 
-               regexp = ("Values fall below the minimum split. Please ensure all values are within the defined range."))
+               regexp = ("Values in `column` fall below the minimum split. Please ensure all values are within the defined range."))
   
   #only one boundary, no infinity
-  #expect_error(dtize_col(valid_col, splits = c(7), right=TRUE, infinity=FALSE, lowest=TRUE), 
-  #             regexp = ("Please provide at least two split points (upper and lower bound) if infinity is FALSE.")) 
-  # not working WHYYYYYYY
+  expect_error(dtize_col(valid_col, splits = c(7), right=TRUE, infinity=FALSE, lowest=TRUE), 
+               regexp = ("Please provide at least two split points if infinity is FALSE.")) 
   
 })
 
@@ -109,16 +111,67 @@ test_that("dtize_col handles mismatched labels correctly", {
   
   # too few labels
   expect_error(dtize_col(valid_col, splits = c(1, 5, 10), labels=c("high"), right=TRUE, infinity=FALSE), 
-               regexp = ("Discretization requires 2 labels, but 1 was given. Please provide a label for each interval."))
+               regexp = ("2 labels required for discretisation, but 1 given. Please provide one label for each interval."))
   
   # too many labels
   expect_error(dtize_col(valid_col, splits = c(1, 4, 8, 10), labels=c("low", "medium", "high", "extra high"), right=TRUE, infinity=FALSE), 
-               regexp = ("Discretization requires 3 labels, but 4 was given. Please provide a label for each interval."))
+               regexp = ("3 labels required for discretisation, but 4 given. Please provide one label for each interval."))
 
   # no labels
-  # check for NA, NULL, list with NAs in it
-  # what datatypes can labels be?
-  expect_error(dtize_col(valid_col, splits = c(1, 5, 10), labels=c(NA, NA), right=TRUE, infinity=FALSE), 
-               regexp = ("Discretization requires 3 labels, but 4 was given. Please provide a label for each interval."))
+  expect_error(dtize_col(valid_col, splits = c(1, 5, 10), labels=NULL, right=TRUE, infinity=FALSE), 
+               regexp = ("`labels` cannot be NULL. Please provide valid labels for the intervals."))
+  
+  # na labels
+  expect_error(dtize_col(valid_col, splits = c(1, 5, 10), labels=NA, right=TRUE, infinity=FALSE), 
+               regexp = ("`labels` contains NA values. Please provide non-NA labels for the intervals."))
     
 })
+
+
+
+
+#test_that("More NULL, NA, Inf tests", {
+  
+  # right is NULL
+ # expect_error(dtize_col(valid_col, right=NULL), 
+  #             regexp = ("2 labels required for discretisation, but 1 given. Please provide one label for each interval."))
+
+#})
+
+test_that("dtize_col verifies logical parameters correctly",{
+  
+  # non-logical values
+  expect_error(dtize_col(valid_col, right=NULL),
+               regexp=("`right` must be either TRUE or FALSE."))
+  
+  expect_error(dtize_col(valid_col, infinity=c(1,2,3)),
+               regexp=("`infinity` must be either TRUE or FALSE."))
+  
+  expect_error(dtize_col(valid_col, lowest="lowest"),
+               regexp=("`lowest` must be either TRUE or FALSE."))
+  
+  # length > 1 or <1
+  expect_error(dtize_col(valid_col, right=c(TRUE, FALSE)),
+               regexp=("`right` must be either TRUE or FALSE."))
+  
+  expect_error(dtize_col(valid_col, infinity=logical(0)),
+               regexp=("`infinity` must be either TRUE or FALSE."))
+  
+  expect_error(dtize_col(valid_col, lowest=c(TRUE, TRUE, FALSE, TRUE)),
+               regexp=("`lowest` must be either TRUE or FALSE."))  
+
+  # NA values
+  expect_error(dtize_col(valid_col, right=c(NA, NA)),
+               regexp=("`right` must be either TRUE or FALSE."))
+  
+  expect_error(dtize_col(valid_col, infinity=NA),
+               regexp=("`infinity` must be either TRUE or FALSE."))
+  
+  expect_error(dtize_col(valid_col, lowest=NA),
+               regexp=("`lowest` must be either TRUE or FALSE.")) 
+    
+})
+
+
+# what happens when labels is numeric or bool?
+# what about (as.factor) stuff?

@@ -31,8 +31,16 @@ dtize_col <- function (column,
   # check that split points are unique?
   # chat says "Since the input should be numeric, you could add a check to ensure there are no non-numeric values in the column vector (e.g., Inf, NaN)"
   # check for negative values?
-  
-  # step 1: validate that input column is a non-empty, numeric vector
+
+  # check if all logical parameters have acceptable values
+  if (length(right)!=1 || !is.logical(right) || is.na(right))
+    stop("`right` must be either TRUE or FALSE.")
+  if (length(infinity)!=1 || !is.logical(infinity) || is.na(infinity))
+    stop("`infinity` must be either TRUE or FALSE.")
+  if (length(lowest)!=1 || !is.logical(lowest) || is.na(lowest))
+    stop("`lowest` must be either TRUE or FALSE.")
+    
+  # validate that input column is a non-empty, numeric vector
   if(!is.vector(column))
     stop("`column` must be a vector. Please provide a non-empty numeric vector.")
   if(!is.numeric(column))
@@ -44,7 +52,7 @@ dtize_col <- function (column,
   if (is.character(splits))
     splits <- tolower(splits)
   
-  # validate split method
+  # validate that split is a nonempty, non-NA numeric vector or "mean/median"
   # MAKE SURE NO NAS
   if (identical(splits, "median")) {
     cutoffs <- median(column, na.rm = TRUE)
@@ -68,33 +76,40 @@ dtize_col <- function (column,
     
     # check that there are at least two cutoff points
     if(length(cutoffs) < 2)
-      stop("Please provide at least two split points (upper and lower bound) if infinity is FALSE.")
+      stop("Please provide at least two split points if infinity is FALSE.")
 
-    # provide warning if values are beyond upper or lower bounds or else NAs will occur
+    # provide warning if values are beyond upper or lower bounds (or else NAs will occur)
     if(right){
       if(max(column) > max(cutoffs))
-        stop("Values exceed the maximum split. Please ensure all values are within the defined range.")
+        stop("Values in `column` exceed the maximum split. Please ensure all values are within the defined range.")
     }else{
       if(max(column) >= max(cutoffs))
-        stop("Values exceed the maximum split. Please ensure all values are within the defined range.")
+        stop("Values in `column` exceed the maximum split. Please ensure all values are within the defined range.")
     }
     
     if(lowest || !right){
       if(min(column) < min (cutoffs))
-        stop("Values fall below the minimum split. Please ensure all values are within the defined range.")
+        stop("Values in `column` fall below the minimum split. Please ensure all values are within the defined range.")
     }else{
       if(min(column) <= min (cutoffs))
-        stop("Values fall below the minimum split. Please ensure all values are within the defined range.")        
+        stop("Values in `column` fall below the minimum split. Please ensure all values are within the defined range.")        
     }
     
   }
+  
+  #check that labels doesn't contain null or NAs
+  # CAN LABELS BE NUMERIC? BOOL?
+  if(is.null(labels))
+    stop("`labels` cannot be NULL. Please provide valid labels for the intervals.")
+  if(any(is.na(labels)))
+    stop("`labels` contains NA values. Please provide non-NA labels for the intervals.")
   
   # check that number of labels matches number of intervals
   num_labels = length(labels)
   num_intervals = length(cutoffs) - 1
   if (num_intervals != num_labels) 
-    stop(sprintf("Discretization requires %d labels, but %d was given. Please provide a label for each interval.", num_intervals, num_labels))
-  
+    stop(sprintf("%d labels required for discretisation, but %d given. Please provide one label for each interval.", num_intervals, num_labels))
+    
   return(cut(column,
              breaks = cutoffs,
              labels = labels, 
