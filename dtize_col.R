@@ -1,4 +1,3 @@
-# LABELS SHOULDN'T BE LOGICAL (do character equivalent, e.g. "true"/"false)
 dtize_col <- function (column,
                        splits="median",
                        labels=c("low", "high"),
@@ -8,11 +7,11 @@ dtize_col <- function (column,
                        na_fill="none") {
   
   # check if all logical parameters have acceptable values
-  if (length(right)!=1 || !is.logical(right) || is.na(right))
+  if (invalid_logical(right))
     stop("`right` must be either TRUE or FALSE.")
-  if (length(infinity)!=1 || !is.logical(infinity) || is.na(infinity))
+  if (invalid_logical(infinity))
     stop("`infinity` must be either TRUE or FALSE.")
-  if (length(lowest)!=1 || !is.logical(lowest) || is.na(lowest))
+  if (invalid_logical(lowest))
     stop("`lowest` must be either TRUE or FALSE.")
   
   # validate that input column is a non-empty, numeric vector
@@ -116,4 +115,9 @@ dtize_col <- function (column,
              right = right,  
              include.lowest = lowest))
   
+}
+
+# helper function to check if logical arguments (right, infinity, lowest) are valid types
+invalid_logical <- function (input){
+  length(input) != 1 || !is.logical(input) || is.na(input)
 }
