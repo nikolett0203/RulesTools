@@ -15,12 +15,8 @@ dtize_col <- function (column,
     stop("`lowest` must be either TRUE or FALSE.")
   
   # validate that input column is a non-empty, numeric vector
-  if(!is.vector(column))
-    stop("`column` must be a vector. Please provide a non-empty numeric vector.")
-  if(!is.numeric(column))
-    stop("`column` must be numeric. Please provide a non-empty numeric vector.")
-  if (length(column) == 0) 
-    stop("`column` is empty. Please provide a non-empty numeric vector.")
+  if(invalid_vector(column))
+    stop("`column` must be a non-empty numeric vector.")
   
   # ensure function is case insensitive
   if (is.character(splits))
@@ -32,7 +28,7 @@ dtize_col <- function (column,
     cutoffs <- median(column, na.rm = TRUE)
   } else if (identical(splits, "mean")) {
     cutoffs <- mean(column, na.rm = TRUE)
-  } else if (is.numeric(splits) && is.vector(splits) && length(splits) > 0) {
+  } else if (!invalid_vector(splits)) {
     if(any(is.na(splits)))
       stop("`splits` cannot contain NA values.")
     cutoffs <- splits
@@ -120,4 +116,9 @@ dtize_col <- function (column,
 # helper function to check if logical arguments (right, infinity, lowest) are valid types
 invalid_logical <- function (input){
   length(input) != 1 || !is.logical(input) || is.na(input)
+}
+
+# helper function to check if vector arguments (column and splits) are valid types
+invalid_vector <- function(input){
+  !is.vector(input) || !is.numeric(input) || length(input) == 0
 }
