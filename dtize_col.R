@@ -18,13 +18,9 @@ dtize_col <- function (column,
   if(invalid_vector(column))
     stop("`column` must be a non-empty numeric vector.")
   
-  # ensure function is case insensitive
-  if (is.character(splits))
-    splits <- tolower(splits)
-  
   # validate that split is a nonempty, non-NA numeric vector or "mean/median"
   # MAKE SURE NO NAS
-  cutoffs <- check_invalid_splits(splits, column)
+  cutoffs <- check_invalid_splits(column, splits, infinity)
   
   if(any(duplicated(cutoffs)))
     stop("`split` cannot contain duplicate values. Please ensure all values are unique.")
@@ -43,12 +39,14 @@ dtize_col <- function (column,
   
   check_invalid_labels(labels, cutoffs)
   
-  # ensure na_fill is case insensitive 
-  if(is.character(na_fill))
-    na_fill <- tolower(na_fill)
-  
   # fill na values
   filled_column <- impute_na(column, na_fill)
+  
+  print(cut(column,
+            breaks = cutoffs,
+            labels = labels, 
+            right = right,  
+            include.lowest = lowest))
   
   # call helper   
   return(cut(column,
@@ -78,6 +76,10 @@ invalid_vector <- function(input){
 # helper function to impute missing values
 # what happens if values are infinite?
 impute_na <- function(column, na_fill){
+  
+  # ensure na_fill is case insensitive 
+  if(is.character(na_fill))
+    na_fill <- tolower(na_fill)
   
   if(!any(is.na(column)))
     return(column)
@@ -143,13 +145,27 @@ check_invalid_labels <- function(labels, cutoffs){
 }
 
 
+## if median is chosen we should just put the lowest value as the split as long as infinity is not chosen
 
-check_invalid_splits <- function(splits, column){
+
+check_invalid_splits <- function(column, splits, infinity){
+  
+  # ensure function is case insensitive
+  if (is.character(splits))
+    splits <- tolower(splits)
   
   if (identical(splits, "median")) {
-    return(median(column, na.rm = TRUE))
+    if(infinity){
+      return(median(column, na.rm = TRUE))
+    } else{
+      return(c(min(column, na.rm = TRUE), median(column, na.rm = TRUE), max(column, na.rm = TRUE)))
+    }
   } else if (identical(splits, "mean")) {
-    return(mean(column, na.rm = TRUE))
+    if(infinity){
+      return(mean(column, na.rm = TRUE))
+    } else{
+      return(c(min(column, na.rm = TRUE), mean(column, na.rm = TRUE), max(column, na.rm = TRUE)))
+    }
   } else if (!invalid_vector(splits)) {
     if(any(is.na(splits)))
       stop("`splits` cannot contain NA values.")
