@@ -24,53 +24,109 @@ dtize_col <- function (column,
   
   # validate that split is a nonempty, non-NA numeric vector or "mean/median"
   # MAKE SURE NO NAS
-  if (identical(splits, "median")) {
-    cutoffs <- median(column, na.rm = TRUE)
-  } else if (identical(splits, "mean")) {
-    cutoffs <- mean(column, na.rm = TRUE)
-  } else if (!invalid_vector(splits)) {
-    if(any(is.na(splits)))
-      stop("`splits` cannot contain NA values.")
-    cutoffs <- splits
-  } else {
-    stop("`splits` must be either `median`, `mean`, or a non-empty numeric vector.")
-  }
+  cutoffs <- check_invalid_splits(splits, column)
   
   if(any(duplicated(cutoffs)))
     stop("`split` cannot contain duplicate values. Please ensure all values are unique.")
-  if(any(is.infinite(cutoffs)) && infinity==TRUE)
-    stop("`splits` cannot include -Inf or Inf when `infinity = TRUE`. Please remove infinite values from `splits`.")
-  
+
   # make sure cutoffs are sorted in increasing order
   cutoffs <- sort(cutoffs)
   
   # add infinite bounds if user selects this option
   if (infinity) {
+    if(any(is.infinite(cutoffs)))
+       stop("`splits` cannot include -Inf or Inf when `infinity = TRUE`. Please remove infinite values from `splits`.")
     cutoffs <- c(-Inf, cutoffs, Inf)
   } else {
-    
-    # check that there are at least two cutoff points
-    if(length(cutoffs) < 2)
-      stop("Please provide at least two split points if infinity is FALSE.")
-    
-    # provide warning if values are beyond upper or lower bounds (or else NAs will occur)
-    if(right){
-      if(max(column) > max(cutoffs))
-        stop("Values in `column` exceed the maximum split. Please ensure all values are within the defined range.")
-    }else{
-      if(max(column) >= max(cutoffs))
-        stop("Values in `column` exceed the maximum split. Please ensure all values are within the defined range.")
-    }
-    
-    if(lowest || !right){
-      if(min(column) < min (cutoffs))
-        stop("Values in `column` fall below the minimum split. Please ensure all values are within the defined range.")
-    }else{
-      if(min(column) <= min (cutoffs))
-        stop("Values in `column` fall below the minimum split. Please ensure all values are within the defined range.")        
-    }
-    
+    check_invalid_bounds(column, cutoffs, right, lowest)
   }
+  
+  check_invalid_labels(labels, cutoffs)
+  
+  # ensure na_fill is case insensitive 
+  if(is.character(na_fill))
+    na_fill <- tolower(na_fill)
+  
+  # fill na values
+  filled_column <- impute_na(column, na_fill)
+  
+  # call helper   
+  return(cut(column,
+             breaks = cutoffs,
+             labels = labels, 
+             right = right,  
+             include.lowest = lowest))
+  
+}
+
+
+
+# helper function to check if logical arguments (right, infinity, lowest) are valid types
+invalid_logical <- function (input){
+  length(input) != 1 || !is.logical(input) || is.na(input)
+}
+
+
+
+# helper function to check if vector arguments (column and splits) are valid types
+invalid_vector <- function(input){
+  !is.vector(input) || !is.numeric(input) || length(input) == 0
+}
+
+
+
+# helper function to impute missing values
+# what happens if values are infinite?
+impute_na(column, na_fill){
+  
+  if(!any(is.na(column)))
+    return(column)
+  
+  if(identical(na_fill, "none")){
+    warning("`column` contains NA values, but no imputation method was chosen (`na_fill = 'none'`). NA values will remain in the output.")
+    return(column)
+  }else if(identical(na_fill, "mean")){
+    return((ifelse(is.na(column), mean(column, na.rm = TRUE), column)))
+  }else if(identical(na_fill, "median")){
+    return((ifelse(is.na(column), median(column, na.rm = TRUE), column)))      
+  }else if(identical(na_fill, "pmm")){
+    temp_column <- mice(data.frame(column), method="pmm")
+    return(complete(temp_column))
+  }else{
+    stop("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'.")
+  }    
+  
+}
+
+
+# helper function to check whether cutoff points produce valid splits
+check_invalid_bounds(column, cutoffs, right, lowest){
+  
+  # check that there are at least two cutoff points
+  if(length(cutoffs) < 2)
+    stop("Please provide at least two split points if infinity is FALSE.")
+  
+  # provide warning if values are beyond upper or lower bounds (or else NAs will occur)
+  if(right){
+    if(max(column) > max(cutoffs))
+      stop("Values in `column` exceed the maximum split. Please ensure all values are within the defined range.")
+  }else{
+    if(max(column) >= max(cutoffs))
+      stop("Values in `column` exceed the maximum split. Please ensure all values are within the defined range.")
+  }
+  
+  if(lowest || !right){
+    if(min(column) < min (cutoffs))
+      stop("Values in `column` fall below the minimum split. Please ensure all values are within the defined range.")
+  }else{
+    if(min(column) <= min (cutoffs))
+      stop("Values in `column` fall below the minimum split. Please ensure all values are within the defined range.")        
+  }
+  
+}
+
+
+check_invalid_labels(labels, cutoffs){
   
   #check that labels doesn't contain null or NAs
   if(is.null(labels))
@@ -84,41 +140,22 @@ dtize_col <- function (column,
   if (num_intervals != num_labels) 
     stop(sprintf("%d labels required for discretisation, but %d given. Please provide one label for each interval.", num_intervals, num_labels))
   
-  # ensure na_fill is case insensitive 
-  if(is.character(na_fill))
-    tolower(na_fill)
+}
+
+
+
+check_invalid_splits(splits, column){
   
-  # impute missing values
-  if(any(is.na(column))){
-    if(identical(na_fill, "none")){
-      warning("`column` contains NA values, but no imputation method was chosen (`na_fill = 'none'`). NA values will remain in the output.")
-    }else if(identical(na_fill, "mean")){
-      column <- (ifelse(is.na(column), mean(column, na.rm = TRUE), column))
-    }else if(identical(na_fill, "median")){
-      column <- (ifelse(is.na(column), median(column, na.rm = TRUE), column))      
-    }else if(identical(na_fill, "pmm")){
-      temp_column <- mice(data.frame(column), method="pmm")
-      column <- complete(temp_column)
-    }else{
-      stop("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'.")
-    }   
+  if (identical(splits, "median")) {
+    return(median(column, na.rm = TRUE))
+  } else if (identical(splits, "mean")) {
+    return(mean(column, na.rm = TRUE))
+  } else if (!invalid_vector(splits)) {
+    if(any(is.na(splits)))
+      stop("`splits` cannot contain NA values.")
+    return(splits)
+  } else {
+    stop("`splits` must be either `median`, `mean`, or a non-empty numeric vector.")
   }
   
-  # call helper   
-  return(cut(column,
-             breaks = cutoffs,
-             labels = labels, 
-             right = right,  
-             include.lowest = lowest))
-  
-}
-
-# helper function to check if logical arguments (right, infinity, lowest) are valid types
-invalid_logical <- function (input){
-  length(input) != 1 || !is.logical(input) || is.na(input)
-}
-
-# helper function to check if vector arguments (column and splits) are valid types
-invalid_vector <- function(input){
-  !is.vector(input) || !is.numeric(input) || length(input) == 0
 }
