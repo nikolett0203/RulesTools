@@ -77,7 +77,7 @@ invalid_vector <- function(input){
 
 # helper function to impute missing values
 # what happens if values are infinite?
-impute_na(column, na_fill){
+impute_na <- function(column, na_fill){
   
   if(!any(is.na(column)))
     return(column)
@@ -100,7 +100,7 @@ impute_na(column, na_fill){
 
 
 # helper function to check whether cutoff points produce valid splits
-check_invalid_bounds(column, cutoffs, right, lowest){
+check_invalid_bounds <- function(column, cutoffs, right, lowest){
   
   # check that there are at least two cutoff points
   if(length(cutoffs) < 2)
@@ -126,7 +126,7 @@ check_invalid_bounds(column, cutoffs, right, lowest){
 }
 
 
-check_invalid_labels(labels, cutoffs){
+check_invalid_labels <- function(labels, cutoffs){
   
   #check that labels doesn't contain null or NAs
   if(is.null(labels))
@@ -144,7 +144,7 @@ check_invalid_labels(labels, cutoffs){
 
 
 
-check_invalid_splits(splits, column){
+check_invalid_splits <- function(splits, column){
   
   if (identical(splits, "median")) {
     return(median(column, na.rm = TRUE))
