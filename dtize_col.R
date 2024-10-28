@@ -44,7 +44,7 @@ dtize_col <- function (column,
   # fill na values
   filled_column <- impute_na(column, na_fill)
   
-  return(cut(column,
+  return(cut(filled_column,
              breaks = cutoffs,
              labels = labels, 
              right = right,  

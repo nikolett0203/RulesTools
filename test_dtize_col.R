@@ -330,8 +330,20 @@ test_that("dtize_col() error checks na_fill inputs",{
   expect_error(dtize_col(na_vec, na_fill=c(1,2,3,4)),
                regexp=("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'."))
   
-  expect_equal(dtize_col(na_vec, na_fill="MEAN"), factor(c("low", "low", "low", "low", "high", "high", "high", "high", "high", "high")),
-                  levels = c("low", "high"))
+  expect_identical(dtize_col(na_vec, na_fill = "MEAN"), factor(c("low", "low", "low", "low", "high", "high", "high", "high", "high", "high"), 
+                                                               levels = c("low", "high")))
+  expect_identical(dtize_col(na_vec, na_fill = "MeDiAn"), factor(c("low", "low", "low", "low", "high", "low", "high", "high", "high", "low"), 
+                                                               levels = c("low", "high")))
+  suppressWarnings(expect_identical(dtize_col(na_vec, na_fill = "NONE"), 
+                                    factor(c("low", "low", "low", "low", "high", NA, "high", "high", "high", NA), 
+                                           levels = c("low", "high"))))
 
 })
 
+#Test memory use and speed
+#Test with very large vectors (e.g., millions of elements) to check if the function performs without significant slowdowns or memory issues.
+#Non-Standard Labels: Use labels that are numbers or logicals (e.g., c(TRUE, FALSE)) to ensure dtize_col handles different label formats.
+#Leading and Trailing NAs: Test with column where NAs are only at the beginning or end to see if the imputation method fills these correctly.
+#Test column with very large values to see if boundary handling works with extreme values
+#Test with mixed types in labels (e.g., a mix of character, numeric, and logical values) to see if check_invalid_labels processes them or raises an error if type consistency is expected.
+#Test custom split vectors where values are in random order to see if check_invalid_splits sorts them correctly.
