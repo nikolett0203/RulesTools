@@ -42,13 +42,6 @@ dtize_col <- function (column,
   # fill na values
   filled_column <- impute_na(column, na_fill)
   
-  print(cut(column,
-            breaks = cutoffs,
-            labels = labels, 
-            right = right,  
-            include.lowest = lowest))
-  
-  # call helper   
   return(cut(column,
              breaks = cutoffs,
              labels = labels, 
@@ -108,20 +101,25 @@ check_invalid_bounds <- function(column, cutoffs, right, lowest){
   if(length(cutoffs) < 2)
     stop("Please provide at least two split points if infinity is FALSE.")
   
+  max_col <- max(column, na.rm=TRUE)
+  min_col <- min(column, na.rm=TRUE)
+  max_cutoffs <- max(cutoffs)
+  min_cutoffs <- min(cutoffs)
+  
   # provide warning if values are beyond upper or lower bounds (or else NAs will occur)
   if(right){
-    if(max(column) > max(cutoffs))
+    if(max_col > max_cutoffs)
       stop("Values in `column` exceed the maximum split. Please ensure all values are within the defined range.")
   }else{
-    if(max(column) >= max(cutoffs))
+    if(max_col >= max_cutoffs)
       stop("Values in `column` exceed the maximum split. Please ensure all values are within the defined range.")
   }
   
   if(lowest || !right){
-    if(min(column) < min (cutoffs))
+    if(min_col < min_cutoffs)
       stop("Values in `column` fall below the minimum split. Please ensure all values are within the defined range.")
   }else{
-    if(min(column) <= min (cutoffs))
+    if(min_col <= min_cutoffs)
       stop("Values in `column` fall below the minimum split. Please ensure all values are within the defined range.")        
   }
   

@@ -186,4 +186,49 @@ test_that("dtize_col handles invalid split types correctly", {
   
 })
 
+test_that("dtize_col checks for duplicate split values",{ 
+  
+  expect_error(dtize_col(valid_vec, splits=c(1,1,10), infinity=FALSE),
+               regexp=("`split` cannot contain duplicate values. Please ensure all values are unique."))
+  expect_error(dtize_col(valid_vec, splits=c(5,5,5,5), labels=c("one", "two", "three", "four", "five")),
+               regexp=("`split` cannot contain duplicate values. Please ensure all values are unique."))
+  # if infinity is TRUE but user also has infinity in splits
+  expect_error(dtize_col(valid_vec, splits=c(-Inf, Inf), labels=c("1", "2", "3")),
+               regexp=("`splits` cannot include -Inf or Inf when `infinity = TRUE`. Please remove infinite values from `splits`."))
+  
+})
 
+test_that("check_invalid_bounds() handles exceeded boundaries correctly",{
+  expect_error(check_invalid_bounds(column=valid_vec, cutoffs=5, right=TRUE, lowest=TRUE),
+               regexp = ("Please provide at least two split points if infinity is FALSE."))
+  expect_error(check_invalid_bounds(column=na_vec, cutoffs=c(1, 5, 8), right=TRUE, lowest=TRUE),
+               regexp = ("Values in `column` exceed the maximum split. Please ensure all values are within the defined range."))
+})
+
+
+
+test_that("dtize_col handles boundaries correctly", {
+  
+  #right-closed finite upper boundary exceeded
+  expect_error(dtize_col(valid_vec, splits = c(1, 5, 9), right=TRUE, infinity=FALSE), 
+               regexp = ("Values in `column` exceed the maximum split. Please ensure all values are within the defined range."))
+  #left-closed finite upper boundary exceeded
+  expect_error(dtize_col(valid_vec, splits = c(1, 5, 10), right=FALSE, infinity=FALSE), 
+               regexp = ("Values in `column` exceed the maximum split. Please ensure all values are within the defined range."))
+  #right-closed finite lower boundary exceeded
+  expect_error(dtize_col(valid_vec, splits = c(1, 5, 11), right=TRUE, infinity=FALSE, lowest = FALSE), 
+               regexp = ("Values in `column` fall below the minimum split. Please ensure all values are within the defined range."))
+  #left-closed finite lower boundary exceeded
+  expect_error(dtize_col(valid_vec, splits = c(2, 5, 11), right=FALSE, infinity=FALSE, lowest = FALSE), 
+               regexp = ("Values in `column` fall below the minimum split. Please ensure all values are within the defined range."))
+  #right-closed + lowest included lower boundary exceeded
+  expect_error(dtize_col(valid_vec, splits = c(2, 5, 11), right=TRUE, infinity=FALSE, lowest = TRUE), 
+               regexp = ("Values in `column` fall below the minimum split. Please ensure all values are within the defined range."))
+  #left-closed + lowest included lower boundary exceeded
+  expect_error(dtize_col(valid_vec, splits = c(2, 5, 11), right=FALSE, infinity=FALSE, lowest = TRUE), 
+               regexp = ("Values in `column` fall below the minimum split. Please ensure all values are within the defined range."))
+  #only one boundary, no infinity
+  expect_error(dtize_col(valid_vec, splits = c(7), right=TRUE, infinity=FALSE, lowest=TRUE), 
+               regexp = ("Please provide at least two split points if infinity is FALSE.")) 
+  
+})
