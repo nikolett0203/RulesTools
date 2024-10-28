@@ -11,6 +11,8 @@ non_num_vec <- c("Zurich", "Budapest", "Vienna", "Frankfurt", "Prague")
 empty_vec <- numeric(0)
 inf_vec <- c(-Inf, Inf)
 split_vec <- c(1, 4, 8, 10)
+mixed_inf_vec <-c(-Inf, 5, 10)
+mixed_inf_vec2 <-c(1, 5, Inf)
 
 # other data types
 test_matrix <- matrix(1:4, nrow = 2, ncol = 2)
@@ -199,11 +201,26 @@ test_that("dtize_col checks for duplicate split values",{
 })
 
 test_that("check_invalid_bounds() handles exceeded boundaries correctly",{
+  
   expect_error(check_invalid_bounds(column=valid_vec, cutoffs=5, right=TRUE, lowest=TRUE),
                regexp = ("Please provide at least two split points if infinity is FALSE."))
   expect_error(check_invalid_bounds(column=na_vec, cutoffs=c(1, 5, 8), right=TRUE, lowest=TRUE),
                regexp = ("Values in `column` exceed the maximum split. Please ensure all values are within the defined range."))
-})
+  expect_error(check_invalid_bounds(column=valid_vec, cutoffs=c(1,5,10), right=FALSE, lowest=TRUE),
+               regexp = ("Values in `column` exceed the maximum split. Please ensure all values are within the defined range."))
+  expect_error(check_invalid_bounds(column=valid_vec, cutoffs=c(1,5,10), right=TRUE, lowest=FALSE),
+               regexp = ("Values in `column` fall below the minimum split. Please ensure all values are within the defined range."))
+  expect_error(check_invalid_bounds(column=valid_vec, cutoffs=c(2,5,11), right=FALSE, lowest=FALSE),
+               regexp = ("Values in `column` fall below the minimum split. Please ensure all values are within the defined range."))
+  expect_error(check_invalid_bounds(column=valid_vec, cutoffs=c(2,5,10), right=TRUE, lowest=TRUE),
+               regexp = ("Values in `column` fall below the minimum split. Please ensure all values are within the defined range."))
+  
+  expect_no_error(check_invalid_bounds(column=na_vec, cutoffs=c(1, 5, 10), right=TRUE, lowest=TRUE))
+  expect_no_error(check_invalid_bounds(column=na_vec, cutoffs=c(1, 5, 11), right=FALSE, lowest=FALSE))
+  expect_no_error(check_invalid_bounds(column=na_vec, cutoffs=c(0, 5, 10), right=TRUE, lowest=FALSE))
+  expect_no_error(check_invalid_bounds(column=na_vec, cutoffs=c(1, 5, 11), right=FALSE, lowest=TRUE))
+  
+  })
 
 
 
@@ -231,4 +248,54 @@ test_that("dtize_col handles boundaries correctly", {
   expect_error(dtize_col(valid_vec, splits = c(7), right=TRUE, infinity=FALSE, lowest=TRUE), 
                regexp = ("Please provide at least two split points if infinity is FALSE.")) 
   
+  #infinity vector with infinity=TRUE
+  expect_error(dtize_col(valid_vec, splits=mixed_inf_vec, infinity=TRUE),
+               regexp=("`splits` cannot include -Inf or Inf when `infinity = TRUE`. Please remove infinite values from `splits`."))
+  expect_error(dtize_col(valid_vec, splits=mixed_inf_vec2, infinity=TRUE),
+               regexp=("`splits` cannot include -Inf or Inf when `infinity = TRUE`. Please remove infinite values from `splits`."))
+  expect_error(dtize_col(valid_vec, splits=inf_vec, labels="only", infinity=TRUE),
+               regexp=("`splits` cannot include -Inf or Inf when `infinity = TRUE`. Please remove infinite values from `splits`."))
+  
 })
+
+test_that("check_invalid_labels() handles weird labelling correctly",{
+  
+  expect_error(check_invalid_labels(NULL, cutoffs=split_vec),
+               regexp=("`labels` cannot be NULL. Please provide valid labels for the intervals."))
+  expect_error(check_invalid_labels(labels=c(NA, NA, NA), cutoffs=split_vec),
+               regexp=("`labels` contains NA values. Please provide non-NA labels for the intervals."))
+  expect_error(check_invalid_labels(labels=empty_vec, cutoffs=split_vec),
+               regexp=("3 labels required for discretisation, but 0 given. Please provide one label for each interval."))
+  expect_error(check_invalid_labels(labels=valid_vec, cutoffs=split_vec),
+               regexp=("3 labels required for discretisation, but 10 given. Please provide one label for each interval."))  
+  expect_error(check_invalid_labels(labels=test_df, cutoffs=split_vec),
+               regexp=("`labels` must be a vector."))  
+    
+  expect_no_error(check_invalid_labels(labels=c("spongebob", "patrick", "squidward"), cutoffs=split_vec))
+  expect_no_error(check_invalid_labels(labels=c("orion"), cutoffs=inf_vec))
+  expect_no_error(check_invalid_labels(labels=c(TRUE, FALSE), cutoffs=c(1, 5, 10)))
+  expect_no_error(check_invalid_labels(labels=c(1, 2, 3), cutoffs=split_vec))
+  
+})
+
+test_that("dtize_col handles mismatched labels correctly", {
+  
+  # too few labels
+  expect_error(dtize_col(valid_vec, splits = split_vec, labels=c("high"), right=TRUE, infinity=FALSE), 
+               regexp = ("3 labels required for discretisation, but 1 given. Please provide one label for each interval."))
+  # too many labels
+  expect_error(dtize_col(valid_vec, splits = split_vec, labels=c("low", "medium", "high", "extra high"), right=TRUE, infinity=FALSE), 
+               regexp = ("3 labels required for discretisation, but 4 given. Please provide one label for each interval."))
+  # no labels
+  expect_error(dtize_col(valid_vec, splits = split_vec, labels=NULL, right=TRUE, infinity=FALSE), 
+               regexp = ("`labels` cannot be NULL. Please provide valid labels for the intervals."))
+  # na labels
+  expect_error(dtize_col(valid_vec, splits = split_vec, labels=NA, right=TRUE, infinity=FALSE), 
+               regexp = ("`labels` contains NA values. Please provide non-NA labels for the intervals."))
+  
+  # valid labels
+  expect_no_error(dtize_col(valid_vec, splits = split_vec, labels=c("low", "medium", "high"), right=TRUE, infinity=FALSE))
+  expect_no_error(dtize_col(valid_vec, splits = split_vec, labels=c("one", "two", "three", "four", "five"), right=TRUE, infinity=TRUE))  
+
+})
+

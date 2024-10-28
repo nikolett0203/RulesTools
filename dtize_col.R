@@ -133,7 +133,9 @@ check_invalid_labels <- function(labels, cutoffs){
     stop("`labels` cannot be NULL. Please provide valid labels for the intervals.")
   if(any(is.na(labels)))
     stop("`labels` contains NA values. Please provide non-NA labels for the intervals.")
-  
+  if(!is.vector(labels))
+    stop("`labels` must be a vector.")
+      
   # check that number of labels matches number of intervals
   num_labels = length(labels)
   num_intervals = length(cutoffs) - 1
