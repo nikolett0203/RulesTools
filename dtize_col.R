@@ -1,3 +1,5 @@
+#library mice
+
 dtize_col <- function (column,
                        splits="median",
                        labels=c("low", "high"),
@@ -62,35 +64,6 @@ invalid_logical <- function (input){
 # helper function to check if vector arguments (column and splits) are valid types
 invalid_vector <- function(input){
   !is.vector(input) || !is.numeric(input) || length(input) == 0
-}
-
-
-
-# helper function to impute missing values
-# what happens if values are infinite?
-impute_na <- function(column, na_fill){
-  
-  # ensure na_fill is case insensitive 
-  if(is.character(na_fill))
-    na_fill <- tolower(na_fill)
-  
-  if(!any(is.na(column)))
-    return(column)
-  
-  if(identical(na_fill, "none")){
-    warning("`column` contains NA values, but no imputation method was chosen (`na_fill = 'none'`). NA values will remain in the output.")
-    return(column)
-  }else if(identical(na_fill, "mean")){
-    return((ifelse(is.na(column), mean(column, na.rm = TRUE), column)))
-  }else if(identical(na_fill, "median")){
-    return((ifelse(is.na(column), median(column, na.rm = TRUE), column)))      
-  }else if(identical(na_fill, "pmm")){
-    temp_column <- mice(data.frame(column), method="pmm")
-    return(complete(temp_column))
-  }else{
-    stop("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'.")
-  }    
-  
 }
 
 
@@ -173,5 +146,37 @@ check_invalid_splits <- function(column, splits, infinity){
   } else {
     stop("`splits` must be either `median`, `mean`, or a non-empty numeric vector.")
   }
+  
+}
+
+
+
+# helper function to impute missing values
+# what happens if values are infinite?
+# PMM DOESNT WORK FOR SINGLE COLUMN
+impute_na <- function(column, na_fill){
+  
+  # ensure na_fill is case insensitive 
+  if(is.character(na_fill))
+    na_fill <- tolower(na_fill)
+  
+  if(!any(is.na(column)))
+    return(column)
+  
+  finite_values <- column[is.finite(column)]
+  
+  if(identical(na_fill, "none")){
+    warning("`column` contains NA values, but no imputation method was chosen (`na_fill = 'none'`). NA values will remain in the output.")
+    return(column)
+  }else if(identical(na_fill, "mean")){
+    return((ifelse(is.na(column), mean(finite_values, na.rm = TRUE), column)))
+  }else if(identical(na_fill, "median")){
+    return((ifelse(is.na(column), median(finite_values, na.rm = TRUE), column)))      
+  }#else if(identical(na_fill, "pmm")){
+    #temp_column <- mice(data.frame(column), method="pmm")
+    #return(complete(temp_column))}
+  else{
+    stop("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'.")
+  }    
   
 }

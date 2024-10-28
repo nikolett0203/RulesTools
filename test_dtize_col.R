@@ -1,4 +1,7 @@
 library(testthat)
+library(mice)
+
+#figure out how to deal with packages in r package
 
 source("./dtize_col.R")
 
@@ -74,10 +77,6 @@ test_that("dtize_col verifies logical parameters correctly",{
   expect_no_error(dtize_col(na_vec, na_fill = "median"))
   
 })
-
-
-
-
 
 # should return true when vector is invalid
 test_that("invalid_vector() handles invalid column inputs correctly", {
@@ -222,8 +221,6 @@ test_that("check_invalid_bounds() handles exceeded boundaries correctly",{
   
   })
 
-
-
 test_that("dtize_col handles boundaries correctly", {
   
   #right-closed finite upper boundary exceeded
@@ -296,6 +293,45 @@ test_that("dtize_col handles mismatched labels correctly", {
   # valid labels
   expect_no_error(dtize_col(valid_vec, splits = split_vec, labels=c("low", "medium", "high"), right=TRUE, infinity=FALSE))
   expect_no_error(dtize_col(valid_vec, splits = split_vec, labels=c("one", "two", "three", "four", "five"), right=TRUE, infinity=TRUE))  
+
+})
+
+
+test_that("impute_na() performs error checking and filling correctly",{
+  
+  # no NAs
+  expect_equal(impute_na(valid_vec, na_fill="medIAN"), valid_vec)
+  # median
+  expect_equal(impute_na(na_vec, na_fill="meDian"), c(1, 2, 3, 4, 5, 4.5, 7, 8, 9, 4.5))
+  # mean
+  expect_equal(impute_na(na_vec, na_fill="MEan"), c(1, 2, 3, 4, 5, 4.875, 7, 8, 9, 4.875))
+  # infinite values
+  expect_equal(impute_na(c(-Inf, 4, 4, 4, NA, Inf), na_fill="MEan"), c(-Inf, 4, 4, 4, 4, Inf)) 
+  
+  expect_error(impute_na(na_vec, na_fill="dontfill"),
+               regexp=("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'."))
+  expect_error(impute_na(na_vec, na_fill=NULL),
+               regexp=("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'."))
+  expect_error(impute_na(na_vec, na_fill=NA),
+               regexp=("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'."))
+  expect_error(impute_na(na_vec, na_fill=c("mean", "median", "pmm")),
+               regexp=("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'."))
+  
+})
+
+test_that("dtize_col() error checks na_fill inputs",{
+  
+  expect_error(dtize_col(na_vec, na_fill="dontfill"),
+               regexp=("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'."))
+  expect_error(dtize_col(na_vec, na_fill=NULL),
+               regexp=("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'."))
+  expect_error(dtize_col(na_vec, na_fill=NA),
+               regexp=("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'."))
+  expect_error(dtize_col(na_vec, na_fill=c(1,2,3,4)),
+               regexp=("Invalid imputation method. `na_fill` must be 'none', 'mean', 'median', or 'pmm'."))
+  
+  expect_equal(dtize_col(na_vec, na_fill="MEAN"), factor(c("low", "low", "low", "low", "high", "high", "high", "high", "high", "high")),
+                  levels = c("low", "high"))
 
 })
 
