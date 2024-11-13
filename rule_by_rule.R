@@ -1,6 +1,33 @@
+rule_by_rule <- function(...,  # would it be an issue if someone did TRUE TRUE FALSE for ex?
+                         print = TRUE, # can suppress printing if necessary
+                         filename = NULL) { # if filename !NULL, will save as csv
+  
+  # collect all arguments (allows an arbitrary number of them)
+  rules <- list(...)
+  # what does this do if rules is null, empty, unnamed, etc. 
+  rule_names <- names(rules)
+  
+  validate_rules(rules, rule_names)
+  
+}
+
+validate_rules <- function (rule_list, name_list){
+  
+  # ensure enough arguments to do comparison
+  if(length(rule_list) < 2)
+    stop("At least two rule sets are required to find overlaps. Please provide at least two rule sets.")
+  
+  # ensure rule_list is indeed a list of rules objects
+  if(!all(sapply(rule_list, inherits, "rules")))
+    stop("All inputs must be of class 'rules'. Please provide valid rule sets.")
+  
+}
+
+
+
 # function to compare indefinite number of rules by finding common rules and displaying their interestingness measures
 # params: indefinite number of rules objects (must be named arguments)
-rule_by_rule <- function (...) {
+rule_by_rule2 <- function (...) {
   
   # collect arguments
   rules <- list(...)
