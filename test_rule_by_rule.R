@@ -1,4 +1,5 @@
 library(testthat)
+library(arules)
 
 source("./rule_by_rule.R")
 
@@ -11,6 +12,24 @@ rules2 <- apriori(Groceries,
                   parameter = list(supp = 0.05, conf = 0.7, target = "rules"))
 rules3 <- apriori(Groceries, 
                   parameter = list(supp = 0.1, conf = 0.9, target = "rules"))
+
+test_that("rule_by_rule() catches all unnamed arguments",{
+  
+  expect_error(rule_by_rule(rules1, rules2, rules3, TRUE, "name"),
+               regexp="Please provide names for all arguments, including 'display', 'filename', and all rule sets.")
+
+  expect_error(rule_by_rule(r1=rules1, rules2, r3=rules3, TRUE, filename="name"),
+               regexp="Please provide names for all arguments, including 'display', 'filename', and all rule sets.")
+
+  expect_error(rule_by_rule(rules1, r2=rules2, rules3, random=TRUE, "name"),
+               regexp="Please provide names for all arguments, including 'display', 'filename', and all rule sets.")
+  
+  expect_no_error(rule_by_rule(r1=rules1, r2=rules2))
+  
+  expect_no_error(rule_by_rule(r1=rules1, r2=rules2, filename="name"))
+  
+})
+
 
 test_that("rule_by_rule verifies number of arguments correctly (<2)",{
   

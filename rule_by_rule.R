@@ -1,18 +1,16 @@
 rule_by_rule <- function(...,  # would it be an issue if someone did TRUE TRUE FALSE for ex?
                          display = TRUE, # can suppress printing if necessary
                          filename = NULL) { # if filename !NULL, will save as csv
-  
-  # parse arguments
-  rules <- list(...)
-  argc <- length(rules)
-  
-  filename <- rules[[argc]]
-  display <- rules[[argc-1]]
-  rules <- rules[1:(argc-2)]
-  
-  rule_names <- names(rules)
 
-  # error-checking arguments
+  # collect arguments
+  rules <- list(...)
+  
+  # ensure arguments are named to simplify parsing
+  rule_names <- names(rules)
+  validate_names(rule_names)
+  
+  validate_options(display, filename)
+  
   validate_rules(rules, rule_names)  
   
   #print(argc)
@@ -27,6 +25,12 @@ rule_by_rule <- function(...,  # would it be an issue if someone did TRUE TRUE F
 
   #validate_arguments(print, filename)
   
+}
+
+validate_names <- function(name_list){
+  if (is.null(name_list) || any(name_list == "")) {
+    stop("Please provide names for all arguments, including 'display', 'filename', and all rule sets.")
+  }
 }
 
 validate_rules <- function (rule_list, name_list){
