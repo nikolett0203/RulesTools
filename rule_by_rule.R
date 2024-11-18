@@ -12,7 +12,14 @@ rule_by_rule <- function(...,  # would it be an issue if someone did TRUE TRUE F
   # ensure optional parameters are correct types
   validate_options(display, filename)
   
+  # gather counts and formatted rules for each ruleset
+  counts <- sapply(rules, length)
+  labels <- sapply(rules, labels)
   
+  # find rules common to all sets by repeatedly intersecting rules together
+  common <- Reduce(intersect, labels)
+  
+  print(common)
   
 }
 
@@ -33,7 +40,7 @@ validate_options <- function(display, filename){
   }
   
   if (!is.character(filename) || length(filename) != 1 || nchar(filename) == 0) {
-    stop("'filename' must be a non-empty string.")
+    stop("'filename' must be a non-empty string or NULL.")
   }
   
 }
