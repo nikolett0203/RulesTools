@@ -9,21 +9,10 @@ rule_by_rule <- function(...,  # would it be an issue if someone did TRUE TRUE F
   rule_names <- names(rules)
   validate_names(rule_names)
   
+  # ensure optional parameters are correct types
   validate_options(display, filename)
   
-  validate_rules(rules, rule_names)  
   
-  #print(argc)
-  #print(display)
-  #print(filename)
-  #print(rules)
-  
-  #print(length(rules))
-  
-  
-  
-
-  #validate_arguments(print, filename)
   
 }
 
@@ -31,6 +20,22 @@ validate_names <- function(name_list){
   if (is.null(name_list) || any(name_list == "")) {
     stop("Please provide names for all arguments, including 'display', 'filename', and all rule sets.")
   }
+}
+
+validate_options <- function(display, filename){
+ 
+  if(length(display) != 1 || !is.logical(display) || is.na(display)){
+    stop("'display' must be either TRUE or FALSE.")
+  }
+  
+  if(is.null(filename)){
+    return()
+  }
+  
+  if (!is.character(filename) || length(filename) != 1 || nchar(filename) == 0) {
+    stop("'filename' must be a non-empty string.")
+  }
+  
 }
 
 validate_rules <- function (rule_list, name_list){
@@ -42,28 +47,8 @@ validate_rules <- function (rule_list, name_list){
   # ensure rule_list is indeed a list of rules objects
   if(!all(sapply(rule_list, inherits, "rules")))
     stop("All inputs must be of class 'rules'. Please provide valid rule sets.")
-  
-  # make sure user gives names for all arguments
-  if (is.null(name_list) || any(name_list == "")) {
-    stop("Please provide names for all rule sets.")
-  }
     
 }
-
-validate_arguments <- function(print, filename){
-  
-  if (!is.logical(print) || length(print) != 1)
-    stop("'print' must be a single logical value, TRUE or FALSE.")
-  
-  if (!is.null(filename)) {
-    if (!is.character(filename) || length(filename) != 1)
-      stop("'filename' must be a character string.")
-  }
-
-}
-
-
-
 
 
 # function to compare indefinite number of rules by finding common rules and displaying their interestingness measures

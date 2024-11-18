@@ -30,6 +30,41 @@ test_that("rule_by_rule() catches all unnamed arguments",{
   
 })
 
+test_that("rule_by_rule() validates optional parameters",{
+  
+  expect_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, display=c(TRUE, FALSE)),
+               regexp="'display' must be either TRUE or FALSE.")
+  expect_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, display=NULL),
+               regexp="'display' must be either TRUE or FALSE.")
+  expect_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, display=NA),
+               regexp="'display' must be either TRUE or FALSE.")
+  expect_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, display=" "),
+               regexp="'display' must be either TRUE or FALSE.")
+  expect_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, display=0),
+               regexp="'display' must be either TRUE or FALSE.")
+  expect_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, display=list(TRUE)),
+               regexp="'display' must be either TRUE or FALSE.")
+    
+  expect_no_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, display=TRUE))
+  expect_no_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, display=FALSE))
+  
+  expect_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, filename=TRUE),
+               regexp="'filename' must be a non-empty string.") 
+  expect_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, filename=c(1, 2, 3)),
+               regexp="'filename' must be a non-empty string.") 
+  expect_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, filename=NA),
+               regexp="'filename' must be a non-empty string.") 
+  expect_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, filename=""),
+               regexp="'filename' must be a non-empty string.")
+  expect_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, filename=c("harry", "ron", "hermione")),
+               regexp="'filename' must be a non-empty string.")
+  
+  expect_no_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, filename=NULL))
+  expect_no_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, filename="file.csv")) 
+  expect_no_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, filename="You could have the world in the palm of your hand, you still might drop it."))
+  
+})
+
 
 test_that("rule_by_rule verifies number of arguments correctly (<2)",{
   
