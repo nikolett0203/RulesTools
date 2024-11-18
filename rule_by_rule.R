@@ -1,13 +1,31 @@
 rule_by_rule <- function(...,  # would it be an issue if someone did TRUE TRUE FALSE for ex?
-                         print = TRUE, # can suppress printing if necessary
+                         display = TRUE, # can suppress printing if necessary
                          filename = NULL) { # if filename !NULL, will save as csv
   
-  # collect all arguments (allows an arbitrary number of them)
+  # parse arguments
   rules <- list(...)
-  # what does this do if rules is null, empty, unnamed, etc. 
-  rule_names <- names(rules)
+  argc <- length(rules)
   
-  validate_rules(rules, rule_names)
+  filename <- rules[[argc]]
+  display <- rules[[argc-1]]
+  rules <- rules[1:(argc-2)]
+  
+  rule_names <- names(rules)
+
+  # error-checking arguments
+  validate_rules(rules, rule_names)  
+  
+  #print(argc)
+  #print(display)
+  #print(filename)
+  #print(rules)
+  
+  #print(length(rules))
+  
+  
+  
+
+  #validate_arguments(print, filename)
   
 }
 
@@ -21,7 +39,26 @@ validate_rules <- function (rule_list, name_list){
   if(!all(sapply(rule_list, inherits, "rules")))
     stop("All inputs must be of class 'rules'. Please provide valid rule sets.")
   
+  # make sure user gives names for all arguments
+  if (is.null(name_list) || any(name_list == "")) {
+    stop("Please provide names for all rule sets.")
+  }
+    
 }
+
+validate_arguments <- function(print, filename){
+  
+  if (!is.logical(print) || length(print) != 1)
+    stop("'print' must be a single logical value, TRUE or FALSE.")
+  
+  if (!is.null(filename)) {
+    if (!is.character(filename) || length(filename) != 1)
+      stop("'filename' must be a character string.")
+  }
+
+}
+
+
 
 
 
