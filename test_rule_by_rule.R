@@ -65,44 +65,32 @@ test_that("rule_by_rule() validates optional parameters",{
   
 })
 
-
 test_that("rule_by_rule verifies number of arguments correctly (<2)",{
   
-  # empty argument
-  expect_error(rule_by_rule(),
-               regexp=("At least two rule sets are required to find overlaps. Please provide at least two rule sets."))
   # single argument
-  expect_error(rule_by_rule("one"),
+
+  expect_error(rule_by_rule(r1=rules1),
                regexp=("At least two rule sets are required to find overlaps. Please provide at least two rule sets."))  
+  expect_no_error(rule_by_rule(r1=rules1, r2=rules2)) 
+  expect_no_error(rule_by_rule(r1=rules1, r2=rules1, r3=rules1, r4=rules1, r5=rules1, r6=rules1, r7=rules1)) 
   
 })
 
 test_that("rule_by_rule checks that parameters are rules",{
   
-  # strings
-  expect_error(rule_by_rule("one", "two"),
-               regexp=("All inputs must be of class 'rules'. Please provide valid rule sets."))
-  expect_error(rule_by_rule(NULL, NULL, NULL, NULL),
-               regexp=("All inputs must be of class 'rules'. Please provide valid rule sets."))
-  expect_error(rule_by_rule(1, 2, 3),
-               regexp=("All inputs must be of class 'rules'. Please provide valid rule sets."))
-  
-})
 
-test_that("rule_by_rule checks for named parameters",{
+  expect_error(rule_by_rule(r1="one", r2="two"),
+               regexp=("All inputs must be of class 'rules'. Please provide valid rule sets."))
+  expect_error(rule_by_rule(rule=NULL, another_rule=NULL, one_more_rule=NULL, final_rule=NULL),
+               regexp=("All inputs must be of class 'rules'. Please provide valid rule sets."))
+  expect_error(rule_by_rule(r=1, u=2, l=3, e=4),
+               regexp=("All inputs must be of class 'rules'. Please provide valid rule sets."))
+  expect_error(rule_by_rule(r=rules1, u=NA, l=rules2, e=rules3),
+               regexp=("All inputs must be of class 'rules'. Please provide valid rule sets."))
+  expect_error(rule_by_rule(r1 = list("A", "B", "C"), r2 = rules1),
+               regexp = "All inputs must be of class 'rules'. Please provide valid rule sets.")
+  expect_error(rule_by_rule(r1 = data.frame(A = 1:3, B = 4:6), r2 = data.frame(C = 7:10, B = 11:14)),
+               regexp = "All inputs must be of class 'rules'. Please provide valid rule sets.")
   
-  expect_error(rule_by_rule(rules1, r2=rules2, r3=rules3),
-               regexp=("Please provide names for all rule sets."))
-  expect_error(rule_by_rule(rules1, rules2, rules3),
-               regexp=("Please provide names for all rule sets."))  
-  
-})
-
-test_that("rule_by_rule checks for validity of 'print' and 'filename'",{
-  
-  expect_error(rule_by_rule(r1=rules1, r2=rules2, r3=rules3, TRUE, "file"),
-               regexp=("Please provide names for all rule sets."))
-  expect_error(rule_by_rule(rules1, rules2, rules3),
-               regexp=("Please provide names for all rule sets."))  
   
 })

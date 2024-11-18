@@ -12,6 +12,9 @@ rule_by_rule <- function(...,  # would it be an issue if someone did TRUE TRUE F
   # ensure optional parameters are correct types
   validate_options(display, filename)
   
+  # ensure enough rule-type objects provided
+  validate_rules(rules)
+
   # gather counts and formatted rules for each ruleset
   counts <- sapply(rules, length)
   labels <- sapply(rules, labels)
@@ -20,6 +23,19 @@ rule_by_rule <- function(...,  # would it be an issue if someone did TRUE TRUE F
   common <- Reduce(intersect, labels)
   
   print(common)
+  
+  n <- length(counts)
+  
+  # something like this would be necessary
+  for(k in 1:n){
+    combs<-(combn(n, k))
+    num <- ncol(combs)
+    for (j in 1:num){
+      indices <- combs[, j]
+      print(Reduce(intersect, labels[indices]))
+      print("DONE")
+    }
+  }
   
 }
 
@@ -45,7 +61,7 @@ validate_options <- function(display, filename){
   
 }
 
-validate_rules <- function (rule_list, name_list){
+validate_rules <- function (rule_list){
   
   # ensure enough arguments to do comparison
   if(length(rule_list) < 2)
@@ -57,6 +73,13 @@ validate_rules <- function (rule_list, name_list){
     
 }
 
+find_intersections <- function (rules, rule_names){
+  
+  #Generate all combinations of the provided rule sets.
+  #Compute intersections for each combination.
+  #Store and display the results for each combination, including individual rule sets.
+  
+}
 
 # function to compare indefinite number of rules by finding common rules and displaying their interestingness measures
 # params: indefinite number of rules objects (must be named arguments)
