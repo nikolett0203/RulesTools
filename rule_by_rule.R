@@ -19,10 +19,12 @@ rule_by_rule <- function(...,  # would it be an issue if someone did TRUE TRUE F
   counts <- sapply(rules, length)
   labels <- sapply(rules, labels)
   
-  # find rules common to all sets by repeatedly intersecting rules together
-  #common <- Reduce(intersect, labels)
+  # print(labels)
   
-  #print(common)
+  intersections <- find_intersections(labels, rule_names)
+  
+  if(display)
+    print(intersections)
   
 }
 
@@ -65,25 +67,38 @@ find_intersections <- function (rules, rule_names){
   # structure to store our intersection data
   intersections <- list()
   
-  # 
+  indices <- seq_along(rules)
   
-  #Generate all combinations of the provided rule sets.
-  #Compute intersections for each combination.
-  #Store and display the results for each combination, including individual rule sets.
-  n <- length(counts)
-  
-  # something like this would be necessary
-  for(k in 1:n){
-    combs<-(combn(n, k))
-    num <- ncol(combs)
-    for (j in 1:num){
-      indices <- combs[, j]
-      print(Reduce(intersect, labels[indices]))
-      print("DONE")
-    }
+  # add non-intersection data first (unmodified rules)
+  # set rule name as the key and assign rulesets
+  for (i in indices) {
+    intersections[[rule_names[i]]] <- rules[[i]]
   }
   
-    
+  # now we go into the loop to generate intersections
+  n <- length(rules)
+  # generate all 2-sets, 3-sets, etc.
+  # we already inputted 1-sets
+  for (k in 2:n){
+    # each row corresponds to a position in the combination and number of rows in size of combo, k
+    # each column represents one combination of elements, number of columns is total number of combinations
+    combs <- combn(indices, k)
+    for (j in 1:ncol(combs)){
+      # get each combination of the k-set
+      curr_comb <- combs[,j]
+      # get name for intersection
+      key <- get_intersection_key(curr_comb, rule_names)
+      # calculate common rules
+      insct_value <- Reduce(intersect, rules[curr_comb])
+      # explicitly state if nothing is common
+      if (length(insct_value) == 0) {
+        insct_value <- "No common rules"
+      }
+      # store data in list
+      intersections[[key]] <- insct_value
+    }
+  }
+  return(intersections)
 }
 
 get_intersection_key <- function(indices, rule_names){
