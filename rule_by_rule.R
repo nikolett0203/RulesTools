@@ -20,22 +20,9 @@ rule_by_rule <- function(...,  # would it be an issue if someone did TRUE TRUE F
   labels <- sapply(rules, labels)
   
   # find rules common to all sets by repeatedly intersecting rules together
-  common <- Reduce(intersect, labels)
+  #common <- Reduce(intersect, labels)
   
-  print(common)
-  
-  n <- length(counts)
-  
-  # something like this would be necessary
-  for(k in 1:n){
-    combs<-(combn(n, k))
-    num <- ncol(combs)
-    for (j in 1:num){
-      indices <- combs[, j]
-      print(Reduce(intersect, labels[indices]))
-      print("DONE")
-    }
-  }
+  #print(common)
   
 }
 
@@ -75,10 +62,32 @@ validate_rules <- function (rule_list){
 
 find_intersections <- function (rules, rule_names){
   
+  # structure to store our intersection data
+  intersections <- list()
+  
+  # 
+  
   #Generate all combinations of the provided rule sets.
   #Compute intersections for each combination.
   #Store and display the results for each combination, including individual rule sets.
+  n <- length(counts)
   
+  # something like this would be necessary
+  for(k in 1:n){
+    combs<-(combn(n, k))
+    num <- ncol(combs)
+    for (j in 1:num){
+      indices <- combs[, j]
+      print(Reduce(intersect, labels[indices]))
+      print("DONE")
+    }
+  }
+  
+    
+}
+
+get_intersection_key <- function(indices, rule_names){
+  paste(rule_names[indices], collapse = " & ")
 }
 
 # function to compare indefinite number of rules by finding common rules and displaying their interestingness measures
