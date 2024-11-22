@@ -1,3 +1,5 @@
+# add conf, support, lift?
+# foreach, doParallel
 rule_by_rule <- function(...,  # would it be an issue if someone did TRUE TRUE FALSE for ex?
                          display = TRUE, # can suppress printing if necessary
                          filename = NULL) { # if filename !NULL, will save as csv
@@ -19,12 +21,23 @@ rule_by_rule <- function(...,  # would it be an issue if someone did TRUE TRUE F
   counts <- sapply(rules, length)
   labels <- sapply(rules, labels)
   
-  # print(labels)
-  
+  # generate intersection data
   intersections <- find_intersections(labels, rule_names)
   
+  # print results
   if(display)
     print(intersections)
+
+  # write to file
+  if (!is.null(filename)) {
+    if (!grepl("\\.csv$", filename)) {
+      warning("Filename does not have a .csv extension. Appending .csv to the filename.")
+      filename <- paste0(filename, ".csv")
+    }
+    write_data(intersections, filename)
+  }
+  
+  return(intersections)
   
 }
 
@@ -60,6 +73,10 @@ validate_rules <- function (rule_list){
   if(!all(sapply(rule_list, inherits, "rules")))
     stop("All inputs must be of class 'rules'. Please provide valid rule sets.")
     
+}
+
+get_intersection_key <- function(indices, rule_names){
+  paste(rule_names[indices], collapse = " & ")
 }
 
 find_intersections <- function (rules, rule_names){
@@ -101,8 +118,26 @@ find_intersections <- function (rules, rule_names){
   return(intersections)
 }
 
-get_intersection_key <- function(indices, rule_names){
-  paste(rule_names[indices], collapse = " & ")
+pad_rules <- function(rules, max_length) {
+  length(rules) <- max_length
+  return(rules)
+}
+
+
+write_data <- function(intersections, filename){
+  
+  max_length <- max(sapply(intersections, length))
+  
+  intersection_df <- data.frame(
+    lapply(intersections, pad_rules, max_length = max_length),
+    stringsAsFactors = FALSE
+  )
+  
+  colnames(intersection_df) <- names(intersections)
+  
+  write.csv(intersection_df, file = filename, row.names = FALSE, na = "")
+  message(paste("Results saved to", filename))
+  
 }
 
 # function to compare indefinite number of rules by finding common rules and displaying their interestingness measures
@@ -182,3 +217,4 @@ verify_inputs <- function(rule_list){
 edit_rule <- function(rule) {
   return(paste0(labels(rule), "\n"))
 }
+
