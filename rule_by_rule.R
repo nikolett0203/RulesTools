@@ -19,7 +19,7 @@ rule_by_rule <- function(...,  # would it be an issue if someone did TRUE TRUE F
 
   # gather counts and formatted rules for each ruleset
   counts <- sapply(rules, length)
-  labels <- sapply(rules, labels)
+  labels <- sapply(rules, labels, simplify = FALSE)
   
   # generate intersection data
   intersections <- find_intersections(labels, rule_names)
@@ -37,7 +37,7 @@ rule_by_rule <- function(...,  # would it be an issue if someone did TRUE TRUE F
     write_data(intersections, filename)
   }
   
-  return(intersections)
+  #return(intersections)
   
 }
 
