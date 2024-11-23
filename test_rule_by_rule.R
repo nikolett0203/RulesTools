@@ -12,25 +12,25 @@ rules1 <- apriori(Groceries,
 rules2 <- apriori(Groceries, 
                   parameter = list(supp = 0.01, conf = 0.55, target = "rules"))
 rules3 <- apriori(Groceries, 
-                  parameter = list(supp = 0.02, conf = 0.5, target = "rules"))
+                  parameter = list(supp = 0.02, conf = 0.5, target = "rules")). # empty 
+large_rules <- apriori(Groceries, 
+                  parameter = list(supp = 0.005, conf = 0.2, target = "rules"))
 
 
 test_that("rule_by_rule() catches all unnamed arguments",{
   
   expect_error(rule_by_rule(rules1, rules2, rules3, TRUE, "name"),
                regexp="Please provide names for all arguments, including 'display', 'filename', and all rule sets.")
-
   expect_error(rule_by_rule(r1=rules1, rules2, r3=rules3, TRUE, filename="name"),
                regexp="Please provide names for all arguments, including 'display', 'filename', and all rule sets.")
-
   expect_error(rule_by_rule(rules1, r2=rules2, rules3, random=TRUE, "name"),
                regexp="Please provide names for all arguments, including 'display', 'filename', and all rule sets.")
   
   expect_no_error(rule_by_rule(r1=rules1, display=FALSE, r2=rules2))
-  
   expect_no_error(rule_by_rule(r1=rules1, r2=rules2, display=FALSE, filename="name.csv"))
   
 })
+
 
 test_that("rule_by_rule() validates optional parameters",{
   
@@ -67,7 +67,8 @@ test_that("rule_by_rule() validates optional parameters",{
   
 })
 
-test_that("rule_by_rule verifies number of arguments correctly (<2)",{
+
+test_that("rule_by_rule() verifies number of arguments correctly (<2)",{
   
   # single argument
   expect_error(rule_by_rule(r1=rules1),
@@ -78,7 +79,8 @@ test_that("rule_by_rule verifies number of arguments correctly (<2)",{
   
 })
 
-test_that("rule_by_rule checks that parameters are rules",{
+
+test_that("rule_by_rule() checks that parameters are rules",{
   
 
   expect_error(rule_by_rule(r1="one", r2="two"),
@@ -95,6 +97,32 @@ test_that("rule_by_rule checks that parameters are rules",{
                regexp = "All inputs must be of class 'rules'. Please provide valid rule sets.")
   
 })
+
+
+test_that("rule_by_rule() handles complex names", {
+  
+  expect_error(rule_by_rule(r1=rules1, r1=rules2), 
+               regexp="Duplicate names are not allowed. Please provide unique names for all rule sets.")
+  
+  expect_no_error(rule_by_rule(`this_is_a_very_long_name_1234567890`=rules1,
+                               `another_very_long_name_with_special_chars!@#$%^&*`=rules2,
+                               display=FALSE))
+  expect_no_error(rule_by_rule(`if`=rules1, `else`=rules2, display=FALSE))
+  expect_no_error(rule_by_rule(`rule!@#$`=rules1, `another_rule`=rules2, display=FALSE))
+
+})
+
+
+test_that("rule_by_rule() handles large rule sets", {
+  expect_no_error(rule_by_rule(r1=large_rules, r2=rules1, r3=rules2, filename=NULL))
+})
+
+
+test_that("rule_by_rule() respects display suppression", {
+  expect_no_error(rule_by_rule(r1=rules1, r2=rules2, display=FALSE))
+  expect_output(rule_by_rule(r1=rules1, r2=rules2, display=TRUE), "r1 & r2")
+})
+
 
 
 

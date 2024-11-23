@@ -45,6 +45,11 @@ validate_names <- function(name_list){
   if (is.null(name_list) || any(name_list == "")) {
     stop("Please provide names for all arguments, including 'display', 'filename', and all rule sets.")
   }
+  
+  if (anyDuplicated(name_list)) {
+    stop("Duplicate names are not allowed. Please provide unique names for all rule sets.")
+  }
+  
 }
 
 validate_options <- function(display, filename){
