@@ -73,3 +73,36 @@ test_that("rule_map validates `graph_title` arguments correctly", {
   
 })
 
+test_that("rule_map validates `high_color` and `low_color` arguments correctly", {
+  
+  expect_error(rule_map(rules1, high_color="#1"))
+  expect_error(rule_map(rules1, low_color=NULL))
+  expect_error(rule_map(rules1, high_color="#123"))
+  expect_error(rule_map(rules1, low_color=matrix(1:3)))
+  expect_error(rule_map(rules1, high_color=NA))
+  expect_error(rule_map(rules1, low_color=rules2))
+  
+  expect_no_error(rule_map(rules1, high_color="#12345678"))
+  expect_no_error(rule_map(rules1, low_color="#77B777"))
+  expect_no_error(rule_map(rules1, high_color="#A7384F"))
+  
+})
+
+test_that("rule_map validates logical arguments correctly", {
+  
+  expect_error(rule_map(rules1, include_zero="#1"),
+               regexp="'include_zero' must be either 'TRUE' or 'FALSE'.")
+  expect_error(rule_map(rules1, include_zero=NULL),
+               regexp="'include_zero' must be either 'TRUE' or 'FALSE'.")
+  expect_error(rule_map(rules1, include_zero="#123"))
+  expect_error(rule_map(rules1, include_zero=matrix(1:3)),
+               regexp="'include_zero' must be either 'TRUE' or 'FALSE'.")
+  expect_error(rule_map(rules1, include_zero=NA),
+               regexp="'include_zero' must be either 'TRUE' or 'FALSE'.")
+  expect_error(rule_map(rules1, include_zero=c(TRUE, FALSE)),
+               regexp="'include_zero' must be either 'TRUE' or 'FALSE'.")
+  
+  expect_no_error(rule_map(rules1, include_zero=TRUE))
+  expect_no_error(rule_map(rules1, include_zero=FALSE))
+  
+})
