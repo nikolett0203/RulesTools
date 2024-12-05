@@ -1,6 +1,7 @@
 library(arules)
 library(ggplot2)
 
+#hadley wickham r package book
 # add ... to pass more lower level arguments?
 
 rule_map <- function(rules, 
@@ -48,7 +49,11 @@ rule_map <- function(rules,
 validate_rules <- function(rules){
   
   if(!inherits(rules, "rules"))
-    stop("Input must be of class 'rules'. Please provide a valid rule set.")
+    stop("Input must be a single object of class 'rules'. Please provide a valid rule set.")
+  
+  
+  #if(count(rules) != 1)
+   # stop("Input must be a single 'rules' object. Please enter one rule set.")
   
 }
 
