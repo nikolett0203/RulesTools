@@ -11,6 +11,10 @@ rules1 <- apriori(Groceries,
                   parameter = list(supp = 0.01, conf = 0.5, target = "rules"))
 rules2 <- apriori(Groceries, 
                   parameter = list(supp = 0.01, conf = 0.55, target = "rules"))
+rules_empty <- apriori(Groceries, 
+                  parameter = list(supp = 1, conf = 1, target = "rules"))
+large_rules <- apriori(Groceries, 
+                  parameter = list(supp = 0.001, conf = 0.3, target = "rules"))
 
 test_that("rule_map() validates rules objects", {
   
@@ -24,14 +28,16 @@ test_that("rule_map() validates rules objects", {
                regexp="Input must be a single object of class 'rules'. Please provide a valid rule set.")
   expect_error(rule_map(matrix(1:3)),
                regexp="Input must be a single object of class 'rules'. Please provide a valid rule set.")
-
+  expect_error(rule_map(rules_empty),
+               regexp="`rules` object is empty. Please provide a non-empty ruleset.")
+  
   # why?
   expect_no_error(rule_map(c(rules1, rules2)))
   expect_no_error(rule_map(c(large_rules)))
   
 })
 
-test_that("rule_map validates `metric` arguments correctly", {
+test_that("rule_map() validates `metric` arguments correctly", {
   
   expect_error(rule_map(rules1, metric=0),
                regexp="'metric' must be one of 'confidence,' 'support,' or 'lift'. Please provide a valid metric.")
@@ -52,7 +58,7 @@ test_that("rule_map validates `metric` arguments correctly", {
   
 })
 
-test_that("rule_map validates `graph_title` arguments correctly", {
+test_that("rule_map() validates `graph_title` arguments correctly", {
   
   expect_error(rule_map(rules1, graph_title=1),
                regexp="The graph title must be either NULL or a single non-NA character string.")
@@ -73,7 +79,7 @@ test_that("rule_map validates `graph_title` arguments correctly", {
   
 })
 
-test_that("rule_map validates `high_color` and `low_color` arguments correctly", {
+test_that("rule_map() validates `high_color` and `low_color` arguments correctly", {
   
   expect_error(rule_map(rules1, high_color="#1"))
   expect_error(rule_map(rules1, low_color=NULL))
@@ -88,7 +94,7 @@ test_that("rule_map validates `high_color` and `low_color` arguments correctly",
   
 })
 
-test_that("rule_map validates logical arguments correctly", {
+test_that("rule_map() validates logical arguments correctly", {
   
   expect_error(rule_map(rules1, include_zero="#1"),
                regexp="'include_zero' must be either 'TRUE' or 'FALSE'.")
@@ -106,3 +112,13 @@ test_that("rule_map validates logical arguments correctly", {
   expect_no_error(rule_map(rules1, include_zero=FALSE))
   
 })
+
+test_that("rule_map() works with weird data", {
+  
+  # large datasets
+  expect_no_error(rule_map(large_rules, high_color="red", include_zero=TRUE))
+  # weird characters
+  expect_no_error(rule_map(rules1, graph_title="Confidence Heatmap 🎨"))
+  
+})
+
