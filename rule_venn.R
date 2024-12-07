@@ -1,20 +1,16 @@
-library(ggvenn)
+library(eulerr)
 library(arules)
-
-source=("./rule_by_rule.R")
+library(ggplot2)
 
 rule_venn <- function(rules, 
-                       min_overlap = 1, 
-                       show_elements = FALSE, 
-                       show_percentage = TRUE, 
-                       fill_color = NULL, 
-                       fill_alpha = 0.5, 
-                       stroke_color = "black", 
-                       stroke_size = 1, 
-                       set_name_color = "black", 
-                       text_color = "black", 
-                       text_size = 4, 
-                       digits = 1){
+                      fill_color = NULL, 
+                      fill_alpha = 0.5, 
+                      stroke_color = "black", 
+                      stroke_size = 1, 
+                      set_name_color = "black", 
+                      set_name_size = 6,
+                      text_color = "black", 
+                      text_size = 4) {
   
   validate_rules_venn(rules)
   
@@ -31,25 +27,28 @@ rule_venn <- function(rules,
     fill_color <- default_colors[seq_along(sets)]
   }
   
-  ggvenn(
-    sets,
-    show_elements = show_elements,
-    show_percentage = show_percentage,
-    digits = digits,
-    fill_color = fill_color,
-    fill_alpha = fill_alpha,
-    stroke_color = stroke_color,
-    stroke_size = stroke_size,
-    set_name_color = set_name_color,
-    text_color = text_color,
-    text_size = text_size
+  euler_input <- list()
+  for (i in seq_along(sets)) {
+    euler_input[[names(sets)[i]]] <- sets[[i]]
+  }
+  
+  fit <- euler(euler_input)
+  
+  print(fit$quantities)
+  
+  plot <- plot(
+    fit,
+    fills = list(fill = fill_color, alpha = fill_alpha),
+    edges = list(col = stroke_color, lwd = stroke_size),
+    labels = list(col = set_name_color, fontsize = set_name_size),
+    quantities = list(col = text_color, fontsize = text_size)
   )
   
-  
-  
+  return(plot)
 }
 
-validate_rules_venn <- function(rules){
+
+validate_rules_venn <- function(rules) {
   
   if (!is.list(rules)) {
     stop("'rules' objects must be provided as a list.")
@@ -66,6 +65,6 @@ validate_rules_venn <- function(rules){
   if (!all(sapply(rules, function(x) inherits(x, "rules")))) {
     stop("All elements in the list must be 'rules' objects.")
   }
-    
 }
+
 
