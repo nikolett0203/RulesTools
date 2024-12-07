@@ -1,6 +1,8 @@
 library(ggvenn)
 library(arules)
 
+source=("./rule_by_rule.R")
+
 rule_venn <- function(rules, 
                        min_overlap = 1, 
                        show_elements = FALSE, 
@@ -15,6 +17,35 @@ rule_venn <- function(rules,
                        digits = 1){
   
   validate_rules_venn(rules)
+  
+  sets <- lapply(rules, labels)
+  
+  if (is.null(names(rules)) || any(names(rules) == "" | is.na(names(rules)))) {
+    names(sets) <- paste0("Set ", seq_along(sets))
+  } else {
+    names(sets) <- names(rules)
+  }
+  
+  if (is.null(fill_color)) {
+    default_colors <- c("red", "blue", "green", "purple")
+    fill_color <- default_colors[seq_along(sets)]
+  }
+  
+  ggvenn(
+    sets,
+    show_elements = show_elements,
+    show_percentage = show_percentage,
+    digits = digits,
+    fill_color = fill_color,
+    fill_alpha = fill_alpha,
+    stroke_color = stroke_color,
+    stroke_size = stroke_size,
+    set_name_color = set_name_color,
+    text_color = text_color,
+    text_size = text_size
+  )
+  
+  
   
 }
 
