@@ -18,6 +18,7 @@ rule_venn <- function(rules,
   validate_numeric_venn(stroke_size, "stroke_size")
   validate_numeric_venn(name_size, "name_size") 
   validate_numeric_venn(text_size, "text_size") 
+  validate_alpha_venn(fill_alpha)
    
   sets <- lapply(rules, labels)
   
@@ -51,7 +52,7 @@ rule_venn <- function(rules,
   return(plot)
 }
 
-# Validation Functions
+
 validate_rules_venn <- function(rules) {
   if (!is.list(rules)) {
     stop("'rules' objects must be provided as a list.")
@@ -80,3 +81,8 @@ validate_numeric_venn <- function(param, param_name) {
   }
 }
 
+validate_alpha_venn <- function(alpha) {
+  if (!is.numeric(alpha) || length(alpha) != 1 || is.na(alpha) || alpha < 0 || alpha > 1) {
+    stop("`alpha` must be a single numeric value between 0 and 1.")
+  }
+}
