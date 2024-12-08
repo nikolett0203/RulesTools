@@ -19,7 +19,14 @@ rule_venn <- function(rules,
   validate_numeric_venn(name_size, "name_size") 
   validate_numeric_venn(text_size, "text_size") 
   validate_alpha_venn(fill_alpha)
-   
+  validate_color_venn(stroke_color, "stroke_color")
+  validate_color_venn(name_color, "name_color")
+  validate_color_venn(text_color, "text_color")
+  
+  for(i in seq_along(fill_color)){
+    validate_color_venn(fill_color[[i]], "fill_color")
+  }
+    
   sets <- lapply(rules, labels)
   
   if (is.null(names(rules)) || any(names(rules) == "" | is.na(names(rules)))) {
@@ -85,4 +92,19 @@ validate_alpha_venn <- function(alpha) {
   if (!is.numeric(alpha) || length(alpha) != 1 || is.na(alpha) || alpha < 0 || alpha > 1) {
     stop("`fill_alpha` must be a single numeric value between 0 and 1.")
   }
+}
+
+validate_color_venn <- function(color, param_name) {
+  
+  hex_pattern <- "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$"
+  
+  if (is.character(color) && length(color) == 1) {
+    if (grepl(hex_pattern, color))
+      return(TRUE)
+    
+    if (color %in% colors())
+      return(TRUE)
+  }
+  
+  stop(paste0("'", param_name, "' must be a valid 6-8 digit hex color code (e.g., '#FFFFFF') or R color name (e.g., 'red')."))
 }
