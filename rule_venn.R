@@ -83,6 +83,6 @@ validate_numeric_venn <- function(param, param_name) {
 
 validate_alpha_venn <- function(alpha) {
   if (!is.numeric(alpha) || length(alpha) != 1 || is.na(alpha) || alpha < 0 || alpha > 1) {
-    stop("`alpha` must be a single numeric value between 0 and 1.")
+    stop("`fill_alpha` must be a single numeric value between 0 and 1.")
   }
 }
