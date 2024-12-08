@@ -7,13 +7,18 @@ rule_venn <- function(rules,
                       fill_alpha = 0.5, 
                       stroke_color = "black", 
                       stroke_size = 1, 
-                      set_name_color = "black", 
-                      set_name_size = 6,
+                      title = NULL,
+                      name_color = "black", 
+                      name_size = 12,
                       text_color = "black", 
-                      text_size = 4) {
+                      text_size = 11) {
   
   validate_rules_venn(rules)
-  
+  validate_title_venn(title)
+  validate_numeric_venn(stroke_size, "stroke_size")
+  validate_numeric_venn(name_size, "name_size") 
+  validate_numeric_venn(text_size, "text_size") 
+   
   sets <- lapply(rules, labels)
   
   if (is.null(names(rules)) || any(names(rules) == "" | is.na(names(rules)))) {
@@ -34,37 +39,44 @@ rule_venn <- function(rules,
   
   fit <- euler(euler_input)
   
-  print(fit$quantities)
-  
   plot <- plot(
     fit,
     fills = list(fill = fill_color, alpha = fill_alpha),
     edges = list(col = stroke_color, lwd = stroke_size),
-    labels = list(col = set_name_color, fontsize = set_name_size),
-    quantities = list(col = text_color, fontsize = text_size)
+    labels = list(col = name_color, fontsize = name_size),
+    quantities = list(col = text_color, fontsize = text_size),
+    main = title,
   )
   
   return(plot)
 }
 
-
+# Validation Functions
 validate_rules_venn <- function(rules) {
-  
   if (!is.list(rules)) {
     stop("'rules' objects must be provided as a list.")
   }
-  
   if (length(rules) < 2 || length(rules) > 4) {
     stop("You must provide between 2 and 4 'rules' objects.")
   }
-  
   if (any(sapply(rules, is.null))) {
     stop("The list contains NULL values. Please provide valid 'rules' objects.")
   }
-  
   if (!all(sapply(rules, function(x) inherits(x, "rules")))) {
     stop("All elements in the list must be 'rules' objects.")
   }
 }
 
+validate_title_venn <- function(graph_title){
+  if (is.null(graph_title))
+    return()
+  if (!is.character(graph_title) || length(graph_title) != 1 || is.na(graph_title))
+    stop("The graph title must be either NULL or a single non-NA character string.")
+}
+
+validate_numeric_venn <- function(param, param_name) {
+  if (!is.numeric(param) || length(param) != 1 || is.na(param) || !is.finite(param) || param < 0) {
+    stop(paste0("'", param_name, "' must be a finite positive numeric value."))
+  }
+}
 
