@@ -33,8 +33,10 @@ test_df3 <- data.frame(
   column2 = c(2, 2, 2, NA, 4, 4, 4))
 
 test_df4 <- data.frame(
-  column1 = c(1, 1, 1, 1.5, 1, 1, 1),
-  column2 = c(2, 2, 2, 3, 4, 4, 4))
+  one = c(1, 5, 2, 7.6, 34, NA, 23, 22.3, NA),
+  two = c(11, 5.3, 9, 4, NA, NA, 2, 15, NA)
+)
+
 
 test_that("dtize_df() verifies data inputs correctly",{
 
@@ -87,6 +89,172 @@ test_that("dtize_df() catches na_fill correctly",{
   expect_no_error(dtize_df(test_df, na_fill="PMM"))
 
 })
+
+test_that("dtize_df() accepts na_fill for median, mean, and none",{
+  
+  expect_no_error(dtize_df(test_df, na_fill="MEDIAN"))
+  expect_no_error(dtize_df(test_df2, na_fill="mean"))
+  expect_no_error(dtize_df(test_df, na_fill="noNe"))
+  
+})
+
+test_that("dtize_df() catches incorrect `m` arguments", {
+  
+  # non-numeric
+  expect_error(dtize_df(test_df, na_fill="pmm", m=TRUE),
+               regexp=("`m` must be a single positive integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", m=list(matrix(1:5), 3, "kendrick")),
+               regexp=("`m` must be a single positive integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", m=NULL),
+               regexp=("`m` must be a single positive integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", m=NA),
+               regexp=("`m` must be a single positive integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", m="oh yes you do"),
+               regexp=("`m` must be a single positive integer."))
+  
+  # multiple values
+  expect_error(dtize_df(test_df, na_fill="pmm", m=c(1, 2, 3)),
+               regexp=("`m` must be a single positive integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", m=list(1, c(1,2,3), 3)),
+               regexp=("`m` must be a single positive integer."))
+  
+  # less than 1
+  expect_error(dtize_df(test_df, na_fill="pmm", m=0),
+               regexp=("`m` must be a single positive integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", m=-1),
+               regexp=("`m` must be a single positive integer."))
+  
+  # infinite
+  expect_error(dtize_df(test_df, na_fill="pmm", m=Inf),
+               regexp=("`m` must be a single positive integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", m=-Inf),
+               regexp=("`m` must be a single positive integer."))
+  
+  # decimal
+  expect_error(dtize_df(test_df, na_fill="pmm", m=0.1),
+               regexp=("`m` must be a single positive integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", m=0.9999999),
+               regexp=("`m` must be a single positive integer."))
+  
+  expect_no_error(dtize_df(test_df4, na_fill="pmm", m=1))
+  expect_no_error(dtize_df(test_df4, na_fill="pmm", m=100))
+  
+})
+
+test_that("dtize_df() catches incorrect `maxit` arguments", {
+  
+  # non-numeric
+  expect_error(dtize_df(test_df, na_fill="pmm", maxit=TRUE),
+               regexp=("`maxit` must be a single non-negative integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", maxit=list(matrix(1:5), 3, "kendrick")),
+               regexp=("`maxit` must be a single non-negative integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", maxit=NULL),
+               regexp=("`maxit` must be a single non-negative integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", maxit=NA),
+               regexp=("`maxit` must be a single non-negative integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", maxit="oh yes you do"),
+               regexp=("`maxit` must be a single non-negative integer."))
+  
+  # multiple values
+  expect_error(dtize_df(test_df, na_fill="pmm", maxit=c(1, 2, 3)),
+               regexp=("`maxit` must be a single non-negative integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", maxit=list(1, c(1,2,3), 3)),
+               regexp=("`maxit` must be a single non-negative integer."))
+  
+  # less than 0
+  expect_error(dtize_df(test_df, na_fill="pmm", maxit=-1),
+               regexp=("`maxit` must be a single non-negative integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", maxit=-100),
+               regexp=("`maxit` must be a single non-negative integer."))
+  
+  # infinite
+  expect_error(dtize_df(test_df, na_fill="pmm", maxit=Inf),
+               regexp=("`maxit` must be a single non-negative integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", maxit=-Inf),
+               regexp=("`maxit` must be a single non-negative integer."))
+  
+  # decimal
+  expect_error(dtize_df(test_df, na_fill="pmm", maxit=0.1),
+               regexp=("`maxit` must be a single non-negative integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", maxit=0.9999999),
+               regexp=("`maxit` must be a single non-negative integer."))
+  
+  expect_no_error(dtize_df(test_df4, na_fill="pmm", maxit=0))
+  expect_no_error(dtize_df(test_df4, na_fill="pmm", maxit=100))
+  
+})
+
+test_that("dtize_df() catches incorrect `seed` arguments", {
+  
+  # non-numeric
+  expect_error(dtize_df(test_df, na_fill="pmm", seed=TRUE),
+               regexp=("`seed` must be NULL or a single integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", seed=list(matrix(1:5), 3, "kendrick")),
+               regexp=("`seed` must be NULL or a single integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", seed=NA),
+               regexp=("`seed` must be NULL or a single integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", seed="oh yes you do"),
+               regexp=("`seed` must be NULL or a single integer."))
+  
+  # multiple values
+  expect_error(dtize_df(test_df, na_fill="pmm", seed=c(1, 2, 3)),
+               regexp=("`seed` must be NULL or a single integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", seed=list(1, c(1,2,3), 3)),
+               regexp=("`seed` must be NULL or a single integer."))
+  
+  # infinite
+  expect_error(dtize_df(test_df, na_fill="pmm", seed=Inf),
+               regexp=("`seed` must be NULL or a single integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", seed=-Inf),
+               regexp=("`seed` must be NULL or a single integer."))
+  
+  # decimal
+  expect_error(dtize_df(test_df, na_fill="pmm", seed=0.1),
+               regexp=("`seed` must be NULL or a single integer."))
+  expect_error(dtize_df(test_df, na_fill="pmm", seed=0.9999999),
+               regexp=("`seed` must be NULL or a single integer."))
+  
+  expect_no_error(dtize_df(test_df4, na_fill="pmm", seed=0))
+  expect_no_error(dtize_df(test_df4, na_fill="pmm", seed=1523675))
+  expect_no_error(dtize_df(test_df4, na_fill="pmm", seed=NULL))
+  
+})
+
+test_that("dtize_df() catches incorrect `printFlag` arguments",{
+  
+  # non-logical values
+  expect_error(dtize_df(test_df, na_fill="pmm", printFlag=7),
+               regexp = "`printFlag` must be a single logical value (TRUE or FALSE).", 
+               fixed = TRUE)
+  expect_error(dtize_df(test_df, na_fill="pmm", printFlag=NA),
+               regexp = "`printFlag` must be a single logical value (TRUE or FALSE).", 
+               fixed = TRUE)
+  expect_error(dtize_df(test_df, na_fill="pmm", printFlag=NULL),
+               regexp = "`printFlag` must be a single logical value (TRUE or FALSE).", 
+               fixed = TRUE)
+  expect_error(dtize_df(test_df, na_fill="pmm", printFlag=Inf),
+               regexp = "`printFlag` must be a single logical value (TRUE or FALSE).", 
+               fixed = TRUE)
+  expect_error(dtize_df(test_df, na_fill="pmm", printFlag=list(1, c(TRUE, FALSE), "three")),
+               regexp = "`printFlag` must be a single logical value (TRUE or FALSE).", 
+               fixed = TRUE)
+  expect_error(dtize_df(test_df, na_fill="pmm", printFlag=matrix(1:9, nrow = 3, ncol = 3)),
+               regexp = "`printFlag` must be a single logical value (TRUE or FALSE).", 
+               fixed = TRUE)
+  expect_error(dtize_df(test_df, na_fill="pmm", printFlag="truth"),
+               regexp = "`printFlag` must be a single logical value (TRUE or FALSE).", 
+               fixed = TRUE)
+
+  # multiple values
+  expect_error(dtize_df(test_df, na_fill="pmm", printFlag=c(TRUE, FALSE, TRUE)),
+               regexp = "`printFlag` must be a single logical value (TRUE or FALSE).", 
+               fixed = TRUE)
+  
+  expect_no_error(dtize_df(test_df4, na_fill="pmm", printFlag=TRUE))
+  expect_no_error(dtize_df(test_df4, na_fill="pmm", printFlag=FALSE))
+  
+})
+
 
 test_that("dtize_df() catches non-numeric df correctly",{
 
