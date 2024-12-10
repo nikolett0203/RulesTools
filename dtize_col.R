@@ -1,5 +1,32 @@
 #library mice
 
+#' Discretize a Numeric Column
+#'
+#' Discretizes a numeric vector into categories based on specified cutoff points.
+#' The function handles missing values, allows for infinite bounds, and supports 
+#' predefined cutoffs such as the mean or median.
+#'
+#' @param column A numeric vector to discretize.
+#' @param cutoff A numeric vector specifying cutoff points, or a string ("mean" or "median").
+#' @param labels A character vector specifying labels for the resulting categories.
+#' @param include_right Logical. If `TRUE`, intervals are closed on the right (default `TRUE`).
+#' @param infinity Logical. If `TRUE`, extends cutoffs to `-Inf` and `Inf` (default `TRUE`).
+#' @param include_lowest Logical. If `TRUE`, the lowest interval is closed on the left (default `TRUE`).
+#' @param na_fill A string specifying the method to impute missing values: "none", "mean", or "median" (default "none").
+#'
+#' @return A factor with the same length as `column`, where each value is categorized based on the cutoffs.
+#' @examples
+#' # Example with predefined cutoffs
+#' dtize_col(c(1, 2, 3, 4, 5), cutoff = c(2, 4), labels = c("low", "medium", "high"))
+#'
+#' # Example with median as cutoff
+#' dtize_col(c(1, 2, 3, 4, 5), cutoff = "median", labels = c("low", "high"))
+#'
+#' # Example with missing value imputation
+#' dtize_col(c(1, 2, NA, 4, 5), cutoff = "mean", labels = c("low", "high"), na_fill = "mean")
+#'
+#' @export
+
 dtize_col <- function(column,
                       cutoff = "median",
                       labels = c("low", "high"),
