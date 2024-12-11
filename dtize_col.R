@@ -15,6 +15,7 @@
 #' @param na_fill A string specifying the method to impute missing values: "none", "mean", or "median" (default "none").
 #'
 #' @return A factor with the same length as `column`, where each value is categorized based on the cutoffs.
+#' 
 #' @examples
 #' # Example with predefined cutoffs
 #' dtize_col(c(1, 2, 3, 4, 5), cutoff = c(2, 4), labels = c("low", "medium", "high"))
@@ -84,19 +85,36 @@ dtize_col <- function(column,
 }
 
 
-# helper function to check if logical arguments (include_right, infinity, include_lowest) are valid types
+#' @noRd
+#' @title Check Invalid Logical Inputs
+#' @description Checks if a logical input is valid.
+#' @param input The input to check.
+#' @return Logical. `TRUE` if the input is invalid, otherwise `FALSE`.
+
 check_invalid_logical <- function(input) {
   length(input) != 1 || !is.logical(input) || is.na(input)
 }
 
 
-# helper function to check if vector arguments (column and cutoff) are valid types
+#' @noRd
+#' @title Check Invalid Vector Inputs
+#' @description Checks if a vector input is a non-empty numeric vector.
+#' @param input The input to check.
+#' @return Logical. `TRUE` if the input is invalid, otherwise `FALSE`.
+
 check_invalid_vector <- function(input) {
   !is.vector(input) || !is.numeric(input) || length(input) == 0
 }
 
 
-# helper function to check whether cutoff points produce valid cutoff
+#' @noRd
+#' @title Check Invalid Cutoff Bounds
+#' @description Checks if the cutoff points cover the range of the column.
+#' @param column The numeric vector to check.
+#' @param cutoffs The cutoff points.
+#' @param include_right Logical. If `TRUE`, intervals are right-closed.
+#' @param include_lowest Logical. If `TRUE`, the lowest interval is left-closed.
+
 check_invalid_bounds <- function(column, cutoffs, include_right, include_lowest) {
   
   # check that there are at least two cutoff points
@@ -132,7 +150,12 @@ check_invalid_bounds <- function(column, cutoffs, include_right, include_lowest)
 }
 
 
-# helper function to check the validity of labels
+#' @noRd
+#' @title Check Invalid Labels
+#' @description Checks if the labels vector is valid and matches the number of intervals.
+#' @param labels The labels to check.
+#' @param cutoffs The cutoff points.
+
 check_invalid_labels <- function(labels, cutoffs) {
   
   # check that labels don't contain NULL or NAs
@@ -159,7 +182,14 @@ check_invalid_labels <- function(labels, cutoffs) {
 }
 
 
-# helper function to validate and generate cutoff points
+#' @noRd
+#' @title Check Invalid Cutoff
+#' @description Validates the cutoff input and generates cutoff points based on the mean or median.
+#' @param column The numeric vector to discretize.
+#' @param cutoff The cutoff points or a string ("mean" or "median").
+#' @param infinity Logical. If `TRUE`, allows infinite bounds.
+#' @return A numeric vector of cutoff points.
+
 check_invalid_cutoff <- function(column, cutoff, infinity) {
   
   # ensure function is case-insensitive
@@ -190,7 +220,13 @@ check_invalid_cutoff <- function(column, cutoff, infinity) {
 }
 
 
-# helper function to impute missing values
+#' @noRd
+#' @title Impute Missing Values
+#' @description Imputes missing values in a numeric vector.
+#' @param column The numeric vector with potential missing values.
+#' @param na_fill The method for imputation: "none", "mean", or "median".
+#' @return The numeric vector with imputed values.
+
 impute_na <- function(column, na_fill) {
   
   # ensure na_fill is case-insensitive
