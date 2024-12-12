@@ -1,8 +1,3 @@
-library(testthat)
-library(arules)
-
-source("./rule_map.R")
-
 ####### TEST INPUTS #######
 
 data(Groceries)
@@ -15,6 +10,8 @@ rules_empty <- apriori(Groceries,
                   parameter = list(supp = 1, conf = 1, target = "rules"))
 large_rules <- apriori(Groceries, 
                   parameter = list(supp = 0.001, conf = 0.3, target = "rules"))
+
+####### TESTS #######
 
 test_that("rule_map() validates rules objects", {
   

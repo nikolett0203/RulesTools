@@ -10,6 +10,7 @@
 #' @return A list containing the intersections of the provided rule sets.
 #'
 #' @examples
+#' library(arules)
 #' data(Groceries)
 #' rules1 <- apriori(Groceries, parameter = list(supp = 0.01, conf = 0.5, target = "rules"))
 #' rules2 <- apriori(Groceries, parameter = list(supp = 0.01, conf = 0.6, target = "rules"))

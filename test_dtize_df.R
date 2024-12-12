@@ -1,8 +1,4 @@
-library(testthat)
-library(mice)
-
-source("./dtize_df.R")
-source("./dtize_col.R")
+####### TEST INPUTS #######
 
 test_df <- data.frame(
   column1 = c(1, 2, 3, 4, 5),
@@ -53,6 +49,8 @@ test_df4 <- data.frame(
   one = c(1, 5, 2, 7.6, 34, NA, 23, 22.3, NA),
   two = c(11, 5.3, 9, 4, NA, NA, 2, 15, NA)
 )
+
+####### TESTS #######
 
 test_that("dtize_df() verifies data inputs correctly", {
   expect_error(
@@ -490,8 +488,8 @@ test_that("impute_pmm() handles `m` and `maxit` correctly", {
     fixed = TRUE
   )
   expect_error(
-    impute_pmm("pmm", test_df2, maxit = 0),
-    regexp = "`maxit` must be a positive integer."
+    impute_pmm("pmm", test_df2, maxit = -1),
+    regexp = "`maxit` must be a single non-negative integer."
   )
   expect_no_error(impute_pmm("pmm", test_df2, m = 2, maxit = 5))
 })

@@ -1,8 +1,3 @@
-library(testthat)
-library(mice)
-
-source("./dtize_col.R")
-
 ####### TEST INPUTS #######
 
 # vectors

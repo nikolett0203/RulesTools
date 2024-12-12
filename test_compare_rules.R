@@ -1,8 +1,3 @@
-library(testthat)
-library(arules)
-
-source("./compare_rules.R")
-
 ####### TEST INPUTS #######
 
 data(Groceries)

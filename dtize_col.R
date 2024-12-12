@@ -1,5 +1,3 @@
-#library mice
-
 #' Discretize a Numeric Column
 #'
 #' Discretizes a numeric vector into categories based on specified cutoff points.

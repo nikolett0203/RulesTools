@@ -1,6 +1,3 @@
-#library(arules)
-#library(ggplot2)
-
 #' Create a Heatmap for Association Rules
 #'
 #' The `rule_heatmap` function generates a heatmap visualization of association rules, 

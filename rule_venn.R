@@ -1,7 +1,3 @@
-library(eulerr)
-library(arules)
-library(ggplot2)
-
 #' Create a Venn Diagram for Association Rules
 #'
 #' The `rule_venn` function generates a Venn diagram visualization for up to 4 sets of association rules. 

@@ -1,11 +1,7 @@
-library(testthat)
-library(arules)
-
-source("./rule_venn.R")
+####### TEST INPUTS #######
 
 data(Groceries)
 
-# Generate rules for testing
 rules1 <- apriori(
   Groceries, 
   parameter = list(supp = 0.01, conf = 0.5, target = "rules")
@@ -19,7 +15,7 @@ rules2 <- apriori(
 rules3 <- apriori(
   Groceries, 
   parameter = list(supp = 0.02, conf = 0.5, target = "rules")
-)  # Empty ruleset
+)  
 
 large_rules <- apriori(
   Groceries, 
@@ -28,7 +24,7 @@ large_rules <- apriori(
 
 rule_list1 <- list(r1 = rules1, r2 = rules2)
 
-####### Tests #######
+####### TESTS #######
 
 test_that("rule_venn() catches invalid rules arguments", {
   expect_error(
