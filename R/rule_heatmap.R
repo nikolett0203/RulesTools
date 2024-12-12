@@ -17,6 +17,12 @@
 #'
 #' @return A `ggplot` object representing the heatmap visualization of the association rules.
 #'
+#' @import ggplot2
+#' @importFrom arules lhs rhs quality
+#' @importFrom tidyr complete
+#' @importFrom grDevices colors
+#' @importFrom magrittr %>%
+#'
 #' @examples
 #' library(arules)
 #' data(Groceries)
@@ -28,11 +34,14 @@
 #' rule_heatmap(rules, metric = "confidence", graph_title = "Confidence Heatmap")
 #' 
 #' # Create a heatmap of the rules using lift as the metric
-#' rule_heatmap(rules, metric = "lift", graph_title = "Lift Heatmap", low_color = "white", high_color = "red")
+#' rule_heatmap(
+#'   rules, 
+#'   metric = "lift", 
+#'   graph_title = "Lift Heatmap", 
+#'   low_color = "white", 
+#'   high_color = "red"
+#' )
 #'
-#' @import ggplot2
-#' @importFrom arules lhs rhs quality
-#' @importFrom tidyr complete
 #' @export
 
 rule_heatmap <- function(rules,

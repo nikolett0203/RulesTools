@@ -9,6 +9,8 @@
 #'
 #' @return A list containing the intersections of the provided rule sets.
 #'
+#' @importFrom utils combn write.csv
+#'
 #' @examples
 #' library(arules)
 #' data(Groceries)

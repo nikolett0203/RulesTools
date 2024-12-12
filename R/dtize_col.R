@@ -13,7 +13,9 @@
 #' @param na_fill A string specifying the method to impute missing values: "none", "mean", or "median" (default "none").
 #'
 #' @return A factor with the same length as `column`, where each value is categorized based on the cutoffs.
-#' 
+#'
+#' @importFrom stats median
+#'
 #' @examples
 #' # Example with predefined cutoffs
 #' dtize_col(c(1, 2, 3, 4, 5), cutoff = c(2, 4), labels = c("low", "medium", "high"))

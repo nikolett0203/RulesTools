@@ -13,7 +13,7 @@
 #'   \item{WaterTemp}{Numeric. Water temperature in degrees Celsius.}
 #'   \item{pH}{Numeric. pH level of the water sample.}
 #'   \item{DissolvedOxygen}{Numeric. Dissolved oxygen concentration in mg/L.}
-#'   \item{Conductivity}{Numeric. Conductivity in mS/s.}
+#'   \item{Conductivity}{Numeric. Conductivity in µS/cm.}
 #'   \item{VolumeFiltered}{Numeric. Volume of water filtered in litres.}
 #'   \item{eDNAConc}{Numeric. Environmental DNA concentration, measured in copies per microlitre.}
 #' }
@@ -23,6 +23,8 @@
 #' \doi{10.1007/s13412-022-00800-x}
 #'
 #' @examples
-#' data(brook_trout_eDNA)
-#' summary(brook_trout_eDNA)
-#' plot(eDNAConc ~ Site, data = brook_trout_eDNA)
+#' data(BrookTrout)
+#' summary(BrookTrout)
+#' plot(eDNAConc ~ Site, data = BrookTrout)
+"BrookTrout"
+

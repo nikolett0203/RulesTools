@@ -19,6 +19,8 @@
 #'
 #' @return A dataframe with numeric columns discretized and missing values handled based on the specified imputation method.
 #'
+#' @importFrom mice mice complete
+#'
 #' @examples
 #' \dontrun{
 #' data <- data.frame(

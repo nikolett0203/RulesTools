@@ -18,6 +18,10 @@
 #'
 #' @return A `plot` object displaying the Venn diagram visualization.
 #'
+#' @import eulerr
+#' @importFrom arules labels
+#' @importFrom grDevices colors
+#' 
 #' @examples
 #' library(arules)
 #' library(eulerr)
@@ -37,8 +41,6 @@
 #'   name_color = "darkred"
 #' )
 #'
-#' @import eulerr
-#' @importFrom arules labels
 #' @export
 
 rule_venn <- function(rules, 
