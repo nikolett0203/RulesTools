@@ -51,14 +51,31 @@ Discretizes numeric columns of a dataframe based on specified splitting criteria
 and handles missing values using specified imputation methods.
 }
 \examples{
-\dontrun{
-data <- data.frame(
-  age = c(25, 30, NA, 40, 35),
-  income = c(50000, 60000, 70000, NA, 80000),
-  category = c("A", "B", "A", "B", "C")
+data(BrookTrout)
+
+# Example with median as cutoff
+med_df <- dtize_df(
+  BrookTrout, 
+  cutoff="median", 
+  labels=c("below median", "above median")
 )
 
-dtize_df(data, cutoff = "median", na_fill = "pmm", seed = 123)
-}
+# Example with mean as cutoff
+mean_df <- dtize_df(
+  BrookTrout, 
+  cutoff="mean", 
+  include_right=FALSE
+)
+
+# Example with missing value imputation
+air <- dtize_df(
+  airquality, 
+  cutoff="mean", 
+  na_fill="pmm", 
+  m=10, 
+  maxit=10, 
+  seed=42
+)
+
 
 }

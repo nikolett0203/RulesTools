@@ -26,251 +26,251 @@ rule_list1 <- list(r1 = rules1, r2 = rules2)
 
 ####### TESTS #######
 
-test_that("rule_venn() catches invalid rules arguments", {
+test_that("rule_euler() catches invalid rules arguments", {
   expect_error(
-    rule_venn(1),
+    rule_euler(1),
     regexp = "'rules' objects must be provided as a list."
   )
   
   expect_error(
-    rule_venn(rules1),
+    rule_euler(rules1),
     regexp = "'rules' objects must be provided as a list."
   )
   
   expect_error(
-    rule_venn(c(rules1, rules2)),
+    rule_euler(c(rules1, rules2)),
     regexp = "'rules' objects must be provided as a list."
   )
   
   expect_error(
-    rule_venn(matrix(1:3)),
+    rule_euler(matrix(1:3)),
     regexp = "'rules' objects must be provided as a list."
   )
   
   expect_error(
-    rule_venn(matrix("khalid")),
+    rule_euler(matrix("khalid")),
     regexp = "'rules' objects must be provided as a list."
   )
   
   expect_error(
-    rule_venn(NULL),
+    rule_euler(NULL),
     regexp = "'rules' objects must be provided as a list."
   )
   
   expect_error(
-    rule_venn(list(rules1)),
+    rule_euler(list(rules1)),
     regexp = "You must provide between 2 and 4 'rules' objects."
   )
   
   expect_error(
-    rule_venn(list(rules1, rules2, rules3, large_rules, rules1)),
+    rule_euler(list(rules1, rules2, rules3, large_rules, rules1)),
     regexp = "You must provide between 2 and 4 'rules' objects."
   )
   
   expect_error(
-    rule_venn(list(rules1, rules2, rules3, NULL)),
+    rule_euler(list(rules1, rules2, rules3, NULL)),
     regexp = "The list contains NULL values. Please provide valid 'rules' objects."
   )
   
   expect_error(
-    rule_venn(list(NULL, NULL, NULL, NULL)),
+    rule_euler(list(NULL, NULL, NULL, NULL)),
     regexp = "The list contains NULL values. Please provide valid 'rules' objects."
   )
   
   expect_error(
-    rule_venn(list(rules1, NA, rules2)),
+    rule_euler(list(rules1, NA, rules2)),
     regexp = "All elements in the list must be 'rules' objects."
   )
   
   expect_error(
-    rule_venn(list(1, 2, 3)),
+    rule_euler(list(1, 2, 3)),
     regexp = "All elements in the list must be 'rules' objects."
   )
   
   expect_error(
-    rule_venn(list("m.i.a.", "faded")),
+    rule_euler(list("m.i.a.", "faded")),
     regexp = "All elements in the list must be 'rules' objects."
   )
   
   expect_error(
-    rule_venn(list(rules1, matrix(1:3), TRUE)),
+    rule_euler(list(rules1, matrix(1:3), TRUE)),
     regexp = "All elements in the list must be 'rules' objects."
   )
   
-  expect_no_error(rule_venn(list(rules1, rules2)))
-  expect_no_error(rule_venn(list(rules1, rules2, rules3)))
-  expect_no_error(rule_venn(list(rules1, rules2, rules3, large_rules)))
+  expect_no_error(rule_euler(list(rules1, rules2)))
+  expect_no_error(rule_euler(list(rules1, rules2, rules3)))
+  expect_no_error(rule_euler(list(rules1, rules2, rules3, large_rules)))
 })
 
 
-test_that("rule_venn() catches invalid fill_alpha arguments", {
+test_that("rule_euler() catches invalid fill_alpha arguments", {
   expect_error(
-    rule_venn(rule_list1, fill_alpha = 1.5),
+    rule_euler(rule_list1, fill_alpha = 1.5),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
   
   expect_error(
-    rule_venn(rule_list1, fill_alpha = -1.5),
+    rule_euler(rule_list1, fill_alpha = -1.5),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
   
   expect_error(
-    rule_venn(rule_list1, fill_alpha = c(0.5, 0.3)),
+    rule_euler(rule_list1, fill_alpha = c(0.5, 0.3)),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
   
   expect_error(
-    rule_venn(rule_list1, fill_alpha = list(0.1, 0.2, 0.3)),
+    rule_euler(rule_list1, fill_alpha = list(0.1, 0.2, 0.3)),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
   
   expect_error(
-    rule_venn(rule_list1, fill_alpha = NULL),
+    rule_euler(rule_list1, fill_alpha = NULL),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
   
   expect_error(
-    rule_venn(rule_list1, fill_alpha = NA),
+    rule_euler(rule_list1, fill_alpha = NA),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
   
   expect_error(
-    rule_venn(rule_list1, fill_alpha = matrix(1:3)),
+    rule_euler(rule_list1, fill_alpha = matrix(1:3)),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
   
   expect_error(
-    rule_venn(rule_list1, fill_alpha = "alpha"),
+    rule_euler(rule_list1, fill_alpha = "alpha"),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
   
   expect_error(
-    rule_venn(rule_list1, fill_alpha = "TRUE"),
+    rule_euler(rule_list1, fill_alpha = "TRUE"),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
   
-  expect_no_error(rule_venn(rule_list1, fill_alpha = 0.75))
-  expect_no_error(rule_venn(rule_list1, fill_alpha = 0))
-  expect_no_error(rule_venn(rule_list1, fill_alpha = 1.0))
-  expect_no_error(rule_venn(rule_list1, fill_alpha = 0.785))
-  expect_no_error(rule_venn(rule_list1, fill_alpha = 1e-10))
-  expect_no_error(rule_venn(rule_list1))
+  expect_no_error(rule_euler(rule_list1, fill_alpha = 0.75))
+  expect_no_error(rule_euler(rule_list1, fill_alpha = 0))
+  expect_no_error(rule_euler(rule_list1, fill_alpha = 1.0))
+  expect_no_error(rule_euler(rule_list1, fill_alpha = 0.785))
+  expect_no_error(rule_euler(rule_list1, fill_alpha = 1e-10))
+  expect_no_error(rule_euler(rule_list1))
 })
 
 
-test_that("rule_venn() catches invalid title arguments", {
+test_that("rule_euler() catches invalid title arguments", {
   expect_error(
-    rule_venn(rule_list1, title = 1.5),
+    rule_euler(rule_list1, title = 1.5),
     regexp = "The graph title must be either NULL or a single non-NA character string."
   )
   
   expect_error(
-    rule_venn(rule_list1, title = c(0.5, 0.3)),
+    rule_euler(rule_list1, title = c(0.5, 0.3)),
     regexp = "The graph title must be either NULL or a single non-NA character string."
   )
   
   expect_error(
-    rule_venn(rule_list1, title = list(0.1, "two", FALSE)),
+    rule_euler(rule_list1, title = list(0.1, "two", FALSE)),
     regexp = "The graph title must be either NULL or a single non-NA character string."
   )
   
   expect_error(
-    rule_venn(rule_list1, title = NA),
+    rule_euler(rule_list1, title = NA),
     regexp = "The graph title must be either NULL or a single non-NA character string."
   )
   
   expect_error(
-    rule_venn(rule_list1, title = matrix(1:3)),
+    rule_euler(rule_list1, title = matrix(1:3)),
     regexp = "The graph title must be either NULL or a single non-NA character string."
   )
   
   expect_error(
-    rule_venn(rule_list1, title = TRUE),
+    rule_euler(rule_list1, title = TRUE),
     regexp = "The graph title must be either NULL or a single non-NA character string."
   )
   
-  expect_no_error(rule_venn(rule_list1, title = "VENN"))
-  expect_no_error(rule_venn(rule_list1, title = "I switched the time zone, but what do I know? Spendin' nights hitchhikin', where will I go? I could fly home, with my eyes closed But it'd get kinda hard to see, that's no surprise though."))
-  expect_no_error(rule_venn(rule_list1, title = ""))
-  expect_no_error(rule_venn(rule_list1, title = "测试标题"))
-  expect_no_error(rule_venn(rule_list1, title = NULL))
+  expect_no_error(rule_euler(rule_list1, title = "euler"))
+  expect_no_error(rule_euler(rule_list1, title = "I switched the time zone, but what do I know? Spendin' nights hitchhikin', where will I go? I could fly home, with my eyes closed But it'd get kinda hard to see, that's no surprise though."))
+  expect_no_error(rule_euler(rule_list1, title = ""))
+  expect_no_error(rule_euler(rule_list1, title = "测试标题"))
+  expect_no_error(rule_euler(rule_list1, title = NULL))
 })
 
 
-test_that("rule_venn() catches invalid colors", {
+test_that("rule_euler() catches invalid colors", {
   expect_error(
-    rule_venn(rule_list1, stroke_color = "#12FG34"),
+    rule_euler(rule_list1, stroke_color = "#12FG34"),
     regexp = "'stroke_color' must be a valid 6-8 digit hex color code"
   )
   
   expect_error(
-    rule_venn(rule_list1, name_color = "notacolor"),
+    rule_euler(rule_list1, name_color = "notacolor"),
     regexp = "'name_color' must be a valid 6-8 digit hex color code"
   )
   
   expect_error(
-    rule_venn(rule_list1, text_color = 12345),
+    rule_euler(rule_list1, text_color = 12345),
     regexp = "'text_color' must be a valid 6-8 digit hex color code"
   )
   
   expect_error(
-    rule_venn(rule_list1, fill_color = list("blue", "#GGGGGG")),
+    rule_euler(rule_list1, fill_color = list("blue", "#GGGGGG")),
     regexp = "'fill_color' must be a valid 6-8 digit hex color code"
   )
   
   expect_error(
-    rule_venn(rule_list1, fill_color = TRUE),
+    rule_euler(rule_list1, fill_color = TRUE),
     regexp = "'fill_color' must be a valid 6-8 digit hex color code"
   )
   
   expect_error(
-    rule_venn(rule_list1, stroke_color = NULL),
+    rule_euler(rule_list1, stroke_color = NULL),
     regexp = "'stroke_color' must be a valid 6-8 digit hex color code"
   )
   
   expect_error(
-    rule_venn(rule_list1, name_color = ""),
+    rule_euler(rule_list1, name_color = ""),
     regexp = "'name_color' must be a valid 6-8 digit hex color code"
   )
   
   expect_error(
-    rule_venn(rule_list1, name_color = matrix(1:3)),
+    rule_euler(rule_list1, name_color = matrix(1:3)),
     regexp = "'name_color' must be a valid 6-8 digit hex color code"
   )
   
   expect_error(
-    rule_venn(rule_list1, text_color = NA),
+    rule_euler(rule_list1, text_color = NA),
     regexp = "'text_color' must be a valid 6-8 digit hex color code"
   )
   
   expect_error(
-    rule_venn(rule_list1, text_color = c("blue", "pink")),
+    rule_euler(rule_list1, text_color = c("blue", "pink")),
     regexp = "'text_color' must be a valid 6-8 digit hex color code"
   )
   
   expect_error(
-    rule_venn(rule_list1, fill_color = c("#FF0000", "invalidcolor")),
+    rule_euler(rule_list1, fill_color = c("#FF0000", "invalidcolor")),
     regexp = "'fill_color' must be a valid 6-8 digit hex color code"
   )
   
-  expect_no_error(rule_venn(rule_list1, fill_color = c("#FF0000", "#00FF00", "#0000FFFF")))
-  expect_no_error(rule_venn(rule_list1, stroke_color = "blue"))
-  expect_no_error(rule_venn(rule_list1, stroke_color = "#FF573333"))
-  expect_no_error(rule_venn(rule_list1, name_color = "green"))
-  expect_no_error(rule_venn(rule_list1, text_color = "#1A2B3C"))
-  expect_no_error(rule_venn(rule_list1, fill_color = c("cyan", "#ABCDEF")))
+  expect_no_error(rule_euler(rule_list1, fill_color = c("#FF0000", "#00FF00", "#0000FFFF")))
+  expect_no_error(rule_euler(rule_list1, stroke_color = "blue"))
+  expect_no_error(rule_euler(rule_list1, stroke_color = "#FF573333"))
+  expect_no_error(rule_euler(rule_list1, name_color = "green"))
+  expect_no_error(rule_euler(rule_list1, text_color = "#1A2B3C"))
+  expect_no_error(rule_euler(rule_list1, fill_color = c("cyan", "#ABCDEF")))
 })
 
 
-test_that("rule_venn() runs with valid arguments", {
+test_that("rule_euler() runs with valid arguments", {
   expect_no_error(
-    rule_venn(
+    rule_euler(
       rule_list1,
       fill_color  = c("blue", "purple", "green"),
       fill_alpha  = 0.3,
       stroke_color = "grey",
       stroke_size = 2,
-      title       = "Venn Diagram of Association Rules",
+      title       = "Euler Diagram of Association Rules",
       name_color  = "red",
       name_size   = 11,
       text_color  = "#BFE736",
@@ -279,7 +279,7 @@ test_that("rule_venn() runs with valid arguments", {
   )
   
   expect_no_error(
-    rule_venn(
+    rule_euler(
       list(rules1, rules2, large_rules),
       fill_color  = c("#A318E3", "#B1EEF2", "#333FFF"),
       fill_alpha  = 0.888,

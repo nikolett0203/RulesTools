@@ -1,6 +1,6 @@
 #' Compare Association Rule Sets and Find Their Intersections
 #'
-#' This function compares multiple sets of association rules, identifies intersections,
+#' Compares multiple sets of association rules, identifies intersections,
 #' and optionally displays the results or writes them to a CSV file.
 #'
 #' @param ... Named association rule sets (objects of class `rules`).
@@ -13,11 +13,33 @@
 #'
 #' @examples
 #' library(arules)
-#' data(Groceries)
-#' rules1 <- apriori(Groceries, parameter = list(supp = 0.01, conf = 0.5, target = "rules"))
-#' rules2 <- apriori(Groceries, parameter = list(supp = 0.01, conf = 0.6, target = "rules"))
-#' compare_rules(r1 = rules1, r2 = rules2, display = TRUE, filename = "intersections.csv")
+#' data(BrookTrout)
 #' 
+#' # Discretize the BrookTrout dataset
+#' discrete_bt <- dtize_df(BrookTrout, cutoff = "mean")
+#' 
+#' # Generate the first set of rules with a confidence threshold of 0.5
+#' rules1 <- apriori(
+#'   discrete_bt,
+#'   parameter = list(supp = 0.01, conf = 0.5, target = "rules")
+#' )
+#' 
+#' # Generate the second set of rules with a higher confidence threshold of 0.6
+#' rules2 <- apriori(
+#'   discrete_bt,
+#'   parameter = list(supp = 0.01, conf = 0.6, target = "rules")
+#' )
+#' 
+#' # Compare the two sets of rules and display the intersections
+#' compare_rules(
+#'   r1 = rules1, 
+#'   r2 = rules2, 
+#'   display = TRUE, 
+#'   filename = "intersections.csv"
+#' )
+#' 
+#' # The intersections are saved in 'intersections.csv'
+#'
 #' @export
 
 compare_rules <- function(...,

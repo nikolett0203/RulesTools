@@ -17,14 +17,25 @@
 #' @importFrom stats median
 #'
 #' @examples
+#' data(BrookTrout)
+#' 
 #' # Example with predefined cutoffs
-#' dtize_col(c(1, 2, 3, 4, 5), cutoff = c(2, 4), labels = c("low", "medium", "high"))
+#' discrete_water_temp <- dtize_col(
+#'   BrookTrout$eDNAConc, cutoff=13.3, 
+#'   labels=c("low", "high"), 
+#'   infinity=TRUE
+#' )
 #'
 #' # Example with median as cutoff
-#' dtize_col(c(1, 2, 3, 4, 5), cutoff = "median", labels = c("low", "high"))
+#' discrete_pH <- dtize_col(BrookTrout$pH, cutoff="median")
 #'
 #' # Example with missing value imputation
-#' dtize_col(c(1, 2, NA, 4, 5), cutoff = "mean", labels = c("low", "high"), na_fill = "mean")
+#' filled_col <- dtize_col(
+#'   c(1, 2, NA, 4, 5), 
+#'   cutoff = "mean", 
+#'   include_right=FALSE, 
+#'   na_fill = "mean"
+#' )
 #'
 #' @export
 
