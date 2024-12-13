@@ -334,7 +334,7 @@ rule_heatmap(
 ```
 
 
-## BrookTrout Dataset
+## Brook Trout Dataset
 
 ### Overview
 
