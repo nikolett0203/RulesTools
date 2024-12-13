@@ -13,6 +13,7 @@
   - [Visualization Functions](#visualization-functions)
     - [`rule_euler` Function: Create an Euler Diagram for Association Rules](#rule_euler-function-create-an-euler-diagram-for-association-rules)
     - [`rule_heatmap` Function: Create a Heatmap for Association Rules](#rule_heatmap-function-create-a-heatmap-for-association-rules)
+- [Brook Trout Dataset](#brook-trout-dataset)
 - [Citations](#citations)
 
 
@@ -47,7 +48,7 @@ The `dtize_col` function discretizes a numeric vector into categories based on s
 
 #### Return Value
 
-A factor with the same length as `column`, where each value is categorized based on the specified cutoffs.
+A vector with the same length as `column`, where each value is categorized based on the specified cutoffs.
 
 #### How It Works
 
@@ -330,6 +331,44 @@ rule_heatmap(
   low_color = "#D4A221",
   high_color = "darkgreen"
 )
+```
+
+
+## BrookTrout Dataset
+
+### Overview
+
+The **`BrookTrout`** dataset included in the **RulesTools** package provides environmental metadata to explore factors influencing high eDNA concentrations in aquatic samples. This dataset is derived from a study conducted in **Hanlon Creek (Guelph, ON, Canada)** in **September 2019**.
+
+### Dataset Details
+
+- **Transactions**: 126  
+- **Variables**: 10  
+
+The dataset includes the following environmental and biological variables:
+
+- **eDNA Concentrations** (measured via qPCR)  
+- **Abiotic Characteristics**:  
+  - Backpack (i.e. eDNA sampler type)
+  - Site
+  - Air Temperature  
+  - Water Temperature  
+  - Water pH  
+  - Dissolved Oxygen  
+  - Conductivity  
+  - Water Volume  
+
+### Example Usage
+
+```r
+# Load the dataset
+data(BrookTrout)
+
+# View the first few rows
+head(BrookTrout)
+
+# Summary statistics
+summary(BrookTrout)
 ```
 
 
