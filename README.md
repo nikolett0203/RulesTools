@@ -6,13 +6,13 @@
 ## Navigate To...
 - [Usage](#usage)
   - [Discretization Functions](#discretization-functions)
-    - [`dtize_col` Function](#dtize_col-function)
-    - [`dtize_df` Function](#dtize_df-function)
+    - [`dtize_col` Function: Discretize a Numeric Column](#dtize_col-function-discretize-a-numeric-column)
+    - [`dtize_df` Function: Discretize Dataframe Columns](#dtize_df-function-discretize-dataframe-columns)
   - [Rule Analysis Functions](#rule-analysis-functions)
-    - [`compare_rules` Function](#compare_rules-function)
+    - [`compare_rules` Function: Compare and Find Intersections of Association Rule Sets](#compare_rules-function-compare-and-find-intersections-of-association-rule-sets)
   - [Visualization Functions](#visualization-functions)
-    - [`rule_euler` Function](#rule_euler-function)
-    - [`rule_heatmap` Function](#rule_heatmap-function)
+    - [`rule_euler` Function: Create an Euler Diagram for Association Rules](#rule_euler-function-create-an-euler-diagram-for-association-rules)
+    - [`rule_heatmap` Function: Create a Heatmap for Association Rules](#rule_heatmap-function-create-a-heatmap-for-association-rules)
 - [Citations](#citations)
 
 
