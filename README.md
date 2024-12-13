@@ -1,6 +1,15 @@
-# Association Rule Mining of eDNA Datasets
+# RulesTools: Tools for Preparing, Analyzing, and Visualizing Association Rules
 
-This project applies association rule mining to eDNA datasets using custom scripts and R's `arules` and `ggvenn` packages in order to determine which environmental metadata variables contribute most strongly to high eDNA concentrations in aquatic samples. 
+**RulesTools** is an R package designed to streamline association rule mining workflows. It provides functions for preparing datasets, analyzing generated rules, and visualizing results using heatmaps and Euler diagrams.
+
+## Key Features
+
+- **Discretization Tools:** Convert continuous data into discrete categories for rule mining.
+- **Rule Comparison:** Identify and visualize intersections of multiple rule sets.
+- **Visualization:** Create insightful heatmaps and customized Euler diagrams for rule interpretation.
+- **BrookTrout Dataset:** Includes the `BrookTrout` dataset, which contains environmental metadata to explore how these variables influence high eDNA concentrations in aquatic samples. The dataset is derived from:
+
+  **Nolan, K. P., et al. (2022).** *Detection of brook trout in spatiotemporally separate locations using validated eDNA technology.* Journal of Environmental Studies and Sciences, 13, 66–82. [https://doi.org/10.1007/s13412-022-00800-x](https://doi.org/10.1007/s13412-022-00800-x)
 
 ## Navigate To...
 - [Usage](#usage)
