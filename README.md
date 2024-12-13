@@ -2,6 +2,20 @@
 
 **RulesTools** is an R package designed to streamline association rule mining workflows. It provides functions for preparing datasets, analyzing generated rules, and visualizing results using heatmaps and Euler diagrams.
 
+
+## Navigate To...
+- [Usage](#usage)
+  - [Discretization Functions](#discretization-functions)
+    - [`dtize_col` Function](#dtize_col-function)
+    - [`dtize_df` Function](#dtize_df-function)
+  - [Rule Analysis Functions](#rule-analysis-functions)
+    - [`compare_rules` Function](#compare_rules-function)
+  - [Visualization Functions](#visualization-functions)
+    - [`rule_euler` Function](#rule_euler-function)
+    - [`rule_heatmap` Function](#rule_heatmap-function)
+- [Citations](#citations)
+
+
 ## Key Features
 
 - **Discretization Tools:** Convert continuous data into discrete categories for rule mining.
@@ -11,142 +25,303 @@
 
   **Nolan, K. P., et al. (2022).** *Detection of brook trout in spatiotemporally separate locations using validated eDNA technology.* Journal of Environmental Studies and Sciences, 13, 66–82. [https://doi.org/10.1007/s13412-022-00800-x](https://doi.org/10.1007/s13412-022-00800-x)
 
-## Navigate To...
-- [Usage](#usage)
-  - [plotting_funs.R](#plotting_funsr)
-    - [`bar` Function](#bar-function)
-    - [`his` Function](#his-function)
-    - [`scatter` Function](#scatter-function)
-  - [assoc_funs.R](#assoc_funsr)
-    - [`dtize` Function](#dtize-function)
-    - [`rule_by_rule` Function](#rule_by_rule-function)
-  - [ggvenn_custom.R](#ggvenn_customr)
-    - [`extract_labels` Function](#extract_labels-function)
-    - [`ggvenn_custom` Function](#ggvenn_custom-function)
-- [Citations](#citations)
 
-## Usage
+## `dtize_col` Function: Discretize a Numeric Column
 
-### plotting_funs.R
+### Purpose
 
-This file contains helper functions to create formatted plots of eDNA data prior to rule mining. It includes functions for barplots, histograms, and scatterplots.
+The `dtize_col` function discretizes a numeric vector into categories based on specified cutoff points. It supports predefined cutoffs (such as the mean or median), handles missing values, and allows for infinite bounds. This is useful for transforming continuous data into categorical intervals for association rule mining.
 
-#### `bar` Function
+### Parameters
 
-- **Purpose:** Generates a styled barplot for categorical data.
-- **Parameters:**
-  - `data`: The dataframe containing the column to be plotted.
-  - `xvar`: The column name for the data you want to plot on the x-axis.
-  - `xlab`: The label for the x-axis of the plot.
-- **Example Usage:**
-  ```r
-  # Assuming 'df' is your dataframe and 'Site' is a column of categorical data in the dataframe:
-  sites_plot <- bar(df, Site, "Site")
-  print(sites_plot)
-- **Example Output:** 
+- **`column`** *(Numeric vector)*: The numeric vector to discretize.
+- **`cutoff`** *(Numeric vector or string)*: Cutoff points for discretization, or a predefined string (`"mean"` or `"median"`). Default is `"median"`.
+- **`labels`** *(Character vector)*: Labels for the resulting categories. Default is `c("low", "high")`.
+- **`include_right`** *(Logical)*: If `TRUE`, intervals are closed on the right. Default is `TRUE`.
+- **`infinity`** *(Logical)*: If `TRUE`, extends cutoffs to `-Inf` and `Inf`. Default is `TRUE`.
+- **`include_lowest`** *(Logical)*: If `TRUE`, the lowest interval is closed on the left. Default is `TRUE`.
+- **`na_fill`** *(String)*: Method to impute missing values: `"none"`, `"mean"`, or `"median"`. Default is `"none"`.
 
-![Alt text](./images/barplot.jpeg)
+### Return Value
 
-#### `his` Function
+A factor with the same length as `column`, where each value is categorized based on the specified cutoffs.
 
-- **Purpose:** Generates a styled historgram for continuous data.
-- **Parameters:**
-  - `data`: The dataframe containing the column to be plotted.
-  - `xvar`: The column name for the data you want to plot on the x-axis.
-  - `xlab`: The label for the x-axis of the plot.
-- **Example Usage:**
-  ```r
-  # Assuming 'df' is your dataframe and 'pH' is a column name in the dataframe:
-  ph_plot <- his(df, pH, "pH")
-  print(ph_plot)
-- **Example Output:** 
+### How It Works
 
-![Alt text](./images/hisplot.jpeg)
+1. **Validation**: Ensures inputs are valid, including logical parameters, cutoff points, and labels.
+2. **Cutoff Handling**: Uses specified cutoffs or calculates cutoffs based on the mean or median.
+3. **Interval Assignment**: Categorizes values based on the cutoffs and labels.
+4. **Missing Value Imputation**: Optionally fills `NA` values with the mean or median before discretization.
 
-#### `scatter` Function
+### Example Usage
 
-- **Purpose:** Generates a styled scatterplot to visualize the relationship between two continuous variables, and annotates the plot with the Pearson correlation coefficient and p-value.
-- **Parameters:**
-  - `data`: The dataframe containing the columns to be plotted.
-  - `xV`: The column name (as a string) for the data you want to plot on the x-axis.
-  - `yV`: The column name (as a string) for the data you want to plot on the y-axis.
-  - `labx`: The label (as a string) for the x-axis of the plot.
-  - `laby`: The label (as a string) for the y-axis of the plot.
-- **Example Usage:**
-  ```r
-  # Assuming 'df' is your dataframe, 'Temperature' is plotted on the x-axis, and 'eDNA_Concentration' on the y-axis:
-  scatter_plot <- scatter(df, "Temperature", "eDNA_Concentration", "Water Temperature", "eDNA Concentration")
-  print(scatter_plot)
-- **Example Output:** 
+```r
+data(BrookTrout)
 
-![Alt text](./images/corr_plot.jpeg)
+# Example with predefined cutoffs
+discrete_water_temp <- dtize_col(
+  BrookTrout$eDNAConc,
+  cutoff = 13.3,
+  labels = c("low", "high"),
+  infinity = TRUE
+)
 
-### assoc_funs.R
+# Example with median as cutoff
+discrete_pH <- dtize_col(BrookTrout$pH, cutoff = "median")
 
-This file contains helper functions to facilitate the discretization of data and the comparison of association rule sets. It includes functions for discretizing continuous variables and comparing two or more rulesets.
+# Example with missing value imputation
+filled_col <- dtize_col(
+  c(1, 2, NA, 4, 5),
+  cutoff = "mean",
+  include_right = FALSE,
+  na_fill = "mean"
+)
+```
 
-#### `dtize` Function
+## `dtize_df` Function: Discretize Dataframe Columns
 
-- **Purpose:** Discretizes continuous data in a dataframe based on provided split thresholds.
-- **Parameters:**
-  - `data`: The dataframe containing the columns to be discretized.
-  - `split`: A dataframe containing the split thresholds for each column in the `data` dataframe. The splits must correspond to the order of columns in the dataframe.
-  - `new_df`: An empty dataframe initialized with the number of columns needed to store the discretized data.
-- **Example Usage:**
-  ```r
-  # Assuming 'df' is your original dataframe:
-  ew_df <- data.frame(matrix(nrow = nrow(df), ncol = 0))
-  splits <- data.frame(AirTemp = 16, WaterTemp = 25, pH = 7.75, eDNAConc = 13.3)
-  discretized_df <- dtize(df, splits, new_df)
-- **Example Output:** 
+### Purpose
 
-Before `dtize()`:
-![Alt text](./images/before_dtize.png)
+The `dtize_df` function discretizes numeric columns in a dataframe based on specified splitting criteria. It also handles missing values using various imputation methods, making it useful for preparing data for association rule mining.
 
-After `dtize()`:
-![Alt text](./images/after_dtize.png)
+### Parameters
 
-#### `rule_by_rule` Function
+- **`data`** *(Dataframe)*: The dataframe containing the data to be discretized.
+- **`cutoff`** *(Character string or numeric vector)*: The method for splitting numeric columns. Options are `"median"` (default), `"mean"`, or a custom numeric vector of split points.
+- **`labels`** *(Character vector)*: Labels for the discretized categories. Default is `c("low", "high")`.
+- **`include_right`** *(Logical)*: If `TRUE`, intervals are closed on the right. Default is `TRUE`.
+- **`infinity`** *(Logical)*: If `TRUE`, extends intervals to `-Inf` and `Inf`. Default is `TRUE`.
+- **`include_lowest`** *(Logical)*: If `TRUE`, the lowest interval is closed on the left. Default is `TRUE`.
+- **`na_fill`** *(Character string)*: Method to impute missing values. Options are `"none"` (default), `"mean"`, `"median"`, or `"pmm"` (predictive mean matching).
+- **`m`** *(Integer)*: Number of multiple imputations if `na_fill = "pmm"`. Default is `5`.
+- **`maxit`** *(Integer)*: Maximum number of iterations for the `mice` algorithm. Default is `5`.
+- **`seed`** *(Integer)*: Seed for reproducibility of the imputation process. Default is `NULL`.
+- **`printFlag`** *(Logical)*: If `TRUE`, prints logs during the `mice` imputation process. Default is `FALSE`.
 
-- **Purpose:** Compares an indefinite number of rulesets by finding common rules and displaying their interestingness measures, such as support, confidence, and lift.
-- **Parameters:**
-  - `...`: An indefinite number of `rules` objects (each must be a named argument).
-- **Example Usage:**
-  ```r
-  # Assuming 'mean_rules' and 'med_rules' are two rules objects you want to compare:
-  comparison_df <- rule_by_rule(mean=mean_rules, med=med_rules)
-- **Example Output:** 
+### Return Value
 
-![Alt text](./images/rule_by_rule.png)
+A dataframe with numeric columns discretized and missing values handled based on the specified imputation method.
 
-### ggvenn_custom.R
+### How It Works
 
-This file contains a customized version of the ggvenn function from the ggvenn package by Linlin Yan. This function allows users to see the items contained in each intersection by having it printed to the R console or (optionally) displaying it directly on the venn diagram plot.
+1. **Validation**: Checks that the input is a valid dataframe.
+2. **Missing Value Imputation**: Handles missing values using the specified `na_fill` method, including predictive mean matching (`pmm`) via the `mice` package.
+3. **Column Discretization**: Discretizes each numeric column based on the specified cutoff and labels.
+4. **Non-Numeric Handling**: Non-numeric columns are converted to factors.
 
-#### `extract_labels` Function
+### Example Usage
 
-- **Purpose:** Prepares arules objects for `ggvenn_custom` by extracting the rule labels and adding newlines to improve formatting. 
-- **Parameters:**
-  - `...`: List of rules objects (must be named arguments).
-- **Example Usage:**
-  ```r
-  # Assuming 'bio_rules', and 'mean_rules' are two rules objects:
-  venn_rules <- extract_labels(mean=mean_rules, med=med_rules)
+```r
+data(BrookTrout)
 
-#### `ggvenn_custom` Function
+# Example with median as cutoff
+med_df <- dtize_df(
+  BrookTrout, 
+  cutoff = "median", 
+  labels = c("below median", "above median")
+)
 
-- **Purpose:** Creates venn diagram from a list of rules labels and displays the items in each intersection to the console. Optionally, the user can set `display_element=TRUE` to annotate the venn diagram plot with the rule intersection items.
-- **Parameters:**
-  - `display_element`: Set to `TRUE` to annotate the venn plot with the rule intersection items.
-  - All other parameters are consistent with the original ggvenn function (see citations)
-- **Example Usage:**
-  ```r
-  # Shown with extract_labels because functions should be jointly used
-  venn_rules <- extract_labels(mean=mean_rules, med=med_rules)
-  ggvenn_custom(venn_rules, display_element=TRUE)
-- **Example Output:** 
+# Example with mean as cutoff and left-closed intervals
+mean_df <- dtize_df(
+  BrookTrout, 
+  cutoff = "mean", 
+  include_right = FALSE
+)
 
-![Alt text](./images/venn.jpeg)
+# Example with missing value imputation using predictive mean matching (pmm)
+air <- dtize_df(
+  airquality, 
+  cutoff = "mean", 
+  na_fill = "pmm", 
+  m = 10, 
+  maxit = 10, 
+  seed = 42
+)
+```
+
+
+## `compare_rules` Function: Compare and Find Intersections of Association Rule Sets
+
+### Purpose
+
+The `compare_rules` function helps you compare multiple sets of association rules, identify their intersections, and optionally save the results to a CSV file. This function is particularly useful for exploring how rule sets generated under different parameters overlap or differ.
+
+### Parameters
+
+- **`...`**: Named association rule sets (objects of class `rules`).
+- **`display`** *(Logical)*: If `TRUE`, prints the intersection results. Default is `TRUE`.
+- **`filename`** *(Character string)*: If provided, writes the results to a CSV file. Default is `NULL`.
+
+### Return Value
+
+A list containing the intersections of the provided rule sets.
+
+### How It Works
+
+1. **Input Rule Sets**: Pass multiple named rule sets to the function.
+2. **Validation**: Ensures that inputs are valid rule sets and that parameters are correctly specified.
+3. **Intersection Calculation**: Finds intersections between all combinations of the rule sets.
+4. **Output**: Displays the results in the console and/or saves them to a CSV file.
+
+### Example Usage
+
+```r
+library(arules)
+data(BrookTrout)
+
+# Discretize the BrookTrout dataset
+discrete_bt <- dtize_df(BrookTrout, cutoff = "mean")
+
+# Generate the first set of rules with a confidence threshold of 0.5
+rules1 <- apriori(
+  discrete_bt,
+  parameter = list(supp = 0.01, conf = 0.5, target = "rules")
+)
+
+# Generate the second set of rules with a higher confidence threshold of 0.6
+rules2 <- apriori(
+  discrete_bt,
+  parameter = list(supp = 0.01, conf = 0.6, target = "rules")
+)
+
+# Compare the two sets of rules and display the intersections
+compare_rules(
+  r1 = rules1, 
+  r2 = rules2, 
+  display = TRUE, 
+  filename = "intersections.csv"
+)
+
+# The intersections are saved in 'intersections.csv'
+```
+
+
+## `rule_euler` Function: Create an Euler Diagram for Association Rules
+
+### Purpose
+
+The `rule_euler` function generates an Euler diagram visualization for up to 4 sets of association rules. It helps display the relationships and overlaps between rule sets, with customizable options for colors, transparency, and labels.
+
+### Parameters
+
+- **`rules`** *(List of `rules` objects)*: A list containing between 2 and 4 `rules` objects from the `arules` package.
+- **`fill_color`** *(Character vector)*: Colors for filling the sets. If `NULL`, default colors `c("red", "blue", "green", "purple")` are used. Default is `NULL`.
+- **`fill_alpha`** *(Numeric)*: Transparency of the fill colors (between 0 and 1). Default is `0.5`.
+- **`stroke_color`** *(Character string)*: Color for the set borders. Default is `"black"`.
+- **`stroke_size`** *(Numeric)*: Size of the set borders. Default is `1`.
+- **`title`** *(Character string)*: Title of the Euler diagram. Default is `NULL`.
+- **`name_color`** *(Character string)*: Color of the set names. Default is `"black"`.
+- **`name_size`** *(Numeric)*: Font size of the set names. Default is `12`.
+- **`text_color`** *(Character string)*: Color of the quantity labels (counts) in the diagram. Default is `"black"`.
+- **`text_size`** *(Numeric)*: Font size of the quantity labels. Default is `11`.
+
+### Return Value
+
+A `plot` object displaying the Euler diagram visualization.
+
+### How It Works
+
+1. **Validation**: Checks that the input is a valid list of 2 to 4 `rules` objects.
+2. **Customization**: Allows setting custom colors, transparency, and labels for the diagram.
+3. **Plot Generation**: Uses the `eulerr` package to generate and display the Euler diagram.
+
+### Example Usage
+
+```r
+library(arules)
+data(BrookTrout)
+
+# Discretize the BrookTrout dataset
+discrete_bt <- dtize_df(BrookTrout, cutoff = "median")
+
+# Generate the first set of rules with a confidence threshold of 0.5
+rules1 <- apriori(
+  discrete_bt,
+  parameter = list(supp = 0.01, conf = 0.5, target = "rules")
+)
+
+# Generate the second set of rules with a higher confidence threshold of 0.6
+rules2 <- apriori(
+  discrete_bt,
+  parameter = list(supp = 0.01, conf = 0.6, target = "rules")
+)
+
+# Create an Euler diagram to visualize the intersections between the rule sets
+rule_euler(
+  rules = list(conf0.5 = rules1, conf0.6 = rules2),
+  title = "Euler Diagram of BrookTrout Rule Sets",
+  fill_color = c("#7832ff", "lightgreen"),
+  stroke_color = "darkblue"
+)
+```
+
+
+## `rule_heatmap` Function: Create a Heatmap for Association Rules
+
+### Purpose
+
+The `rule_heatmap` function generates a heatmap visualization of association rules, showing the relationships between antecedents and consequents based on a specified metric. This visualization helps identify patterns and strengths of associations in the rule set.
+
+### Parameters
+
+- **`rules`** *(`rules` object)*: An object of class `rules` from the `arules` package.
+- **`metric`** *(Character string)*: The metric to use for coloring the heatmap. Options are `"confidence"` (default), `"support"`, or `"lift"`.
+- **`graph_title`** *(Character string)*: Title of the heatmap. Default is an empty string (`""`).
+- **`low_color`** *(Character string)*: Color for the lower bound of the gradient. Default is `"lightblue"`.
+- **`high_color`** *(Character string)*: Color for the upper bound of the gradient. Default is `"navy"`.
+- **`include_zero`** *(Logical)*: If `TRUE`, includes zero values for missing antecedent-consequent combinations. Default is `FALSE`.
+
+### Return Value
+
+A `ggplot` object representing the heatmap visualization of the association rules.
+
+### How It Works
+
+1. **Validation**: Ensures the input is a valid `rules` object and parameters are correctly specified.
+2. **Data Preparation**: Extracts antecedents, consequents, and the specified metric from the rule set.
+3. **Optional Zero Inclusion**: Fills missing combinations with zeros if `include_zero = TRUE`.
+4. **Plot Generation**: Uses `ggplot2` to create a heatmap with a gradient color scale based on the chosen metric.
+
+### Example Usage
+
+```r
+library(arules)
+library(tidyr)
+data(BrookTrout)
+
+# Discretize the BrookTrout dataset
+discrete_bt <- dtize_df(BrookTrout, cutoff = "median")
+
+# Generate rules with a confidence threshold of 0.5
+rules <- apriori(
+  discrete_bt,
+  parameter = list(supp = 0.01, conf = 0.5, target = "rules"),
+  appearance = list(rhs = "eDNAConc=high")
+)
+
+# Subset ruleset to avoid redundancy and select significant rules
+rules <- rules %>%
+  subset(!is.redundant(., measure = "confidence")) %>%
+  subset(is.significant(., alpha = 0.05)) %>%
+  sort(by = c("confidence", "lift", "support"))
+
+# Create a heatmap using confidence as the metric
+rule_heatmap(
+  rules,
+  metric = "confidence",
+  graph_title = "Confidence Heatmap"
+)
+
+# Create a heatmap using lift as the metric with custom colors
+rule_heatmap(
+  rules,
+  metric = "lift",
+  graph_title = "Lift Heatmap",
+  low_color = "#D4A221",
+  high_color = "darkgreen"
+)
+```
+
 
 ### Citations
 
