@@ -386,6 +386,11 @@ summary(BrookTrout)
   *eulerr: Area-Proportional Euler and Venn Diagrams with Ellipses.* R package version 7.0.0.  
   [https://CRAN.R-project.org/package=eulerr](https://CRAN.R-project.org/package=eulerr)
 
+- **Nolan, K. P., et al. (2022).**  
+  *Detection of brook trout in spatiotemporally separate locations using validated eDNA technology.*  
+  *Journal of Environmental Studies and Sciences*, 13, 66–82.  
+  [https://doi.org/10.1007/s13412-022-00800-x](https://doi.org/10.1007/s13412-022-00800-x)
+
 - **van Buuren, S., & Groothuis-Oudshoorn, K. (2011).**  
   *mice: Multivariate Imputation by Chained Equations in R.* Journal of Statistical Software, 45(3), 1–67.  
   [https://CRAN.R-project.org/package=mice](https://CRAN.R-project.org/package=mice)
