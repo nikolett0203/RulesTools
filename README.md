@@ -335,6 +335,38 @@ rule_heatmap(
 
 ### Citations
 
-- Hahsler M, Buchta C, Gruen B, Hornik K (2023). arules: Mining Association Rules and Frequent Itemsets. R package version 1.7-7, https://CRAN.R-project.org/package=arules.
+- **Bache, S. M., & Wickham, H. (2022).**  
+  *magrittr: A Forward-Pipe Operator for R.* R package version 2.0.3.  
+  [https://CRAN.R-project.org/package=magrittr](https://CRAN.R-project.org/package=magrittr)
 
-- Yan, Linlin. (2023). ggvenn: Draw Venn Diagram by 'ggplot2'. R package version 0.1.10. https://CRAN.R-project.org/package=ggvenn
+- **Hahsler, M., Buchta, C., Gruen, B., & Hornik, K. (2023).**  
+  *arules: Mining Association Rules and Frequent Itemsets.* R package version 1.7-7.  
+  [https://CRAN.R-project.org/package=arules](https://CRAN.R-project.org/package=arules)
+
+- **Larsson, J. (2023).**  
+  *eulerr: Area-Proportional Euler and Venn Diagrams with Ellipses.* R package version 7.0.0.  
+  [https://CRAN.R-project.org/package=eulerr](https://CRAN.R-project.org/package=eulerr)
+
+- **van Buuren, S., & Groothuis-Oudshoorn, K. (2011).**  
+  *mice: Multivariate Imputation by Chained Equations in R.* Journal of Statistical Software, 45(3), 1–67.  
+  [https://CRAN.R-project.org/package=mice](https://CRAN.R-project.org/package=mice)
+
+- **Wickham, H. (2011).**  
+  *testthat: Unit Testing for R.* Journal of Statistical Software, 40(2), 1–24.  
+  [https://CRAN.R-project.org/package=testthat](https://CRAN.R-project.org/package=testthat)
+
+- **Wickham, H. (2016).**  
+  *ggplot2: Elegant Graphics for Data Analysis.* Springer-Verlag New York.  
+  [https://CRAN.R-project.org/package=ggplot2](https://CRAN.R-project.org/package=ggplot2)
+
+- **Wickham, H., & Girlich, M. (2023).**  
+  *tidyr: Tidy Messy Data.* R package version 1.3.0.  
+  [https://CRAN.R-project.org/package=tidyr](https://CRAN.R-project.org/package=tidyr)
+
+- **Xie, Y. (2015).**  
+  *Dynamic Documents with R and knitr.* Chapman and Hall/CRC.  
+  [https://CRAN.R-project.org/package=knitr](https://CRAN.R-project.org/package=knitr)
+
+- **Xie, Y., Allaire, J. J., & Grolemund, G. (2018).**  
+  *R Markdown: The Definitive Guide.* Chapman and Hall/CRC.  
+  [https://CRAN.R-project.org/package=rmarkdown](https://CRAN.R-project.org/package=rmarkdown)
