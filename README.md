@@ -26,13 +26,16 @@
   **Nolan, K. P., et al. (2022).** *Detection of brook trout in spatiotemporally separate locations using validated eDNA technology.* Journal of Environmental Studies and Sciences, 13, 66–82. [https://doi.org/10.1007/s13412-022-00800-x](https://doi.org/10.1007/s13412-022-00800-x)
 
 
-## `dtize_col` Function: Discretize a Numeric Column
+## Discretisation Functions
 
-### Purpose
+
+### `dtize_col` Function: Discretize a Numeric Column
+
+#### Purpose
 
 The `dtize_col` function discretizes a numeric vector into categories based on specified cutoff points. It supports predefined cutoffs (such as the mean or median), handles missing values, and allows for infinite bounds. This is useful for transforming continuous data into categorical intervals for association rule mining.
 
-### Parameters
+#### Parameters
 
 - **`column`** *(Numeric vector)*: The numeric vector to discretize.
 - **`cutoff`** *(Numeric vector or string)*: Cutoff points for discretization, or a predefined string (`"mean"` or `"median"`). Default is `"median"`.
@@ -42,18 +45,18 @@ The `dtize_col` function discretizes a numeric vector into categories based on s
 - **`include_lowest`** *(Logical)*: If `TRUE`, the lowest interval is closed on the left. Default is `TRUE`.
 - **`na_fill`** *(String)*: Method to impute missing values: `"none"`, `"mean"`, or `"median"`. Default is `"none"`.
 
-### Return Value
+#### Return Value
 
 A factor with the same length as `column`, where each value is categorized based on the specified cutoffs.
 
-### How It Works
+#### How It Works
 
 1. **Validation**: Ensures inputs are valid, including logical parameters, cutoff points, and labels.
 2. **Cutoff Handling**: Uses specified cutoffs or calculates cutoffs based on the mean or median.
 3. **Interval Assignment**: Categorizes values based on the cutoffs and labels.
 4. **Missing Value Imputation**: Optionally fills `NA` values with the mean or median before discretization.
 
-### Example Usage
+#### Example Usage
 
 ```r
 data(BrookTrout)
@@ -78,13 +81,14 @@ filled_col <- dtize_col(
 )
 ```
 
-## `dtize_df` Function: Discretize Dataframe Columns
 
-### Purpose
+### `dtize_df` Function: Discretize Dataframe Columns
+
+#### Purpose
 
 The `dtize_df` function discretizes numeric columns in a dataframe based on specified splitting criteria. It also handles missing values using various imputation methods, making it useful for preparing data for association rule mining.
 
-### Parameters
+#### Parameters
 
 - **`data`** *(Dataframe)*: The dataframe containing the data to be discretized.
 - **`cutoff`** *(Character string or numeric vector)*: The method for splitting numeric columns. Options are `"median"` (default), `"mean"`, or a custom numeric vector of split points.
@@ -98,18 +102,18 @@ The `dtize_df` function discretizes numeric columns in a dataframe based on spec
 - **`seed`** *(Integer)*: Seed for reproducibility of the imputation process. Default is `NULL`.
 - **`printFlag`** *(Logical)*: If `TRUE`, prints logs during the `mice` imputation process. Default is `FALSE`.
 
-### Return Value
+#### Return Value
 
 A dataframe with numeric columns discretized and missing values handled based on the specified imputation method.
 
-### How It Works
+#### How It Works
 
 1. **Validation**: Checks that the input is a valid dataframe.
 2. **Missing Value Imputation**: Handles missing values using the specified `na_fill` method, including predictive mean matching (`pmm`) via the `mice` package.
 3. **Column Discretization**: Discretizes each numeric column based on the specified cutoff and labels.
 4. **Non-Numeric Handling**: Non-numeric columns are converted to factors.
 
-### Example Usage
+#### Example Usage
 
 ```r
 data(BrookTrout)
@@ -140,30 +144,33 @@ air <- dtize_df(
 ```
 
 
-## `compare_rules` Function: Compare and Find Intersections of Association Rule Sets
+## Rule Analysis Functions
 
-### Purpose
+
+### `compare_rules` Function: Compare and Find Intersections of Association Rule Sets
+
+#### Purpose
 
 The `compare_rules` function helps you compare multiple sets of association rules, identify their intersections, and optionally save the results to a CSV file. This function is particularly useful for exploring how rule sets generated under different parameters overlap or differ.
 
-### Parameters
+#### Parameters
 
 - **`...`**: Named association rule sets (objects of class `rules`).
 - **`display`** *(Logical)*: If `TRUE`, prints the intersection results. Default is `TRUE`.
 - **`filename`** *(Character string)*: If provided, writes the results to a CSV file. Default is `NULL`.
 
-### Return Value
+#### Return Value
 
 A list containing the intersections of the provided rule sets.
 
-### How It Works
+#### How It Works
 
 1. **Input Rule Sets**: Pass multiple named rule sets to the function.
 2. **Validation**: Ensures that inputs are valid rule sets and that parameters are correctly specified.
 3. **Intersection Calculation**: Finds intersections between all combinations of the rule sets.
 4. **Output**: Displays the results in the console and/or saves them to a CSV file.
 
-### Example Usage
+#### Example Usage
 
 ```r
 library(arules)
@@ -196,13 +203,16 @@ compare_rules(
 ```
 
 
-## `rule_euler` Function: Create an Euler Diagram for Association Rules
+## Visualization Functions
 
-### Purpose
+
+### `rule_euler` Function: Create an Euler Diagram for Association Rules
+
+#### Purpose
 
 The `rule_euler` function generates an Euler diagram visualization for up to 4 sets of association rules. It helps display the relationships and overlaps between rule sets, with customizable options for colors, transparency, and labels.
 
-### Parameters
+#### Parameters
 
 - **`rules`** *(List of `rules` objects)*: A list containing between 2 and 4 `rules` objects from the `arules` package.
 - **`fill_color`** *(Character vector)*: Colors for filling the sets. If `NULL`, default colors `c("red", "blue", "green", "purple")` are used. Default is `NULL`.
@@ -215,17 +225,17 @@ The `rule_euler` function generates an Euler diagram visualization for up to 4 s
 - **`text_color`** *(Character string)*: Color of the quantity labels (counts) in the diagram. Default is `"black"`.
 - **`text_size`** *(Numeric)*: Font size of the quantity labels. Default is `11`.
 
-### Return Value
+#### Return Value
 
 A `plot` object displaying the Euler diagram visualization.
 
-### How It Works
+#### How It Works
 
 1. **Validation**: Checks that the input is a valid list of 2 to 4 `rules` objects.
 2. **Customization**: Allows setting custom colors, transparency, and labels for the diagram.
 3. **Plot Generation**: Uses the `eulerr` package to generate and display the Euler diagram.
 
-### Example Usage
+#### Example Usage
 
 ```r
 library(arules)
@@ -256,13 +266,13 @@ rule_euler(
 ```
 
 
-## `rule_heatmap` Function: Create a Heatmap for Association Rules
+### `rule_heatmap` Function: Create a Heatmap for Association Rules
 
-### Purpose
+#### Purpose
 
 The `rule_heatmap` function generates a heatmap visualization of association rules, showing the relationships between antecedents and consequents based on a specified metric. This visualization helps identify patterns and strengths of associations in the rule set.
 
-### Parameters
+#### Parameters
 
 - **`rules`** *(`rules` object)*: An object of class `rules` from the `arules` package.
 - **`metric`** *(Character string)*: The metric to use for coloring the heatmap. Options are `"confidence"` (default), `"support"`, or `"lift"`.
@@ -271,18 +281,18 @@ The `rule_heatmap` function generates a heatmap visualization of association rul
 - **`high_color`** *(Character string)*: Color for the upper bound of the gradient. Default is `"navy"`.
 - **`include_zero`** *(Logical)*: If `TRUE`, includes zero values for missing antecedent-consequent combinations. Default is `FALSE`.
 
-### Return Value
+#### Return Value
 
 A `ggplot` object representing the heatmap visualization of the association rules.
 
-### How It Works
+#### How It Works
 
 1. **Validation**: Ensures the input is a valid `rules` object and parameters are correctly specified.
 2. **Data Preparation**: Extracts antecedents, consequents, and the specified metric from the rule set.
 3. **Optional Zero Inclusion**: Fills missing combinations with zeros if `include_zero = TRUE`.
 4. **Plot Generation**: Uses `ggplot2` to create a heatmap with a gradient color scale based on the chosen metric.
 
-### Example Usage
+#### Example Usage
 
 ```r
 library(arules)
