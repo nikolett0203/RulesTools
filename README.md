@@ -63,7 +63,7 @@ A vector with the same length as `column`, where each value is categorized based
 data(BrookTrout)
 
 # Example with predefined cutoffs
-discrete_water_temp <- dtize_col(
+discrete_conc <- dtize_col(
   BrookTrout$eDNAConc,
   cutoff = 13.3,
   labels = c("low", "high"),
