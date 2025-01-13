@@ -14,63 +14,62 @@
 #' @examples
 #' library(arules)
 #' data(BrookTrout)
-#' 
+#'
 #' # Discretize the BrookTrout dataset
 #' discrete_bt <- dtize_df(BrookTrout, cutoff = "mean")
-#' 
+#'
 #' # Generate the first set of rules with a confidence threshold of 0.5
 #' rules1 <- apriori(
 #'   discrete_bt,
 #'   parameter = list(supp = 0.01, conf = 0.5, target = "rules")
 #' )
-#' 
+#'
 #' # Generate the second set of rules with a higher confidence threshold of 0.6
 #' rules2 <- apriori(
 #'   discrete_bt,
 #'   parameter = list(supp = 0.01, conf = 0.6, target = "rules")
 #' )
-#' 
+#'
 #' # Compare the two sets of rules and display the intersections
 #' compare_rules(
-#'   r1 = rules1, 
-#'   r2 = rules2, 
-#'   display = TRUE, 
-#'   filename = "intersections.csv"
+#'   r1 = rules1,
+#'   r2 = rules2,
+#'   display = TRUE
 #' )
-#' 
-#' # The intersections are saved in 'intersections.csv'
+#'
+#' # If `filename = "intersections.csv"`, the data is saved in a .csv' file
 #'
 #' @export
 
 compare_rules <- function(...,
                           display = TRUE,
                           filename = NULL) {
-  
+
   # collect arguments
   rules <- list(...)
-  
+
   # ensure arguments are named to simplify parsing
   rule_names <- names(rules)
   validate_names(rule_names)
-  
+
   # ensure optional parameters are correct types
   validate_options(display, filename)
-  
+
   # ensure enough rule-type objects provided
   validate_rules(rules)
-  
+
   # gather counts and formatted rules for each ruleset
   counts <- sapply(rules, length)
   labels <- sapply(rules, labels, simplify = FALSE)
-  
+
   # generate intersection data
   intersections <- find_intersections(labels, rule_names)
-  
+
   # print results
   if (display) {
     print(intersections)
   }
-  
+
   # write to file
   if (!is.null(filename)) {
     if (!grepl("\\.csv$", filename)) {
@@ -92,7 +91,7 @@ validate_names <- function(name_list) {
   if (is.null(name_list) || any(name_list == "")) {
     stop("Please provide names for all arguments, including 'display', 'filename', and all rule sets.")
   }
-  
+
   if (anyDuplicated(name_list)) {
     stop("Duplicate names are not allowed. Please provide unique names for all rule sets.")
   }
@@ -110,11 +109,11 @@ validate_options <- function(display, filename) {
   if (length(display) != 1 || !is.logical(display) || is.na(display)) {
     stop("'display' must be either TRUE or FALSE.")
   }
-  
+
   if (is.null(filename)) {
     return()
   }
-  
+
   if (!is.character(filename) || length(filename) != 1 || nchar(filename) == 0) {
     stop("'filename' must be a non-empty string or NULL.")
   }
@@ -128,12 +127,12 @@ validate_options <- function(display, filename) {
 #' @return None. Throws an error if rule sets are invalid.
 
 validate_rules <- function(rule_list) {
-  
+
   # ensure enough arguments to do comparison
   if (length(rule_list) < 2) {
     stop("At least two rule sets are required to find overlaps. Please provide at least two rule sets.")
   }
-  
+
   # ensure rule_list is indeed a list of rules objects
   if (!all(sapply(rule_list, inherits, "rules"))) {
     stop("All inputs must be of class 'rules'. Please provide valid rule sets.")
@@ -161,21 +160,21 @@ get_intersection_key <- function(indices, rule_names) {
 #' @return A list of intersections between rule sets.
 
 find_intersections <- function(rules, rule_names) {
-  
+
   # structure to store our intersection data
   intersections <- list()
-  
+
   indices <- seq_along(rules)
-  
+
   # add non-intersection data first (unmodified rules)
   # set rule name as the key and assign rulesets
   for (i in indices) {
     intersections[[rule_names[i]]] <- rules[[i]]
   }
-  
+
   # now we go into the loop to generate intersections
   n <- length(rules)
-  
+
   # generate all 2-sets, 3-sets, etc.
   # we already inputted 1-sets
   for (k in 2:n) {
@@ -185,23 +184,23 @@ find_intersections <- function(rules, rule_names) {
     for (j in 1:ncol(combs)) {
       # get each combination of the k-set
       curr_comb <- combs[, j]
-      
+
       # get name for intersection
       key <- get_intersection_key(curr_comb, rule_names)
-      
+
       # calculate common rules
       insct_value <- Reduce(intersect, rules[curr_comb])
-      
+
       # explicitly state if nothing is common
       if (length(insct_value) == 0) {
         insct_value <- "No common rules"
       }
-      
+
       # store data in list
       intersections[[key]] <- insct_value
     }
   }
-  
+
   return(intersections)
 }
 
@@ -227,16 +226,16 @@ pad_rules <- function(rules, max_length) {
 #' @return None. Writes the intersections to a CSV file and prints a message.
 
 write_data <- function(intersections, filename) {
-  
+
   max_length <- max(sapply(intersections, length))
-  
+
   intersection_df <- data.frame(
     lapply(intersections, pad_rules, max_length = max_length),
     stringsAsFactors = FALSE
   )
-  
+
   colnames(intersection_df) <- names(intersections)
-  
+
   write.csv(intersection_df, file = filename, row.names = FALSE, na = "")
   message(paste("Results saved to", filename))
 }
