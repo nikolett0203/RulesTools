@@ -1,18 +1,18 @@
 #' Create a Heatmap for Association Rules
 #'
-#' Generates a heatmap visualization of association rules, 
+#' Generates a heatmap visualization of association rules,
 #' showing relationships between antecedents and consequents based on a specified metric.
 #'
 #' @param rules An object of class `rules` from the `arules` package.
-#' @param metric A character string specifying the metric to use for coloring the heatmap. 
+#' @param metric A character string specifying the metric to use for coloring the heatmap.
 #'   Must be one of `"confidence"`, `"support"`, or `"lift"`. Defaults to `"confidence"`.
-#' @param graph_title A character string specifying the title of the graph. 
+#' @param graph_title A character string specifying the title of the graph.
 #'   Defaults to an empty string (`""`).
-#' @param low_color A valid R color or hex color code for the lower bound of the gradient. 
+#' @param low_color A valid R color or hex color code for the lower bound of the gradient.
 #'   Defaults to `"lightblue"`.
-#' @param high_color A valid R color or hex color code for the upper bound of the gradient. 
+#' @param high_color A valid R color or hex color code for the upper bound of the gradient.
 #'   Defaults to `"navy"`.
-#' @param include_zero A logical value indicating whether to include zero values for missing antecedent-consequent combinations. 
+#' @param include_zero A logical value indicating whether to include zero values for missing antecedent-consequent combinations.
 #'   Defaults to `FALSE`.
 #'
 #' @return A `ggplot` object representing the heatmap visualization of the association rules.
@@ -27,14 +27,14 @@
 #' library(arules)
 #' library(tidyr)
 #' data(BrookTrout)
-#' 
+#'
 #' # Discretise data
 #' discrete_bt <- dtize_df(BrookTrout, cutoff="median")
-#' 
+#'
 #' # Generate rules
 #' rules <- apriori(
-#'   discrete_bt, 
-#'   parameter = list(supp = 0.01, conf = 0.5, target = "rules"), 
+#'   discrete_bt,
+#'   parameter = list(supp = 0.01, conf = 0.5, target = "rules"),
 #'   appearance = list(rhs="eDNAConc=high")
 #' )
 #'
@@ -43,20 +43,20 @@
 #'   subset(!is.redundant(., measure = "confidence")) %>%
 #'   subset(is.significant(., alpha = 0.05)) %>%
 #'   sort(by = c("confidence", "lift", "support"))
-#' 
+#'
 #' # Create a heatmap of the rules using confidence as the metric
 #' rule_heatmap(
-#'   rules, 
-#'   metric = "confidence", 
+#'   rules,
+#'   metric = "confidence",
 #'   graph_title = "Confidence Heatmap"
 #' )
-#' 
+#'
 #' # Create a heatmap of the rules using lift as the metric
 #' rule_heatmap(
-#'   rules, 
-#'   metric = "lift", 
-#'   graph_title = "Lift Heatmap", 
-#'   low_color = "#D4A221", 
+#'   rules,
+#'   metric = "lift",
+#'   graph_title = "Lift Heatmap",
+#'   low_color = "#D4A221",
 #'   high_color = "darkgreen"
 #' )
 #'
@@ -68,7 +68,7 @@ rule_heatmap <- function(rules,
                          low_color = "lightblue",
                          high_color = "navy",
                          include_zero = FALSE) {
-  
+
   # ensure arguments are correct types
   validate_rules_map(rules)
   validate_metric_map(metric)
@@ -76,27 +76,27 @@ rule_heatmap <- function(rules,
   validate_color_map(low_color)
   validate_color_map(high_color)
   validate_logical_map(include_zero)
-  
+
   # isolate antecedents and consequents
   antecedents <- labels(lhs(rules))
   consequents <- labels(rhs(rules))
   metric <- tolower(metric)
-  
+
   # store in df
   rule_df <- data.frame(
     antecedents = antecedents,
     consequents = consequents,
     metric = quality(rules)[[metric]]
   )
-  
+
   # if user wants to include 0 in the scale, allow this
   if (include_zero) {
     rule_df <- rule_df %>%
       complete(antecedents, consequents, fill = list(metric = 0))
   }
-  
+
   colnames(rule_df) <- c("antecedents", "consequents", "metric")
-  
+
   # generate plot
   ggplot(rule_df, aes(x = antecedents, y = consequents, fill = metric)) +
     geom_tile() +
@@ -126,7 +126,7 @@ validate_rules_map <- function(rules) {
   if (!inherits(rules, "rules")) {
     stop("Input must be a single object of class 'rules'. Please provide a valid rule set.")
   }
-  
+
   if (length(rules) == 0) {
     stop("`rules` object is empty. Please provide a non-empty ruleset.")
   }
@@ -141,8 +141,8 @@ validate_rules_map <- function(rules) {
 
 validate_metric_map <- function(metric) {
   valid_metrics <- c("confidence", "support", "lift")
-  
-  if (!is.character(metric) || !tolower(metric) %in% valid_metrics) {
+
+  if (!is.character(metric) || length(metric) != 1 || !tolower(metric) %in% valid_metrics) {
     stop("'metric' must be one of 'confidence', 'support', or 'lift'. Please provide a valid metric.")
   }
 }
@@ -158,7 +158,7 @@ validate_title_map <- function(graph_title) {
   if (is.null(graph_title)) {
     return()
   }
-  
+
   if (!is.character(graph_title) || length(graph_title) != 1 || is.na(graph_title)) {
     stop("The graph title must be either NULL or a single non-NA character string.")
   }
@@ -173,7 +173,7 @@ validate_title_map <- function(graph_title) {
 
 validate_color_map <- function(color) {
   hex_pattern <- "^#([A-Fa-f0-9]{6}|[A-Fa-f0-9]{8})$"
-  
+
   if (is.character(color) && length(color) == 1) {
     if (grepl(hex_pattern, color)) {
       return(TRUE)
@@ -182,7 +182,7 @@ validate_color_map <- function(color) {
       return(TRUE)
     }
   }
-  
+
   stop(
     paste(
       "The input is not a valid hex color code or R color name.",

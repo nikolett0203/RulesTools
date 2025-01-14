@@ -1,7 +1,7 @@
 #' Discretize a Numeric Column
 #'
 #' Discretizes a numeric vector into categories based on specified cutoff points.
-#' The function handles missing values, allows for infinite bounds, and supports 
+#' The function handles missing values, allows for infinite bounds, and supports
 #' predefined cutoffs such as the mean or median.
 #'
 #' @param column A numeric vector to discretize.
@@ -18,11 +18,11 @@
 #'
 #' @examples
 #' data(BrookTrout)
-#' 
+#'
 #' # Example with predefined cutoffs
 #' discrete_water_temp <- dtize_col(
-#'   BrookTrout$eDNAConc, cutoff=13.3, 
-#'   labels=c("low", "high"), 
+#'   BrookTrout$eDNAConc, cutoff=13.3,
+#'   labels=c("low", "high"),
 #'   infinity=TRUE
 #' )
 #'
@@ -31,9 +31,9 @@
 #'
 #' # Example with missing value imputation
 #' filled_col <- dtize_col(
-#'   c(1, 2, NA, 4, 5), 
-#'   cutoff = "mean", 
-#'   include_right=FALSE, 
+#'   c(1, 2, NA, 4, 5),
+#'   cutoff = "mean",
+#'   include_right=FALSE,
 #'   na_fill = "mean"
 #' )
 #'
@@ -46,7 +46,7 @@ dtize_col <- function(column,
                       infinity = TRUE,
                       include_lowest = TRUE,
                       na_fill = "none") {
-  
+
   # check if all logical parameters have acceptable values
   if (check_invalid_logical(include_right)) {
     stop("`include_right` must be either TRUE or FALSE.")
@@ -57,22 +57,22 @@ dtize_col <- function(column,
   if (check_invalid_logical(include_lowest)) {
     stop("`include_lowest` must be either TRUE or FALSE.")
   }
-  
+
   # validate that input column is a non-empty, numeric vector
   if (check_invalid_vector(column)) {
     stop("`column` must be a non-empty numeric vector.")
   }
-  
+
   # validate that cutoff is a non-empty, non-NA numeric vector or 'mean'/'median'
   cutoffs <- check_invalid_cutoff(column, cutoff, infinity)
-  
+
   if (any(duplicated(cutoffs))) {
     stop("`cutoff` cannot contain duplicate values. Please ensure all values are unique.")
   }
-  
+
   # make sure cutoffs are sorted in increasing order
   cutoffs <- sort(cutoffs)
-  
+
   # add infinite bounds if user selects this option
   if (infinity) {
     if (any(is.infinite(cutoffs))) {
@@ -82,12 +82,12 @@ dtize_col <- function(column,
   } else {
     check_invalid_bounds(column, cutoffs, include_right, include_lowest)
   }
-  
+
   check_invalid_labels(labels, cutoffs)
-  
+
   # fill NA values
   filled_column <- impute_na(column, na_fill)
-  
+
   return(cut(filled_column,
              breaks = cutoffs,
              labels = labels,
@@ -127,17 +127,17 @@ check_invalid_vector <- function(input) {
 #' @param include_lowest Logical. If `TRUE`, the lowest interval is left-closed.
 
 check_invalid_bounds <- function(column, cutoffs, include_right, include_lowest) {
-  
+
   # check that there are at least two cutoff points
   if (length(cutoffs) < 2) {
     stop("Please provide at least two cutoff points if infinity is FALSE.")
   }
-  
+
   max_col <- max(column, na.rm = TRUE)
   min_col <- min(column, na.rm = TRUE)
   max_cutoffs <- max(cutoffs)
   min_cutoffs <- min(cutoffs)
-  
+
   # provide warning if values are beyond upper or lower bounds (or else NAs will occur)
   if (include_right) {
     if (max_col > max_cutoffs) {
@@ -148,14 +148,14 @@ check_invalid_bounds <- function(column, cutoffs, include_right, include_lowest)
       stop("Values in `column` exceed the maximum cutoff. Please ensure all values are within the defined range.")
     }
   }
-  
+
   if (include_lowest || !include_right) {
     if (min_col < min_cutoffs) {
       stop("Values in `column` fall below the minimum cutoff. Please ensure all values are within the defined range.")
     }
   } else {
     if (min_col <= min_cutoffs) {
-      stop("Values in `column` fall below the minimum cutoff. Please ensure all values are within the defined range.")        
+      stop("Values in `column` fall below the minimum cutoff. Please ensure all values are within the defined range.")
     }
   }
 }
@@ -168,7 +168,7 @@ check_invalid_bounds <- function(column, cutoffs, include_right, include_lowest)
 #' @param cutoffs The cutoff points.
 
 check_invalid_labels <- function(labels, cutoffs) {
-  
+
   # check that labels don't contain NULL or NAs
   if (is.null(labels)) {
     stop("`labels` cannot be NULL. Please provide valid labels for the intervals.")
@@ -179,11 +179,11 @@ check_invalid_labels <- function(labels, cutoffs) {
   if (!is.vector(labels)) {
     stop("`labels` must be a vector.")
   }
-  
+
   # check that the number of labels matches the number of intervals
   num_labels <- length(labels)
   num_intervals <- length(cutoffs) - 1
-  
+
   if (num_intervals != num_labels) {
     stop(sprintf(
       "%d labels required for discretisation, but %d given. Please provide one label for each interval.",
@@ -202,12 +202,12 @@ check_invalid_labels <- function(labels, cutoffs) {
 #' @return A numeric vector of cutoff points.
 
 check_invalid_cutoff <- function(column, cutoff, infinity) {
-  
+
   # ensure function is case-insensitive
   if (is.character(cutoff)) {
     cutoff <- tolower(cutoff)
   }
-  
+
   if (identical(cutoff, "median")) {
     if (infinity) {
       return(median(column, na.rm = TRUE))
@@ -239,18 +239,18 @@ check_invalid_cutoff <- function(column, cutoff, infinity) {
 #' @return The numeric vector with imputed values.
 
 impute_na <- function(column, na_fill) {
-  
+
   # ensure na_fill is case-insensitive
   if (is.character(na_fill)) {
     na_fill <- tolower(na_fill)
   }
-  
+
   if (!any(is.na(column))) {
     return(column)
   }
-  
+
   finite_values <- column[is.finite(column)]
-  
+
   if (identical(na_fill, "none")) {
     warning("`column` contains NA values, but no imputation method was chosen (`na_fill = 'none'`). NA values will remain in the output.")
     return(column)
