@@ -123,39 +123,39 @@ test_that("rule_heatmap() validates `metric` arguments correctly", {
 })
 
 
-test_that("validate_title_map() validates `graph_title` arguments correctly", {
+test_that("validate_title_map() validates title arguments correctly", {
 
   # non-character
   expect_error(
     validate_title_map(123),
-    regexp="The graph title must be either NULL or a single non-NA character string."
+    regexp="The graph and axis titles must be either NULL or a single non-NA character string."
   )
 
     expect_error(
     validate_title_map(list("hello")),
-    regexp="The graph title must be either NULL or a single non-NA character string."
+    regexp="The graph and axis titles must be either NULL or a single non-NA character string."
   )
 
   expect_error(
     validate_title_map(TRUE),
-    regexp="The graph title must be either NULL or a single non-NA character string."
+    regexp="The graph and axis titles must be either NULL or a single non-NA character string."
   )
 
     expect_error(
     validate_title_map(Inf),
-    regexp="The graph title must be either NULL or a single non-NA character string."
+    regexp="The graph and axis titles must be either NULL or a single non-NA character string."
   )
 
   # NA
   expect_error(
     validate_title_map(NA),
-    regexp="The graph title must be either NULL or a single non-NA character string."
+    regexp="The graph and axis titles must be either NULL or a single non-NA character string."
   )
 
   # mutliple titles
   expect_error(
     validate_title_map(c("title1", "title2", "title3")),
-    regexp="The graph title must be either NULL or a single non-NA character string."
+    regexp="The graph and axis titles must be either NULL or a single non-NA character string."
   )
 
   # valid title
@@ -163,24 +163,39 @@ test_that("validate_title_map() validates `graph_title` arguments correctly", {
 })
 
 
-test_that("rule_heatmap() validates `graph_title` arguments correctly", {
+test_that("rule_heatmap() validates title arguments correctly", {
 
+  # graph title
   expect_error(rule_heatmap(rules1, graph_title=1),
-               regexp="The graph title must be either NULL or a single non-NA character string.")
+               regexp="The graph and axis titles must be either NULL or a single non-NA character string.")
   expect_error(rule_heatmap(rules1, graph_title=matrix(1:10)),
-               regexp="The graph title must be either NULL or a single non-NA character string.")
+               regexp="The graph and axis titles must be either NULL or a single non-NA character string.")
   expect_error(rule_heatmap(rules1, graph_title=NA),
-               regexp="The graph title must be either NULL or a single non-NA character string.")
+               regexp="The graph and axis titles must be either NULL or a single non-NA character string.")
   expect_error(rule_heatmap(rules1, graph_title=c(1, 2, 3)),
-               regexp="The graph title must be either NULL or a single non-NA character string.")
+               regexp="The graph and axis titles must be either NULL or a single non-NA character string.")
   expect_error(rule_heatmap(rules1, graph_title=Inf),
-               regexp="The graph title must be either NULL or a single non-NA character string.")
+               regexp="The graph and axis titles must be either NULL or a single non-NA character string.")
   expect_error(rule_heatmap(rules1, graph_title=rules1),
-               regexp="The graph title must be either NULL or a single non-NA character string.")
+               regexp="The graph and axis titles must be either NULL or a single non-NA character string.")
 
-  expect_no_error(rule_heatmap(rules1, graph_title="Heatmap"))
+  # axis title
+  expect_error(rule_heatmap(rules1, x_axis_title=1),
+               regexp="The graph and axis titles must be either NULL or a single non-NA character string.")
+  expect_error(rule_heatmap(rules1, y_axis_title=matrix(1:10)),
+               regexp="The graph and axis titles must be either NULL or a single non-NA character string.")
+  expect_error(rule_heatmap(rules1, x_axis_title=NA),
+               regexp="The graph and axis titles must be either NULL or a single non-NA character string.")
+  expect_error(rule_heatmap(rules1, y_axis_title=c(1, 2, 3)),
+               regexp="The graph and axis titles must be either NULL or a single non-NA character string.")
+  expect_error(rule_heatmap(rules1, x_axis_title=Inf),
+               regexp="The graph and axis titles must be either NULL or a single non-NA character string.")
+  expect_error(rule_heatmap(rules1, y_axis_title=rules1),
+               regexp="The graph and axis titles must be either NULL or a single non-NA character string.")
+
+  expect_no_error(rule_heatmap(rules1, graph_title="Heatmap", x_axis_title="Before"))
   expect_no_error(rule_heatmap(rules1, graph_title=NULL))
-  expect_no_error(rule_heatmap(rules1, graph_title=""))
+  expect_no_error(rule_heatmap(rules1, graph_title="", x_axis_title="One", y_axis_title="Two"))
 
 })
 
@@ -280,5 +295,105 @@ test_that("rule_heatmap() works with weird data", {
   expect_no_error(rule_heatmap(large_rules, high_color="red", include_zero=TRUE))
   # weird characters
   expect_no_error(rule_heatmap(rules1, graph_title="Confidence Heatmap 🎨"))
+
+})
+
+
+test_that("validate_text_size accepts valid text size inputs", {
+
+  # valid
+  expect_silent(validate_text_size(10))
+  expect_silent(validate_text_size(0.5))
+  expect_silent(validate_text_size(1e-6))
+
+  # non-numeric
+  expect_error(validate_text_size("10"), "Text sizes must be single, non-infinite, positive, and numeric values.")
+  expect_error(validate_text_size(TRUE), "Text sizes must be single, non-infinite, positive, and numeric values.")
+  expect_error(validate_text_size(NULL), "Text sizes must be single, non-infinite, positive, and numeric values.")
+
+  # non-single values
+  expect_error(validate_text_size(c(10, 20)), "Text sizes must be single, non-infinite, positive, and numeric values.")
+  expect_error(validate_text_size(numeric(0)), "Text sizes must be single, non-infinite, positive, and numeric values.") # Empty numeric vector
+
+  # non-positive values
+  expect_error(validate_text_size(0), "Text sizes must be single, non-infinite, positive, and numeric values.")
+  expect_error(validate_text_size(-10), "Text sizes must be single, non-infinite, positive, and numeric values.")
+
+  # infinite/NA
+  expect_error(validate_text_size(NA), "Text sizes must be single, non-infinite, positive, and numeric values.")
+  expect_error(validate_text_size(Inf), "Text sizes must be single, non-infinite, positive, and numeric values.")
+  expect_error(validate_text_size(-Inf), "Text sizes must be single, non-infinite, positive, and numeric values.")
+})
+
+
+test_that("rule_heatmap() validates text sizes correctly", {
+
+  # graph title size
+  expect_error(
+    rule_heatmap(rules1, graph_title_size="20"),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, graph_title_size=Inf),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, graph_title_size=NA),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, graph_title_size=0),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, graph_title_size=c(1, 2, 3, 4, 5)),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+
+  # x_axis_title_size
+  expect_error(
+    rule_heatmap(rules1, x_axis_title_size=NULL),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, x_axis_title_size=-Inf),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, x_axis_title_size=NA),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, x_axis_title_size=-1),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, x_axis_title_size=list("1"=1, "2"=2, "3"=3, "4"=4, "5"=5)),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+
+  # y_axis_title_size
+  expect_error(
+    rule_heatmap(rules1, y_axis_title_size=TRUE),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, y_axis_title_size=Inf),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, y_axis_title_size=NA),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, y_axis_title_size=-0.01),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, y_axis_title_size=matrix(1:3)),
+                 regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+
+
 
 })
