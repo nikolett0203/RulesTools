@@ -394,6 +394,69 @@ test_that("rule_heatmap() validates text sizes correctly", {
                  regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
   )
 
+  # x_axis_text_size
+  expect_error(
+    rule_heatmap(rules1, x_axis_text_size="NULL"),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, x_axis_text_size=Inf),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, x_axis_text_size=NA),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, x_axis_text_size=-100),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, x_axis_text_size=c(100, 200, 300)),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
 
+  # y_axis_text_size
+  expect_error(
+    rule_heatmap(rules1, y_axis_text_size="text"),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, y_axis_text_size=Inf),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, y_axis_text_size=NA),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, y_axis_text_size=0),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, y_axis_text_size=matrix(1:3)),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
 
+  # legend_text_size
+  expect_error(
+    rule_heatmap(rules1, legend_text_size=FALSE),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, legend_text_size=-Inf),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, legend_text_size=NA),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, legend_text_size=-2),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
+  expect_error(
+    rule_heatmap(rules1, legend_text_size=matrix(1:5)),
+    regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
+  )
 })
