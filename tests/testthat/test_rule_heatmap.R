@@ -18,19 +18,19 @@ test_that("validate_rules_map() verifies the number and types of arguments corre
   # multiple rules objects
   expect_error(
     validate_rules_map(list(r1=rules1, r2=rules2)),
-    regexp="Input must be a single object of class 'rules'. Please provide a valid rule set."
+    regexp="Input must be an object of class 'rules'. Please provide a valid rule set."
   )
 
   # no rules objects
   expect_error(
     validate_rules_map(list()),
-    regexp="Input must be a single object of class 'rules'. Please provide a valid rule set."
+    regexp="Input must be an object of class 'rules'. Please provide a valid rule set."
   )
 
   # non-rules arguments
   expect_error(
     validate_rules_map(NULL),
-    regexp="Input must be a single object of class 'rules'. Please provide a valid rule set."
+    regexp="Input must be an object of class 'rules'. Please provide a valid rule set."
   )
 
   # empty ruleset
@@ -47,15 +47,15 @@ test_that("validate_rules_map() verifies the number and types of arguments corre
 test_that("rule_heatmap() validates rules objects", {
 
   expect_error(rule_heatmap(1),
-               regexp="Input must be a single object of class 'rules'. Please provide a valid rule set.")
+               regexp="Input must be an object of class 'rules'. Please provide a valid rule set.")
   expect_error(rule_heatmap(NULL),
-               regexp="Input must be a single object of class 'rules'. Please provide a valid rule set.")
+               regexp="Input must be an object of class 'rules'. Please provide a valid rule set.")
   expect_error(rule_heatmap(NA),
-               regexp="Input must be a single object of class 'rules'. Please provide a valid rule set.")
+               regexp="Input must be an object of class 'rules'. Please provide a valid rule set.")
   expect_error(rule_heatmap(c("no simulation", "cross that line", "pasadena")),
-               regexp="Input must be a single object of class 'rules'. Please provide a valid rule set.")
+               regexp="Input must be an object of class 'rules'. Please provide a valid rule set.")
   expect_error(rule_heatmap(matrix(1:3)),
-               regexp="Input must be a single object of class 'rules'. Please provide a valid rule set.")
+               regexp="Input must be an object of class 'rules'. Please provide a valid rule set.")
   expect_error(rule_heatmap(rules_empty),
                regexp="`rules` object is empty. Please provide a non-empty ruleset.")
 
@@ -535,4 +535,123 @@ test_that("rule_heatmap() allows customizable legend position", {
   expect_no_error(rule_heatmap(rules1, legend_position="rigHT"))
   expect_no_error(rule_heatmap(rules1, legend_position="LEFT"))
   expect_no_error(rule_heatmap(rules1, legend_position="None"))
+})
+
+
+test_that("validate_angle accepts only valid angles", {
+
+  # valid angles
+  expect_silent(validate_angle(0))
+  expect_silent(validate_angle(45))
+  expect_silent(validate_angle(97))
+  expect_silent(validate_angle(181))
+  expect_silent(validate_angle(360))
+
+  # non-numeric
+  expect_error(validate_angle("45"),
+               "Axis text angle must be a numeric value between 0 and 360 degrees.")
+  expect_error(validate_angle(TRUE),
+               "Axis text angle must be a numeric value between 0 and 360 degrees.")
+  expect_error(validate_angle(NULL),
+               "Axis text angle must be a numeric value between 0 and 360 degrees.")
+
+  # non-scalar
+  expect_error(validate_angle(c(45, 90)),
+               "Axis text angle must be a numeric value between 0 and 360 degrees.")
+  expect_error(validate_angle(numeric(0)),
+               "Axis text angle must be a numeric value between 0 and 360 degrees.")  # Empty numeric vector
+
+  # out of range
+  expect_error(validate_angle(-1),
+               "Axis text angle must be a numeric value between 0 and 360 degrees.")
+  expect_error(validate_angle(361),
+               "Axis text angle must be a numeric value between 0 and 360 degrees.")
+  expect_error(validate_angle(1000),
+               "Axis text angle must be a numeric value between 0 and 360 degrees.")
+
+  # edge cases
+  expect_error(validate_angle(NA),
+               "Axis text angle must be a numeric value between 0 and 360 degrees.")  # NA input
+  expect_error(validate_angle(Inf),
+               "Axis text angle must be a numeric value between 0 and 360 degrees.")  # Infinite input
+  expect_error(validate_angle(-Inf),
+               "Axis text angle must be a numeric value between 0 and 360 degrees.")  # Negative infinite
+})
+
+test_that("rule_heatmap() allows text angle customizations", {
+
+  # non-numeric
+  expect_error(
+    rule_heatmap(rules, x_axis_text_angle = NULL),
+    regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
+  )
+  expect_error(
+    rule_heatmap(rules, y_axis_text_angle = "360"),
+    regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
+  )
+  expect_error(
+    rule_heatmap(rules, x_axis_text_angle = NA),
+    regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
+  )
+  expect_error(
+    rule_heatmap(rules, y_axis_text_angle = TRUE),
+    regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
+  )
+
+  # non-scalar
+  expect_error(
+    rule_heatmap(rules, x_axis_text_angle = Inf),
+    regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
+  )
+  expect_error(
+    rule_heatmap(rules, y_axis_text_angle = c(1, 2, 3, 4, 5)),
+    regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
+  )
+
+  # out-of-range
+  expect_error(
+    rule_heatmap(rules, x_axis_text_angle = -10),
+    regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
+  )
+  expect_error(
+    rule_heatmap(rules, y_axis_text_angle = 360.1),
+    regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
+  )
+})
+
+test_that("rule_heatmap() works with many customizations", {
+  expect_silent(rule_heatmap(
+    rules,
+    graph_title = "Custom Heatmap",
+    graph_title_size = 20,
+    x_axis_title = "Custom Antecedents",
+    x_axis_title_size = 14,
+    x_axis_text_size = 10,
+    x_axis_text_angle = 30,
+    y_axis_title = "Custom Consequents",
+    y_axis_title_size = 14,
+    y_axis_text_size = 10,
+    y_axis_text_angle = 60
+  ))
+
+  expect_silent(rule_heatmap(
+    rules,
+    metric = "LIFT",
+    graph_title = "Lift Heatmap",
+    graph_title_size = 10,
+    x_axis_title = "antecedents",
+    x_axis_title_size = 8,
+    x_axis_text_size = 8,
+    x_axis_text_angle = 50,
+    y_axis_title = "consequents",
+    y_axis_title_size = 8,
+    y_axis_text_size = 8,
+    y_axis_text_angle = 2,
+    legend_title = "LIFT",
+    legend_text_size = 6,
+    legend_position = "lEft",
+    low_color = "red",
+    high_color = "purple",
+    include_zero = TRUE
+  ))
 })

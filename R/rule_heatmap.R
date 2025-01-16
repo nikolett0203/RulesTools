@@ -16,12 +16,16 @@
 #'   Defaults to `12`.
 #' @param x_axis_text_size A numeric value specifying the size of the x-axis text.
 #'   Defaults to `11`.
+#' @param x_axis_text_angle A numeric value specifying the angle of the x-axis text.
+#'   Defaults to `45`.
 #' @param y_axis_title A character string specifying the title for the y-axis.
 #'   Defaults to `"Consequents"`.
 #' @param y_axis_title_size A numeric value specifying the size of the y-axis title text.
 #'   Defaults to `12`.
 #' @param y_axis_text_size A numeric value specifying the size of the y-axis text.
 #'   Defaults to `11`.
+#' @param y_axis_text_angle A numeric value specifying the angle of the y-axis text.
+#'   Defaults to `0`.
 #' @param legend_title A character string specifying the title of the legend. Defaults to the value of `metric`.
 #' @param legend_text_size A numeric value specifying the size of the legend text. Defaults to `8`.
 #' @param legend_position A character string specifying the position of the legend.
@@ -87,9 +91,11 @@ rule_heatmap <- function(rules,
                          x_axis_title = "Antecedents",
                          x_axis_title_size = 12,
                          x_axis_text_size = 11,
+                         x_axis_text_angle = 45,
                          y_axis_title = "Consequents",
                          y_axis_title_size = 12,
                          y_axis_text_size = 11,
+                         y_axis_text_angle = 0,
                          legend_title = metric,
                          legend_text_size = 8,
                          legend_position = "right",
@@ -113,6 +119,8 @@ rule_heatmap <- function(rules,
   validate_text_size(y_axis_text_size)
   validate_text_size(legend_text_size)
   validate_legend_position(legend_position)
+  validate_angle(x_axis_text_angle)
+  validate_angle(y_axis_text_angle)
   validate_logical_map(include_zero)
 
   # isolate antecedents and consequents
@@ -148,9 +156,9 @@ rule_heatmap <- function(rules,
     theme_minimal() +
     theme(
       axis.title.x = element_text(size = x_axis_title_size),
-      axis.text.x = element_text(size = x_axis_text_size, angle = 45, hjust = 1),
+      axis.text.x = element_text(size = x_axis_text_size, angle = x_axis_text_angle, hjust = 1),
       axis.title.y = element_text(size = y_axis_title_size),
-      axis.text.y = element_text(size = y_axis_text_size),
+      axis.text.y = element_text(size = y_axis_text_size, angle = y_axis_text_angle),
       plot.title = element_text(size = graph_title_size, hjust = 0.5),
       legend.text = element_text(size = legend_text_size),
       legend.title = element_text(size = legend_text_size + 2),
@@ -168,7 +176,7 @@ rule_heatmap <- function(rules,
 
 validate_rules_map <- function(rules) {
   if (!inherits(rules, "rules")) {
-    stop("Input must be a single object of class 'rules'. Please provide a valid rule set.")
+    stop("Input must be an object of class 'rules'. Please provide a valid rule set.")
   }
 
   if (length(rules) == 0) {
@@ -250,11 +258,25 @@ validate_logical_map <- function(input) {
   }
 }
 
+
+#' @noRd
+#' @title Validate Text Size
+#' @description Validates that the input is a single, positive, numeric value that is not infinite.
+#' @param size The text size input to validate.
+#' @return None. Throws an error if the input is not a valid text size.
+
 validate_text_size <- function(size) {
   if (!is.numeric(size) || length(size) != 1 || size <= 0 || is.infinite(size)) {
     stop("Text sizes must be single, non-infinite, positive, and numeric values.")
   }
 }
+
+
+#' @noRd
+#' @title Validate Legend Position
+#' @description Validates that the input is a single character string representing a valid legend position.
+#' @param position The legend position input to validate.
+#' @return None. Throws an error if the input is not a valid legend position.
 
 validate_legend_position <- function(position) {
   if (!is.character(position) || length(position) != 1) {
@@ -266,5 +288,18 @@ validate_legend_position <- function(position) {
 
   if (!position %in% valid_positions) {
     stop("Invalid legend position. Choose from 'right', 'left', 'top', 'bottom', or 'none'.")
+  }
+}
+
+
+#' @noRd
+#' @title Validate Angle
+#' @description Validates that the input is a single numeric value between 0 and 360 degrees.
+#' @param angle The angle input to validate.
+#' @return None. Throws an error if the input is not a valid angle.
+
+validate_angle <- function(angle) {
+  if (!is.numeric(angle) || length(angle) != 1 || angle < 0 || angle > 360) {
+    stop("Axis text angle must be a numeric value between 0 and 360 degrees.")
   }
 }
