@@ -299,7 +299,7 @@ test_that("rule_heatmap() works with weird data", {
 })
 
 
-test_that("validate_text_size accepts valid text size inputs", {
+test_that("validate_text_size() accepts valid text size inputs", {
 
   # valid
   expect_silent(validate_text_size(10))
@@ -459,4 +459,80 @@ test_that("rule_heatmap() validates text sizes correctly", {
     rule_heatmap(rules1, legend_text_size=matrix(1:5)),
     regexp = "Text sizes must be single, non-infinite, positive, and numeric values."
   )
+})
+
+
+test_that("validate_legend_position() accepts valid inputs", {
+
+  expect_silent(validate_legend_position("rigHt"))
+  expect_silent(validate_legend_position("left"))
+  expect_silent(validate_legend_position("TOp"))
+  expect_silent(validate_legend_position("bottom"))
+  expect_silent(validate_legend_position("nOnE"))
+  expect_silent(validate_legend_position("RIGHT"))
+  expect_silent(validate_legend_position("Bottom"))
+
+  # incorrect string
+  expect_error(validate_legend_position("middle"),
+               "Invalid legend position. Choose from 'right', 'left', 'top', 'bottom', or 'none'.")
+  expect_error(validate_legend_position("top-left"),
+               "Invalid legend position. Choose from 'right', 'left', 'top', 'bottom', or 'none'.")
+
+  # non-character
+  expect_error(validate_legend_position(123),
+               "Legend position must be a single character string.")
+  expect_error(validate_legend_position(TRUE),
+               "Legend position must be a single character string.")
+  expect_error(validate_legend_position(NULL),
+               "Legend position must be a single character string.")
+
+  # non-scalar
+  expect_error(validate_legend_position(c("right", "left")),
+               "Legend position must be a single character string.")
+  expect_error(validate_legend_position(character(0)),
+               "Legend position must be a single character string.")  # Empty character vector
+
+  # NA
+  expect_error(validate_legend_position(NA),
+               "Legend position must be a single character string.")
+})
+
+
+test_that("rule_heatmap() allows customizable legend position", {
+
+  # invalid datatype
+  expect_error(
+    rule_heatmap(rules1, legend_position=123),
+    regexp="Legend position must be a single character string."
+  )
+  expect_error(
+    rule_heatmap(rules1, legend_position=NA),
+    regexp="Legend position must be a single character string."
+  )
+  expect_error(
+    rule_heatmap(rules2, legend_position=TRUE),
+    regexp="Legend position must be a single character string."
+  )
+  expect_error(
+    rule_heatmap(rules2, legend_position=c("left", "right")),
+    regexp="Legend position must be a single character string."
+  )
+  expect_error(
+    rule_heatmap(rules2, legend_position=NULL),
+    regexp="Legend position must be a single character string."
+  )
+  expect_error(
+    rule_heatmap(rules2, legend_position=character(0)),
+    regexp="Legend position must be a single character string."
+  )
+  expect_error(
+    rule_heatmap(rules1, legend_position="middle"),
+    regexp="Invalid legend position. Choose from 'right', 'left', 'top', 'bottom', or 'none'."
+  )
+
+  expect_no_error(rule_heatmap(rules1, legend_position="ToP"))
+  expect_no_error(rule_heatmap(rules1, legend_position="bottom"))
+  expect_no_error(rule_heatmap(rules1, legend_position="rigHT"))
+  expect_no_error(rule_heatmap(rules1, legend_position="LEFT"))
+  expect_no_error(rule_heatmap(rules1, legend_position="None"))
 })

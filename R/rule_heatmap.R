@@ -8,7 +8,7 @@
 #'   Must be one of `"confidence"`, `"support"`, or `"lift"`. Defaults to `"confidence"`.
 #' @param graph_title A character string specifying the title of the graph.
 #'   Defaults to an empty string (`""`).
-#' @param title_text_size A numeric value specifying the size of the graph title text.
+#' @param graph_title_size A numeric value specifying the size of the graph title text.
 #'   Defaults to `14`.
 #' @param x_axis_title A character string specifying the title for the x-axis.
 #'   Defaults to `"Antecedents"`.
@@ -24,6 +24,8 @@
 #'   Defaults to `11`.
 #' @param legend_title A character string specifying the title of the legend. Defaults to the value of `metric`.
 #' @param legend_text_size A numeric value specifying the size of the legend text. Defaults to `8`.
+#' @param legend_position A character string specifying the position of the legend.
+#'   Possible values are `"right"` (default), `"left"`, `"top"`, `"bottom"`, or `"none"`.
 #' @param low_color A valid R color or hex color code for the lower bound of the gradient.
 #'   Defaults to `"lightblue"`.
 #' @param high_color A valid R color or hex color code for the upper bound of the gradient.
@@ -81,7 +83,7 @@
 rule_heatmap <- function(rules,
                          metric = "confidence",
                          graph_title = "",
-                         title_text_size = 14,
+                         graph_title_size = 14,
                          x_axis_title = "Antecedents",
                          x_axis_title_size = 12,
                          x_axis_text_size = 11,
@@ -90,6 +92,7 @@ rule_heatmap <- function(rules,
                          y_axis_text_size = 11,
                          legend_title = metric,
                          legend_text_size = 8,
+                         legend_position = "right",
                          low_color = "lightblue",
                          high_color = "navy",
                          include_zero = FALSE) {
@@ -103,12 +106,13 @@ rule_heatmap <- function(rules,
   validate_title_map(legend_title)
   validate_color_map(low_color)
   validate_color_map(high_color)
-  validate_text_size(title_text_size)
+  validate_text_size(graph_title_size)
   validate_text_size(x_axis_title_size)
   validate_text_size(y_axis_title_size)
   validate_text_size(x_axis_text_size)
   validate_text_size(y_axis_text_size)
   validate_text_size(legend_text_size)
+  validate_legend_position(legend_position)
   validate_logical_map(include_zero)
 
   # isolate antecedents and consequents
@@ -147,9 +151,10 @@ rule_heatmap <- function(rules,
       axis.text.x = element_text(size = x_axis_text_size, angle = 45, hjust = 1),
       axis.title.y = element_text(size = y_axis_title_size),
       axis.text.y = element_text(size = y_axis_text_size),
-      plot.title = element_text(size = title_text_size, hjust = 0.5),
+      plot.title = element_text(size = graph_title_size, hjust = 0.5),
       legend.text = element_text(size = legend_text_size),
       legend.title = element_text(size = legend_text_size + 2),
+      legend.position = tolower(legend_position),
       panel.grid = element_blank()
     )
 }
@@ -248,5 +253,18 @@ validate_logical_map <- function(input) {
 validate_text_size <- function(size) {
   if (!is.numeric(size) || length(size) != 1 || size <= 0 || is.infinite(size)) {
     stop("Text sizes must be single, non-infinite, positive, and numeric values.")
+  }
+}
+
+validate_legend_position <- function(position) {
+  if (!is.character(position) || length(position) != 1) {
+    stop("Legend position must be a single character string.")
+  }
+
+  valid_positions <- c("right", "left", "top", "bottom", "none")
+  position <- tolower(position)
+
+  if (!position %in% valid_positions) {
+    stop("Invalid legend position. Choose from 'right', 'left', 'top', 'bottom', or 'none'.")
   }
 }
