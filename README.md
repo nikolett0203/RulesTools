@@ -347,7 +347,8 @@ The **`BrookTrout`** dataset included in the **RulesTools** package provides env
 
 The dataset includes the following environmental and biological variables:
 
-- **eDNA Concentrations** (measured via qPCR)  
+- **eDNA Concentrations** (measured via qPCR)
+- **eBrook trout counts** (measured via electrofishing)
 - **Abiotic Characteristics**:  
   - Backpack (i.e. eDNA sampler type)
   - Site
@@ -355,7 +356,7 @@ The dataset includes the following environmental and biological variables:
   - Water Temperature  
   - Water pH  
   - Dissolved Oxygen  
-  - Conductivity  
+  - Water conductivity  
   - Water Volume  
 
 ### Example Usage
