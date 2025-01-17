@@ -766,3 +766,112 @@ test_that("rule_euler() rejects invalid row/column arguments", {
   expect_no_error(rule_euler(list(rules1, rules2, rules3), show_legend=TRUE, nrow=3, ncol=1))
   expect_no_error(rule_euler(list(rules1, rules3), show_legend=TRUE, nrow=NULL, ncol=NULL))
 })
+
+
+test_that("rule_euler() works under general tests", {
+  expect_no_error(
+    rule_euler(
+      list(rules1, rules2, rules3, large_rules),
+      fill_color=c("#89CFF0", "#CCCCFF", "#9FE2BF", "#03045E"),
+      fill_alpha=1,
+      stroke_color="#ffffff",
+      stroke_size=2,
+      title="Rule Subsets",
+      name_color="#001111",
+      name_size=14,
+      text_color="#ffffff",
+      text_size=12,
+      show_legend=TRUE,
+      legend_position="TOP",
+      nrow=1,
+      ncol=4)
+  )
+
+  expect_no_error(
+    rule_euler(
+      list(rules1, rules2, rules3, large_rules),
+      fill_color=c("blue", "red", "yellow", "green"),
+      fill_alpha=0.7,
+      stroke_color="purple",
+      stroke_size=3,
+      title="RULES",
+      name_color="black",
+      name_size=10,
+      text_color="black",
+      text_size=8,
+      show_legend=TRUE,
+      legend_position="riGHT",
+      nrow=4,
+      ncol=1)
+  )
+
+  expect_no_error(
+    rule_euler(
+      list(rules1, rules2, rules3, large_rules),
+      fill_color=c("#ffba49", "#20a39e", "#ef5b5b", "#23001e"),
+      fill_alpha=0.7,
+      stroke_color="#152515",
+      stroke_size=0.5,
+      title="More rules",
+      name_color="darkgrey",
+      name_size=10.5,
+      text_color="black",
+      text_size=10.5,
+      show_legend=TRUE,
+      legend_position="left",
+      nrow=2,
+      ncol=2)
+  )
+
+  expect_no_error(
+    rule_euler(
+      list(rules1, rules2, rules3),
+      fill_color=c("#d00000", "#ffba08", "#3f88c5"),
+      fill_alpha=0.9,
+      stroke_color="black",
+      stroke_size=1,
+      title="Romanian plot",
+      text_color="white",
+      text_size=12,
+      show_legend=TRUE,
+      legend_position="BOTTOM",
+      nrow=3,
+      ncol=1)
+  )
+
+  expect_no_error(
+    rule_euler(
+      list(rules2, rules3),
+      fill_color=c("navy", "seagreen"),
+      fill_alpha=0.7,
+      stroke_color="#152515",
+      stroke_size=0.5,
+      title="No overlap",
+      name_color="white",
+      name_size=10,
+      text_color="white",
+      text_size=7,
+      show_legend=FALSE,
+      legend_position="left",
+      nrow=2,
+      ncol=1)
+  )
+
+  expect_no_error(
+    rule_euler(
+      list("Raw"=rules1, "Subset"=rules3),
+      fill_color=c("#12b7bbff", "#48209287"),
+      fill_alpha=0.7,
+      stroke_color="green",
+      stroke_size=0.5,
+      title="No overlap",
+      name_color="white",
+      name_size=10,
+      text_color="white",
+      text_size=7,
+      show_legend=FALSE,
+      legend_position="left",
+      nrow=2,
+      ncol=1)
+  )
+})
