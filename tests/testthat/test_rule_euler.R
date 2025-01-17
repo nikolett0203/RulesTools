@@ -651,3 +651,118 @@ test_that("rule_euler() accepts valid and rejects invalid logical inputs", {
   expect_error(rule_euler(list(rules1, rules2), show_legend=NA))
   expect_error(rule_euler(list(rules1, rules2), show_legend=c(TRUE, FALSE)))
 })
+
+
+test_that("validate_row_col() rejects invalid row/column arguments", {
+
+  # non-numeric inputs
+  expect_error(
+    validate_row_col("one", "two", "three"),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+  expect_error(
+    validate_row_col(NULL, 1, 2),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+  expect_error(
+    validate_row_col(NA, NA, 20),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+  expect_error(
+    validate_row_col(matrix(1:3), 2, 4),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+  expect_error(
+    validate_row_col(4, TRUE, 4),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+  expect_error(
+    validate_row_col(list(1, 2, 3), 3, 4),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+  expect_error(
+    validate_row_col(-2, -3, 6),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+  expect_error(
+    validate_row_col(0, 0, 6),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+
+  # invalid combinations
+  expect_error(
+    validate_row_col(2, 3, 7),
+    regexp="in the legend layout must match the number of sets"
+  )
+  expect_error(
+    validate_row_col(10, 2, 11),
+    regexp="in the legend layout must match the number of sets"
+  )
+  expect_error(
+    validate_row_col(1, 1, 2),
+    regexp="in the legend layout must match the number of sets"
+  )
+
+  # valid numbers
+  expect_no_error(validate_row_col(2, 2, 4))
+  expect_no_error(validate_row_col(1, 3, 3))
+  expect_no_error(validate_row_col(4, 1, 4))
+  expect_no_error(validate_row_col(NULL, NULL, 2))
+})
+
+
+test_that("rule_euler() rejects invalid row/column arguments", {
+
+  # non-numeric inputs
+  expect_error(
+    rule_euler(list(rules1, rules2), show_legend=TRUE, nrow="one", ncol="two"),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), show_legend=TRUE, nrow=NULL, ncol=3),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), show_legend=TRUE, nrow=NA, ncol=NA),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), show_legend=TRUE, nrow=3, ncol=matrix(1:7)),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), show_legend=TRUE, nrow=5, ncol=FALSE),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), show_legend=TRUE, nrow=list(1, 2, 3), ncol=4),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), show_legend=TRUE, nrow=-1, ncol=-2),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), show_legend=TRUE, nrow=1, ncol=0),
+    regexp="'nrow' and 'ncol' must be single positive integers."
+  )
+
+  # invalid combinations
+  expect_error(
+    rule_euler(list(rules1, rules2), show_legend=TRUE, nrow=1, ncol=3),
+    regexp="in the legend layout must match the number of sets"
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), show_legend=TRUE, nrow=10, ncol=1),
+    regexp="in the legend layout must match the number of sets"
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), show_legend=TRUE, nrow=1, ncol=1),
+    regexp="in the legend layout must match the number of sets"
+  )
+
+  # valid numbers
+  expect_no_error(rule_euler(list(rules1, rules2), show_legend=TRUE, nrow=1, ncol=2))
+  expect_no_error(rule_euler(list(rules1, rules2, rules3), show_legend=TRUE, nrow=3, ncol=1))
+  expect_no_error(rule_euler(list(rules1, rules3), show_legend=TRUE, nrow=NULL, ncol=NULL))
+})

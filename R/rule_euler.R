@@ -15,6 +15,10 @@
 #' @param name_size A positive numeric value specifying the font size of the set names. Defaults to `12`.
 #' @param text_color A character string specifying the color of the quantity labels (counts) in the diagram. Defaults to `"black"`.
 #' @param text_size A positive numeric value specifying the font size of the quantities (counts). Defaults to `11`.
+#' @param show_legend A logical value indicating whether to display a legend for the sets. Defaults to `FALSE`.
+#' @param legend_position A character string specifying the position of the legend. Must be one of `"top"`, `"bottom"`, `"left"`, or `"right"`. Defaults to `"bottom"`.
+#' @param nrow An optional numeric value specifying the number of rows in the legend layout. If `NULL`, the number of rows is calculated automatically. Defaults to `NULL`.
+#' @param ncol An optional numeric value specifying the number of columns in the legend layout. If `NULL`, the number of columns is calculated automatically. Defaults to `NULL`.
 #'
 #' @return A `plot` object displaying the Euler diagram visualization.
 #'
@@ -62,7 +66,9 @@ rule_euler <- function(rules,
                       text_color = "black",
                       text_size = 11,
                       show_legend = FALSE,
-                      legend_position = "bottom") {
+                      legend_position = "bottom",
+                      nrow = NULL,
+                      ncol = NULL) {
 
   validate_rules_euler(rules)
   validate_title_euler(title)
@@ -75,6 +81,7 @@ rule_euler <- function(rules,
   validate_color_euler(text_color, "text_color")
   validate_legend_pos_euler(legend_position)
   validate_logical_euler(show_legend)
+  validate_row_col(nrow, ncol, length(rules))
 
   for(i in seq_along(fill_color)){
     validate_color_euler(fill_color[[i]], "fill_color")
@@ -101,7 +108,11 @@ rule_euler <- function(rules,
   fit <- euler(euler_input)
 
   if(show_legend){
-    legend_params = list(side = tolower(legend_position))
+    if(!is.null(nrow) && !is.null(ncol)){
+      legend_params = list(side = tolower(legend_position), nrow = nrow, ncol = ncol)
+    } else {
+      legend_params = list(side = tolower(legend_position))
+    }
     label_params = NULL
   } else {
     legend_params = NULL
@@ -238,4 +249,37 @@ validate_logical_euler <- function(input) {
   if (length(input) != 1 || !is.logical(input) || is.na(input)) {
     stop("'show_legend' must be either 'TRUE' or 'FALSE'.")
   }
+}
+
+
+#' @noRd
+#' @title Validate Legend Layout Dimensions
+#' @description Validates the dimensions of the legend layout (`nrow` and `ncol`)
+#'   and ensures they are compatible with the number of sets (`nsets`).
+#'   If both `nrow` and `ncol` are `NULL`, no validation is performed.
+#' @param nrow A numeric value specifying the number of rows in the legend layout.
+#'   Must be a single positive integer.
+#' @param ncol A numeric value specifying the number of columns in the legend layout.
+#'   Must be a single positive integer.
+#' @param nsets A numeric value specifying the total number of sets in the Euler diagram.
+#'   Used to validate the product of `nrow` and `ncol`.
+#' @return None. Throws an error if `nrow` or `ncol` are invalid, or if their
+#'   product does not match the number of sets (`nsets`).
+
+validate_row_col <- function(nrow, ncol, nsets) {
+
+  if (is.null(nrow) && is.null(ncol))
+    return()
+
+  if (!is.numeric(nrow) || !is.numeric(ncol) || length(nrow) != 1 || length(ncol) != 1 || nrow < 1 || ncol < 1)
+    stop("'nrow' and 'ncol' must be single positive integers.")
+
+  if (nrow*ncol != nsets)
+    stop(
+      paste0(
+        "The number of rows ('nrow') and columns ('ncol') in the legend layout must ",
+        "match the number of sets (", nsets, "). Currently, nrow * ncol = ",
+        nrow * ncol, " which does not equal ", nsets, "."
+      )
+    )
 }
