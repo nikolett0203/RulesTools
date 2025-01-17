@@ -3,22 +3,22 @@
 data(Groceries)
 
 rules1 <- apriori(
-  Groceries, 
+  Groceries,
   parameter = list(supp = 0.01, conf = 0.5, target = "rules")
 )
 
 rules2 <- apriori(
-  Groceries, 
+  Groceries,
   parameter = list(supp = 0.01, conf = 0.55, target = "rules")
 )
 
 rules3 <- apriori(
-  Groceries, 
+  Groceries,
   parameter = list(supp = 0.02, conf = 0.5, target = "rules")
-)  
+)
 
 large_rules <- apriori(
-  Groceries, 
+  Groceries,
   parameter = list(supp = 0.005, conf = 0.2, target = "rules")
 )
 
@@ -26,80 +26,172 @@ rule_list1 <- list(r1 = rules1, r2 = rules2)
 
 ####### TESTS #######
 
+test_that("validate_rules_euler() catches invalid rules arguments", {
+
+  # non-list
+  expect_error(
+    validate_rules_euler(123),
+    regexp="'rules' objects must be provided as a list."
+  )
+  expect_error(
+    validate_rules_euler(NULL),
+    regexp="'rules' objects must be provided as a list."
+  )
+  expect_error(
+    validate_rules_euler(NA),
+    regexp="'rules' objects must be provided as a list."
+  )
+  expect_error(
+    validate_rules_euler(c(rules1, rules2)),
+    regexp="'rules' objects must be provided as a list."
+  )
+  expect_error(
+    validate_rules_euler("it ain't 2009 no more"),
+    regexp="'rules' objects must be provided as a list."
+  )
+
+  # invalid number of rules
+  expect_error(
+    validate_rules_euler(list(rules1)),
+    regexp="You must provide between 2 and 4 'rules' objects."
+  )
+  expect_error(
+    validate_rules_euler(list(rules1, rules2, rules3, large_rules, rules1)),
+    regexp="You must provide between 2 and 4 'rules' objects."
+  )
+  expect_error(
+    validate_rules_euler(list(rules1, rules2, rules3, NULL)),
+    regexp="The list contains NULL values. Please provide valid 'rules' objects."
+  )
+
+  # not rules objects
+  expect_error(
+    validate_rules_euler(list(rules1, rules2, rules3, 123)),
+    regexp="All elements in the list must be 'rules' objects."
+  )
+  expect_error(
+    validate_rules_euler(list(NA, "colours and shapes", 123)),
+    regexp="All elements in the list must be 'rules' objects."
+  )
+  expect_error(
+    validate_rules_euler(list(rules1, rules2, 123)),
+    regexp="All elements in the list must be 'rules' objects."
+  )
+
+  # rules don't have to be named
+  expect_no_error(validate_rules_euler(list(rules1, rules2)))
+  expect_no_error(validate_rules_euler(list(rules1, rules2, rules3, large_rules)))
+})
+
+
 test_that("rule_euler() catches invalid rules arguments", {
+
   expect_error(
     rule_euler(1),
     regexp = "'rules' objects must be provided as a list."
   )
-  
   expect_error(
     rule_euler(rules1),
     regexp = "'rules' objects must be provided as a list."
   )
-  
   expect_error(
     rule_euler(c(rules1, rules2)),
     regexp = "'rules' objects must be provided as a list."
   )
-  
   expect_error(
     rule_euler(matrix(1:3)),
     regexp = "'rules' objects must be provided as a list."
   )
-  
   expect_error(
     rule_euler(matrix("khalid")),
     regexp = "'rules' objects must be provided as a list."
   )
-  
   expect_error(
     rule_euler(NULL),
     regexp = "'rules' objects must be provided as a list."
   )
-  
   expect_error(
     rule_euler(list(rules1)),
     regexp = "You must provide between 2 and 4 'rules' objects."
   )
-  
   expect_error(
     rule_euler(list(rules1, rules2, rules3, large_rules, rules1)),
     regexp = "You must provide between 2 and 4 'rules' objects."
   )
-  
   expect_error(
     rule_euler(list(rules1, rules2, rules3, NULL)),
     regexp = "The list contains NULL values. Please provide valid 'rules' objects."
   )
-  
   expect_error(
     rule_euler(list(NULL, NULL, NULL, NULL)),
     regexp = "The list contains NULL values. Please provide valid 'rules' objects."
   )
-  
   expect_error(
     rule_euler(list(rules1, NA, rules2)),
     regexp = "All elements in the list must be 'rules' objects."
   )
-  
   expect_error(
     rule_euler(list(1, 2, 3)),
     regexp = "All elements in the list must be 'rules' objects."
   )
-  
   expect_error(
     rule_euler(list("m.i.a.", "faded")),
     regexp = "All elements in the list must be 'rules' objects."
   )
-  
   expect_error(
     rule_euler(list(rules1, matrix(1:3), TRUE)),
     regexp = "All elements in the list must be 'rules' objects."
   )
-  
+
   expect_no_error(rule_euler(list(rules1, rules2)))
   expect_no_error(rule_euler(list(rules1, rules2, rules3)))
   expect_no_error(rule_euler(list(rules1, rules2, rules3, large_rules)))
+})
+
+
+test_that("validate_alpha_euler() catches invalid alpha arguments", {
+
+  # non-numeric
+  expect_error(
+    validate_alpha_euler("1"),
+    regexp="`fill_alpha` must be a single numeric value between 0 and 1."
+  )
+  expect_error(
+    validate_alpha_euler(NULL),
+    regexp="`fill_alpha` must be a single numeric value between 0 and 1."
+  )
+  expect_error(
+    validate_alpha_euler(NA),
+    regexp="`fill_alpha` must be a single numeric value between 0 and 1."
+  )
+  expect_error(
+    validate_alpha_euler(FALSE),
+    regexp="`fill_alpha` must be a single numeric value between 0 and 1."
+  )
+
+  # non-scalar
+  expect_error(
+    validate_alpha_euler(c(1, 2, 3)),
+    regexp="`fill_alpha` must be a single numeric value between 0 and 1."
+  )
+  expect_error(
+    validate_alpha_euler(matrix(1:3)),
+    regexp="`fill_alpha` must be a single numeric value between 0 and 1."
+  )
+
+  # out-of-range
+  expect_error(
+    validate_alpha_euler(-0.01),
+    regexp="`fill_alpha` must be a single numeric value between 0 and 1."
+  )
+  expect_error(
+    validate_alpha_euler(1.1),
+    regexp="`fill_alpha` must be a single numeric value between 0 and 1."
+  )
+
+  expect_no_error(validate_alpha_euler(0))
+  expect_no_error(validate_alpha_euler(1))
+  expect_no_error(validate_alpha_euler(0.7))
 })
 
 
@@ -108,47 +200,47 @@ test_that("rule_euler() catches invalid fill_alpha arguments", {
     rule_euler(rule_list1, fill_alpha = 1.5),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
-  
+
   expect_error(
     rule_euler(rule_list1, fill_alpha = -1.5),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
-  
+
   expect_error(
     rule_euler(rule_list1, fill_alpha = c(0.5, 0.3)),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
-  
+
   expect_error(
     rule_euler(rule_list1, fill_alpha = list(0.1, 0.2, 0.3)),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
-  
+
   expect_error(
     rule_euler(rule_list1, fill_alpha = NULL),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
-  
+
   expect_error(
     rule_euler(rule_list1, fill_alpha = NA),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
-  
+
   expect_error(
     rule_euler(rule_list1, fill_alpha = matrix(1:3)),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
-  
+
   expect_error(
     rule_euler(rule_list1, fill_alpha = "alpha"),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
-  
+
   expect_error(
     rule_euler(rule_list1, fill_alpha = "TRUE"),
     regexp = "`fill_alpha` must be a single numeric value between 0 and 1."
   )
-  
+
   expect_no_error(rule_euler(rule_list1, fill_alpha = 0.75))
   expect_no_error(rule_euler(rule_list1, fill_alpha = 0))
   expect_no_error(rule_euler(rule_list1, fill_alpha = 1.0))
@@ -158,37 +250,72 @@ test_that("rule_euler() catches invalid fill_alpha arguments", {
 })
 
 
+test_that("validate_title_euler() rejects invalid titles", {
+
+  # non-character
+  expect_error(
+    validate_title_euler(123),
+    regexp="The graph title must be either NULL or a single non-NA character string."
+  )
+  expect_error(
+    validate_title_euler(matrix(1:3)),
+    regexp="The graph title must be either NULL or a single non-NA character string."
+  )
+  expect_error(
+    validate_title_euler(NA),
+    regexp="The graph title must be either NULL or a single non-NA character string."
+  )
+  expect_error(
+    validate_title_euler(TRUE),
+    regexp="The graph title must be either NULL or a single non-NA character string."
+  )
+
+  # multiple strings
+  expect_error(
+    validate_title_euler(c("title1", "title2")),
+    regexp="The graph title must be either NULL or a single non-NA character string."
+  )
+  expect_error(
+    validate_title_euler(character(0)),
+    regexp="The graph title must be either NULL or a single non-NA character string."
+  )
+
+  expect_no_error(validate_title_euler("title"))
+  expect_no_error(validate_title_euler("orosháza"))
+})
+
+
 test_that("rule_euler() catches invalid title arguments", {
   expect_error(
     rule_euler(rule_list1, title = 1.5),
     regexp = "The graph title must be either NULL or a single non-NA character string."
   )
-  
+
   expect_error(
     rule_euler(rule_list1, title = c(0.5, 0.3)),
     regexp = "The graph title must be either NULL or a single non-NA character string."
   )
-  
+
   expect_error(
     rule_euler(rule_list1, title = list(0.1, "two", FALSE)),
     regexp = "The graph title must be either NULL or a single non-NA character string."
   )
-  
+
   expect_error(
     rule_euler(rule_list1, title = NA),
     regexp = "The graph title must be either NULL or a single non-NA character string."
   )
-  
+
   expect_error(
     rule_euler(rule_list1, title = matrix(1:3)),
     regexp = "The graph title must be either NULL or a single non-NA character string."
   )
-  
+
   expect_error(
     rule_euler(rule_list1, title = TRUE),
     regexp = "The graph title must be either NULL or a single non-NA character string."
   )
-  
+
   expect_no_error(rule_euler(rule_list1, title = "euler"))
   expect_no_error(rule_euler(rule_list1, title = "I switched the time zone, but what do I know? Spendin' nights hitchhikin', where will I go? I could fly home, with my eyes closed But it'd get kinda hard to see, that's no surprise though."))
   expect_no_error(rule_euler(rule_list1, title = ""))
@@ -197,62 +324,89 @@ test_that("rule_euler() catches invalid title arguments", {
 })
 
 
+test_that("validate_color_euler() rejects invalid colour inputs", {
+
+  # invalid colors
+  expect_error(
+    validate_color_euler("notacolor", "color"),
+    regexp="must be a valid 6-8 digit hex color code"
+  )
+  expect_error(
+    validate_color_euler(TRUE, "color"),
+    regexp="must be a valid 6-8 digit hex color code"
+  )
+  expect_error(
+    validate_color_euler(matrix(1:7), "color"),
+    regexp="must be a valid 6-8 digit hex color code"
+  )
+  expect_error(
+    validate_color_euler(123, "color"),
+    regexp="must be a valid 6-8 digit hex color code"
+  )
+
+  # multiple colours
+  expect_error(
+    validate_color_euler(c("blue", "purple"), "color"),
+    regexp="must be a valid 6-8 digit hex color code"
+  )
+  expect_error(
+    validate_color_euler(list("#238271", "red", "#948382"), "color"),
+    regexp="must be a valid 6-8 digit hex color code"
+  )
+
+  # valid colours
+  expect_no_error(validate_color_euler("#128738", "color"))
+  expect_no_error(validate_color_euler("darkgreen", "color"))
+})
+
+
 test_that("rule_euler() catches invalid colors", {
+
   expect_error(
     rule_euler(rule_list1, stroke_color = "#12FG34"),
     regexp = "'stroke_color' must be a valid 6-8 digit hex color code"
   )
-  
   expect_error(
     rule_euler(rule_list1, name_color = "notacolor"),
     regexp = "'name_color' must be a valid 6-8 digit hex color code"
   )
-  
   expect_error(
     rule_euler(rule_list1, text_color = 12345),
     regexp = "'text_color' must be a valid 6-8 digit hex color code"
   )
-  
   expect_error(
     rule_euler(rule_list1, fill_color = list("blue", "#GGGGGG")),
     regexp = "'fill_color' must be a valid 6-8 digit hex color code"
   )
-  
   expect_error(
     rule_euler(rule_list1, fill_color = TRUE),
     regexp = "'fill_color' must be a valid 6-8 digit hex color code"
   )
-  
   expect_error(
     rule_euler(rule_list1, stroke_color = NULL),
     regexp = "'stroke_color' must be a valid 6-8 digit hex color code"
   )
-  
   expect_error(
     rule_euler(rule_list1, name_color = ""),
     regexp = "'name_color' must be a valid 6-8 digit hex color code"
   )
-  
   expect_error(
     rule_euler(rule_list1, name_color = matrix(1:3)),
     regexp = "'name_color' must be a valid 6-8 digit hex color code"
   )
-  
   expect_error(
     rule_euler(rule_list1, text_color = NA),
     regexp = "'text_color' must be a valid 6-8 digit hex color code"
   )
-  
   expect_error(
     rule_euler(rule_list1, text_color = c("blue", "pink")),
     regexp = "'text_color' must be a valid 6-8 digit hex color code"
   )
-  
   expect_error(
     rule_euler(rule_list1, fill_color = c("#FF0000", "invalidcolor")),
     regexp = "'fill_color' must be a valid 6-8 digit hex color code"
   )
-  
+
   expect_no_error(rule_euler(rule_list1, fill_color = c("#FF0000", "#00FF00", "#0000FFFF")))
   expect_no_error(rule_euler(rule_list1, stroke_color = "blue"))
   expect_no_error(rule_euler(rule_list1, stroke_color = "#FF573333"))
@@ -277,7 +431,7 @@ test_that("rule_euler() runs with valid arguments", {
       text_size   = 10
     )
   )
-  
+
   expect_no_error(
     rule_euler(
       list(rules1, rules2, large_rules),
@@ -292,4 +446,208 @@ test_that("rule_euler() runs with valid arguments", {
       text_size   = 4
     )
   )
+})
+
+
+test_that("validate_numeric_euler() rejects invalid numerical arguments", {
+
+  # non-numeric
+  expect_error(
+    validate_numeric_euler("text", "text size"),
+    regexp="must be a finite positive numeric value."
+  )
+  expect_error(
+    validate_numeric_euler(NA, "text size"),
+    regexp="must be a finite positive numeric value."
+  )
+  expect_error(
+    validate_numeric_euler(NULL, "text size"),
+    regexp="must be a finite positive numeric value."
+  )
+  expect_error(
+    validate_numeric_euler(FALSE, "text size"),
+    regexp="must be a finite positive numeric value."
+  )
+
+  # multiple arguments
+  expect_error(
+    validate_numeric_euler(c(1, 3, 10), "text size"),
+    regexp="must be a finite positive numeric value."
+  )
+  expect_error(
+    validate_numeric_euler(list(1, 3, 10), "text size"),
+    regexp="must be a finite positive numeric value."
+  )
+
+  # infinity
+  expect_error(
+    validate_numeric_euler(Inf, "text size"),
+    regexp="must be a finite positive numeric value."
+  )
+  expect_error(
+    validate_numeric_euler(-Inf, "text size"),
+    regexp="must be a finite positive numeric value."
+  )
+
+  # negative values
+  expect_error(
+    validate_numeric_euler(-10, "text size"),
+    regexp="must be a finite positive numeric value."
+  )
+  # negative values
+  expect_error(
+    validate_numeric_euler(-0.01, "text size"),
+    regexp="must be a finite positive numeric value."
+  )
+
+  expect_no_error(validate_numeric_euler(10, "stroke size"))
+  expect_no_error(validate_numeric_euler(200, "stroke size"))
+  expect_no_error(validate_numeric_euler(1, "stroke size"))
+})
+
+
+test_that("rule_euler() rejects invalid numerical arguments", {
+
+  # non-numeric
+  expect_error(
+    rule_euler(list(rules1, rules2), stroke_size=NA),
+    regexp="must be a finite positive numeric value."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), name_size="123"),
+    regexp="must be a finite positive numeric value."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), text_size=TRUE),
+    regexp="must be a finite positive numeric value."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), stroke_size=Inf),
+    regexp="must be a finite positive numeric value."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), name_size=c(1, 2, 3)),
+    regexp="must be a finite positive numeric value."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), text_size=NULL),
+    regexp="must be a finite positive numeric value."
+  )
+
+  expect_no_error(rule_euler(list(rules1, rules2), text_size=1))
+  expect_no_error(rule_euler(list(rules1, rules2), name_size=100))
+  expect_no_error(rule_euler(list(rules1, rules2), stroke_size=27))
+  expect_no_error(rule_euler(list(rules1, rules2),
+                             text_size=17,
+                             name_size=50,
+                             stroke_size=75))
+})
+
+
+test_that("validate_legend_pos_euler() rejects invalid positions", {
+
+  # non-character
+  expect_error(
+    validate_legend_pos_euler(123),
+    regexp="Invalid legend position. Choose from 'right', 'left', 'top', or 'bottom'."
+  )
+  expect_error(
+    validate_legend_pos_euler(NA),
+    regexp="Invalid legend position. Choose from 'right', 'left', 'top', or 'bottom'."
+  )
+  expect_error(
+    validate_legend_pos_euler(NULL),
+    regexp="Invalid legend position. Choose from 'right', 'left', 'top', or 'bottom'."
+  )
+  expect_error(
+    validate_legend_pos_euler(matrix(1:7)),
+    regexp="Invalid legend position. Choose from 'right', 'left', 'top', or 'bottom'."
+  )
+  expect_error(
+    validate_legend_pos_euler(FALSE),
+    regexp="Invalid legend position. Choose from 'right', 'left', 'top', or 'bottom'."
+  )
+
+  # multiple inputs
+  expect_error(
+    validate_legend_pos_euler(c("top", "bottom")),
+    regexp="Invalid legend position. Choose from 'right', 'left', 'top', or 'bottom'."
+  )
+  expect_error(
+    validate_legend_pos_euler(c("top", "bottom", "left")),
+    regexp="Invalid legend position. Choose from 'right', 'left', 'top', or 'bottom'."
+  )
+
+  expect_no_error(validate_legend_pos_euler("top"))
+  expect_no_error(validate_legend_pos_euler("bOTTOM"))
+  expect_no_error(validate_legend_pos_euler("lEfT"))
+  expect_no_error(validate_legend_pos_euler("rigHT"))
+})
+
+
+test_that("rule_euler() rejects invalid legend positions", {
+
+  # non-character
+  expect_error(
+    rule_euler(list(rules1, rules2), legend_position=300),
+    regexp="Invalid legend position. Choose from 'right', 'left', 'top', or 'bottom'."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), legend_position=NA),
+    regexp="Invalid legend position. Choose from 'right', 'left', 'top', or 'bottom'."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), legend_position=NULL),
+    regexp="Invalid legend position. Choose from 'right', 'left', 'top', or 'bottom'."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), legend_position=matrix(1:7)),
+    regexp="Invalid legend position. Choose from 'right', 'left', 'top', or 'bottom'."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), legend_position=FALSE),
+    regexp="Invalid legend position. Choose from 'right', 'left', 'top', or 'bottom'."
+  )
+
+  # multiple inputs
+  expect_error(
+    rule_euler(list(rules1, rules2), legend_position=c("top", "right")),
+    regexp="Invalid legend position. Choose from 'right', 'left', 'top', or 'bottom'."
+  )
+  expect_error(
+    rule_euler(list(rules1, rules2), legend_position=character(0)),
+    regexp="Invalid legend position. Choose from 'right', 'left', 'top', or 'bottom'."
+  )
+
+  expect_no_error(rule_euler(list(rules1, rules2), legend_position="TOP"))
+  expect_no_error(rule_euler(list(rules1, rules2), legend_position="bottom"))
+  expect_no_error(rule_euler(list(rules1, rules2), legend_position="RiGhT"))
+  expect_no_error(rule_euler(list(rules1, rules2), legend_position="leFT"))
+})
+
+
+test_that("validate_logical_euler() accepts valid and rejects invalid logical inputs", {
+
+  # valid inputs
+  expect_no_error(validate_logical_euler(TRUE))
+  expect_no_error(validate_logical_euler(FALSE))
+
+  # invalid inputs
+  expect_error(validate_logical_euler(1))
+  expect_error(validate_logical_euler("TRUE"))
+  expect_error(validate_logical_euler(NA))
+  expect_error(validate_logical_euler(c(TRUE, FALSE)))
+})
+
+test_that("rule_euler() accepts valid and rejects invalid logical inputs", {
+
+  # valid inputs
+  expect_no_error(rule_euler(list(rules1, rules2), show_legend=TRUE))
+  expect_no_error(rule_euler(list(rules1, rules2), show_legend=FALSE))
+
+  # invalid inputs
+  expect_error(rule_euler(list(rules1, rules2), show_legend=1))
+  expect_error(rule_euler(list(rules1, rules2), show_legend="true"))
+  expect_error(rule_euler(list(rules1, rules2), show_legend=NA))
+  expect_error(rule_euler(list(rules1, rules2), show_legend=c(TRUE, FALSE)))
 })
