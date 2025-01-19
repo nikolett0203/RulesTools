@@ -5,7 +5,7 @@
 #'
 #' @param data A dataframe containing the data to be discretized.
 #' @param cutoff A character string specifying the splitting method for numeric columns.
-#'   Options are `"median"` (default) or a custom numeric vector of split points.
+#'   Options are `"median"` (default), `"mean"` or a custom numeric vector of split points.
 #' @param labels A character vector of labels for the discretized categories. Default is `c("low", "high")`.
 #' @param include_right A logical value indicating if the intervals should be closed on the right. Default is `TRUE`.
 #' @param infinity A logical value indicating if the split intervals should extend to infinity. Default is `TRUE`.
@@ -76,26 +76,15 @@ dtize_df <- function(data,
     printFlag = printFlag
   )
 
-  validate_cuts(cutoff, data)
-
   discretized_data <- data.frame(matrix(ncol = 0, nrow = nrow(data)))
 
   for (col_name in names(data)) {
     column <- data[[col_name]]
 
     if (is.numeric(column)) {
-      # list, extract the appropriate vector from the list
-      column_cutoff <- if (is.list(cutoff)) {
-        cutoff[[col_name]]
-      } else {
-        # otherwise it'll be "mean" or "median"
-        cutoff
-      }
-
-      # use dtize_col
       discretized_column <- dtize_col(
         column,
-        cutoff           = column_cutoff,
+        cutoff           = cutoff,
         labels           = labels,
         include_right    = include_right,
         infinity         = infinity,
@@ -105,7 +94,6 @@ dtize_df <- function(data,
 
       discretized_data[[col_name]] <- discretized_column
     } else {
-      # if non-numeric, simply factorise the column
       discretized_data[[col_name]] <- as.factor(column)
     }
   }
@@ -197,36 +185,3 @@ impute_pmm <- function(na_fill,
 
   return(df)
 }
-
-
-validate_cuts <- function(cutoff, data) {
-
-  # if cutoff is character but not "mean" or "median
-  if (is.character(cutoff)){
-    if (length(cutoff) != 1 || !tolower(cutoff) %in% c("median", "mean"))
-      stop("`cutoff` must be either 'median', 'mean', or a named list of numeric vectors.")
-    return(TRUE)
-  }
-
-  numeric_cols <- names(data)[sapply(data, is.numeric)]
-
-  if (is.list(cutoff)) {
-    # all elements in the list must be numeric vectors
-    if (!all(sapply(cutoff, function(x) is.numeric(x) && is.vector(x))))
-      stop("All elements of `cutoff` (if a list) must be numeric vectors.")
-
-    # list must be named, matching columns
-    if (is.null(names(cutoff)) || !all(names(cutoff) %in% numeric_cols))
-      stop("`cutoff` (if a list) must have names that match all numeric columns in the dataframe.")
-
-    # all columns need vectors
-    if (!all(numeric_cols %in% names(cutoff)))
-      stop("`cutoff` (if a list) must include entries for all numeric columns in the dataframe.")
-
-    return(TRUE)
-  }
-
-  # If `cutoff` is neither a character string nor a list
-  stop("`cutoff` must be either a character string ('median', 'mean') or a named list of numeric vectors.")
-}
-
