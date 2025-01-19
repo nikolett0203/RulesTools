@@ -114,7 +114,6 @@ dtize_df <- function(data,
 }
 
 
-
 #' @noRd
 #' @title Impute Missing Values Using Predictive Mean Matching
 #' @description Imputes missing values in numeric columns of a dataframe using predictive mean matching (PMM).
@@ -200,10 +199,6 @@ impute_pmm <- function(na_fill,
 }
 
 
-# enter numeric cols
-
-
-
 validate_cuts <- function(cutoff, data) {
 
   # if cutoff is character but not "mean" or "median
@@ -234,3 +229,4 @@ validate_cuts <- function(cutoff, data) {
   # If `cutoff` is neither a character string nor a list
   stop("`cutoff` must be either a character string ('median', 'mean') or a named list of numeric vectors.")
 }
+
