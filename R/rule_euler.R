@@ -15,7 +15,7 @@
 #' @param name_size A positive numeric value specifying the font size of the set names. Defaults to `12`.
 #' @param text_color A character string specifying the color of the quantity labels (counts) in the diagram. Defaults to `"black"`.
 #' @param text_size A positive numeric value specifying the font size of the quantities (counts). Defaults to `11`.
-#' @param show_legend A logical value indicating whether to display a legend for the sets. Defaults to `FALSE`.
+#' @param show_legend A logical value indicating whether to display a legend for the sets rather than labels. Defaults to `FALSE`.
 #' @param legend_position A character string specifying the position of the legend. Must be one of `"top"`, `"bottom"`, `"left"`, or `"right"`. Defaults to `"bottom"`.
 #' @param nrow An optional numeric value specifying the number of rows in the legend layout. If `NULL`, the number of rows is calculated automatically. Defaults to `NULL`.
 #' @param ncol An optional numeric value specifying the number of columns in the legend layout. If `NULL`, the number of columns is calculated automatically. Defaults to `NULL`.
