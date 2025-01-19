@@ -76,15 +76,26 @@ dtize_df <- function(data,
     printFlag = printFlag
   )
 
+  validate_cuts(cutoff, data)
+
   discretized_data <- data.frame(matrix(ncol = 0, nrow = nrow(data)))
 
   for (col_name in names(data)) {
     column <- data[[col_name]]
 
     if (is.numeric(column)) {
+      # list, extract the appropriate vector from the list
+      column_cutoff <- if (is.list(cutoff)) {
+        cutoff[[col_name]]
+      } else {
+        # otherwise it'll be "mean" or "median"
+        cutoff
+      }
+
+      # use dtize_col
       discretized_column <- dtize_col(
         column,
-        cutoff           = cutoff,
+        cutoff           = column_cutoff,
         labels           = labels,
         include_right    = include_right,
         infinity         = infinity,
@@ -94,12 +105,14 @@ dtize_df <- function(data,
 
       discretized_data[[col_name]] <- discretized_column
     } else {
+      # if non-numeric, simply factorise the column
       discretized_data[[col_name]] <- as.factor(column)
     }
   }
 
   return(discretized_data)
 }
+
 
 
 #' @noRd
