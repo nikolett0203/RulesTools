@@ -115,7 +115,6 @@ dtize_df <- function(data,
 #' @param printFlag A logical value indicating if `mice` should print logs during imputation. Default is `FALSE`.
 #'
 #' @return A dataframe with missing values in numeric columns imputed using the specified method.
-#' @examples
 
 impute_pmm <- function(na_fill,
                        df,
