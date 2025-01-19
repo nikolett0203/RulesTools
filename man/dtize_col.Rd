@@ -42,8 +42,8 @@ data(BrookTrout)
 
 # Example with predefined cutoffs
 discrete_water_temp <- dtize_col(
-  BrookTrout$eDNAConc, cutoff=13.3, 
-  labels=c("low", "high"), 
+  BrookTrout$eDNAConc, cutoff=13.3,
+  labels=c("low", "high"),
   infinity=TRUE
 )
 
@@ -52,9 +52,9 @@ discrete_pH <- dtize_col(BrookTrout$pH, cutoff="median")
 
 # Example with missing value imputation
 filled_col <- dtize_col(
-  c(1, 2, NA, 4, 5), 
-  cutoff = "mean", 
-  include_right=FALSE, 
+  c(1, 2, NA, 4, 5),
+  cutoff = "mean",
+  include_right=FALSE,
   na_fill = "mean"
 )
 

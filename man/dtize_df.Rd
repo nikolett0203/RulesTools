@@ -22,7 +22,7 @@ dtize_df(
 \item{data}{A dataframe containing the data to be discretized.}
 
 \item{cutoff}{A character string specifying the splitting method for numeric columns.
-Options are \code{"median"} (default) or a custom numeric vector of split points.}
+Options are \code{"median"} (default), \code{"mean"} or a custom numeric vector of split points.}
 
 \item{labels}{A character vector of labels for the discretized categories. Default is \code{c("low", "high")}.}
 
@@ -55,25 +55,25 @@ data(BrookTrout)
 
 # Example with median as cutoff
 med_df <- dtize_df(
-  BrookTrout, 
-  cutoff="median", 
+  BrookTrout,
+  cutoff="median",
   labels=c("below median", "above median")
 )
 
 # Example with mean as cutoff
 mean_df <- dtize_df(
-  BrookTrout, 
-  cutoff="mean", 
+  BrookTrout,
+  cutoff="mean",
   include_right=FALSE
 )
 
 # Example with missing value imputation
 air <- dtize_df(
-  airquality, 
-  cutoff="mean", 
-  na_fill="pmm", 
-  m=10, 
-  maxit=10, 
+  airquality,
+  cutoff="mean",
+  na_fill="pmm",
+  m=10,
+  maxit=10,
   seed=42
 )
 

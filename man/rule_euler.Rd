@@ -14,7 +14,11 @@ rule_euler(
   name_color = "black",
   name_size = 12,
   text_color = "black",
-  text_size = 11
+  text_size = 11,
+  show_legend = FALSE,
+  legend_position = "bottom",
+  nrow = NULL,
+  ncol = NULL
 )
 }
 \arguments{
@@ -39,6 +43,14 @@ If \code{NULL}, default colors \code{c("red", "blue", "green", "purple")} will b
 \item{text_color}{A character string specifying the color of the quantity labels (counts) in the diagram. Defaults to \code{"black"}.}
 
 \item{text_size}{A positive numeric value specifying the font size of the quantities (counts). Defaults to \code{11}.}
+
+\item{show_legend}{A logical value indicating whether to display a legend for the sets rather than labels. Defaults to \code{FALSE}.}
+
+\item{legend_position}{A character string specifying the position of the legend. Must be one of \code{"top"}, \code{"bottom"}, \code{"left"}, or \code{"right"}. Defaults to \code{"bottom"}.}
+
+\item{nrow}{An optional numeric value specifying the number of rows in the legend layout. If \code{NULL}, the number of rows is calculated automatically. Defaults to \code{NULL}.}
+
+\item{ncol}{An optional numeric value specifying the number of columns in the legend layout. If \code{NULL}, the number of columns is calculated automatically. Defaults to \code{NULL}.}
 }
 \value{
 A \code{plot} object displaying the Euler diagram visualization.
@@ -59,7 +71,7 @@ rules1 <- apriori(
   discrete_bt,
   parameter = list(supp = 0.01, conf = 0.5, target = "rules")
 )
-  
+
 # Generate the second set of rules with a higher confidence threshold of 0.6
 rules2 <- apriori(
   discrete_bt,

@@ -8,6 +8,18 @@ rule_heatmap(
   rules,
   metric = "confidence",
   graph_title = "",
+  graph_title_size = 14,
+  x_axis_title = "Antecedents",
+  x_axis_title_size = 12,
+  x_axis_text_size = 11,
+  x_axis_text_angle = 45,
+  y_axis_title = "Consequents",
+  y_axis_title_size = 12,
+  y_axis_text_size = 11,
+  y_axis_text_angle = 0,
+  legend_title = metric,
+  legend_text_size = 8,
+  legend_position = "right",
   low_color = "lightblue",
   high_color = "navy",
   include_zero = FALSE
@@ -21,6 +33,40 @@ Must be one of \code{"confidence"}, \code{"support"}, or \code{"lift"}. Defaults
 
 \item{graph_title}{A character string specifying the title of the graph.
 Defaults to an empty string (\code{""}).}
+
+\item{graph_title_size}{A numeric value specifying the size of the graph title text.
+Defaults to \code{14}.}
+
+\item{x_axis_title}{A character string specifying the title for the x-axis.
+Defaults to \code{"Antecedents"}.}
+
+\item{x_axis_title_size}{A numeric value specifying the size of the x-axis title text.
+Defaults to \code{12}.}
+
+\item{x_axis_text_size}{A numeric value specifying the size of the x-axis text.
+Defaults to \code{11}.}
+
+\item{x_axis_text_angle}{A numeric value specifying the angle of the x-axis text.
+Defaults to \code{45}.}
+
+\item{y_axis_title}{A character string specifying the title for the y-axis.
+Defaults to \code{"Consequents"}.}
+
+\item{y_axis_title_size}{A numeric value specifying the size of the y-axis title text.
+Defaults to \code{12}.}
+
+\item{y_axis_text_size}{A numeric value specifying the size of the y-axis text.
+Defaults to \code{11}.}
+
+\item{y_axis_text_angle}{A numeric value specifying the angle of the y-axis text.
+Defaults to \code{0}.}
+
+\item{legend_title}{A character string specifying the title of the legend. Defaults to the value of \code{metric}.}
+
+\item{legend_text_size}{A numeric value specifying the size of the legend text. Defaults to \code{8}.}
+
+\item{legend_position}{A character string specifying the position of the legend.
+Possible values are \code{"right"} (default), \code{"left"}, \code{"top"}, \code{"bottom"}, or \code{"none"}.}
 
 \item{low_color}{A valid R color or hex color code for the lower bound of the gradient.
 Defaults to \code{"lightblue"}.}
@@ -48,8 +94,8 @@ discrete_bt <- dtize_df(BrookTrout, cutoff="median")
 
 # Generate rules
 rules <- apriori(
-  discrete_bt, 
-  parameter = list(supp = 0.01, conf = 0.5, target = "rules"), 
+  discrete_bt,
+  parameter = list(supp = 0.01, conf = 0.5, target = "rules"),
   appearance = list(rhs="eDNAConc=high")
 )
 
@@ -61,17 +107,17 @@ rules <- rules \%>\%
 
 # Create a heatmap of the rules using confidence as the metric
 rule_heatmap(
-  rules, 
-  metric = "confidence", 
+  rules,
+  metric = "confidence",
   graph_title = "Confidence Heatmap"
 )
 
 # Create a heatmap of the rules using lift as the metric
 rule_heatmap(
-  rules, 
-  metric = "lift", 
-  graph_title = "Lift Heatmap", 
-  low_color = "#D4A221", 
+  rules,
+  metric = "lift",
+  graph_title = "Lift Heatmap",
+  low_color = "#D4A221",
   high_color = "darkgreen"
 )
 

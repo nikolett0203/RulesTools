@@ -41,12 +41,11 @@ rules2 <- apriori(
 
 # Compare the two sets of rules and display the intersections
 compare_rules(
-  r1 = rules1, 
-  r2 = rules2, 
-  display = TRUE, 
-  filename = "intersections.csv"
+  r1 = rules1,
+  r2 = rules2,
+  display = TRUE
 )
 
-# The intersections are saved in 'intersections.csv'
+# If `filename = "intersections.csv"`, the data is saved in a .csv file
 
 }
