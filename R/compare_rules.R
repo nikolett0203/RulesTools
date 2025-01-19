@@ -37,7 +37,7 @@
 #'   display = TRUE
 #' )
 #'
-#' # If `filename = "intersections.csv"`, the data is saved in a .csv' file
+#' # If `filename = "intersections.csv"`, the data is saved in a .csv file
 #'
 #' @export
 

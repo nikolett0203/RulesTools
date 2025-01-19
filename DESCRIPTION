@@ -2,7 +2,10 @@ Package: RulesTools
 Title: Tools for Preparing, Analyzing, and Visualizing Association Rules
 Version: 0.1.0
 Authors@R: 
-    person("Nikolett", "Toth", email = "154761989+nikolett0203@users.noreply.github.com", role = c("aut", "cre"))
+    c(
+        person("Nikolett", "Toth", email = "rules.tools.pkg@gmail.com", role = c("aut", "cre")),
+        person("Jarrett", "Phillips", role = "ctb")
+    )
 Description: This package provides tools for preparing data for association rule mining, analyzing generated rules, and visualizing results. It includes functions for discretizing data frames, generating intersections between rule sets, and visualizing rules through heatmaps and Euler diagrams. Designed to work with the arules package, RulesTools streamlines the process of discovering and understanding associations in datasets.
 License: MIT + file LICENSE
 Encoding: UTF-8
@@ -22,3 +25,4 @@ Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
 URL: https://github.com/nikolett0203/RulesTools
 BugReports: https://github.com/nikolett0203/RulesTools/issues
+Keywords: association rules, data mining, visualization, arules
