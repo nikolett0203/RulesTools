@@ -20,8 +20,9 @@ A data frame with 10 variables and multiple rows (one row per sample):
 }
 }
 \source{
-Nolan, K. P., Loeza-Quintana, T., Little, H. A., et al. (2022). Detection of brook trout in spatiotemporally
-separate locations using validated eDNA technology. \emph{Journal of Environmental Studies and Sciences}, 13, 66–82.
+Adapted from Nolan, K. P., Loeza-Quintana, T., Little, H. A., et al. (2022).
+Detection of brook trout in spatiotemporally separate locations using validated eDNA technology.
+\emph{Journal of Environmental Studies and Sciences}, 13, 66–82.
 \doi{10.1007/s13412-022-00800-x}
 }
 \usage{
@@ -36,5 +37,11 @@ methods with electrofishing to detect brook trout populations.
 data(BrookTrout)
 summary(BrookTrout)
 plot(eDNAConc ~ Site, data = BrookTrout)
+}
+\references{
+Nolan, K. P., Loeza-Quintana, T., Little, H. A., et al. (2022).
+Detection of brook trout in spatiotemporally separate locations using validated eDNA technology.
+\emph{Journal of Environmental Studies and Sciences}, 13, 66–82.
+\doi{10.1007/s13412-022-00800-x}
 }
 \keyword{datasets}
