@@ -225,6 +225,10 @@ The `rule_euler` function generates an Euler diagram visualization for up to 4 s
 - **`name_size`** *(Numeric)*: Font size of the set names. Default is `12`.
 - **`text_color`** *(Character string)*: Color of the quantity labels (counts) in the diagram. Default is `"black"`.
 - **`text_size`** *(Numeric)*: Font size of the quantity labels. Default is `11`.
+- **`show_legend`** *(Logical)*: If `TRUE`, displays legend for the sets rather than labels. Defaults to `FALSE`.
+- **`legend_position`** *(Character string)*: specifies the position of the legend. Must be one of `"top"`, `"bottom"`, `"left"`, or `"right"`. Defaults to `"bottom"`.
+- **`nrow`** *(Numeric)*: Specifies the number of rows in the legend layout. If `NULL`, the number of rows is calculated automatically. Defaults to `NULL`.
+- **`ncol`** *(Numeric)*: specifies the number of columns in the legend layout. If `NULL`, the number of columns is calculated automatically. Defaults to `NULL`.
 
 #### Return Value
 
@@ -278,9 +282,22 @@ The `rule_heatmap` function generates a heatmap visualization of association rul
 - **`rules`** *(`rules` object)*: An object of class `rules` from the `arules` package.
 - **`metric`** *(Character string)*: The metric to use for coloring the heatmap. Options are `"confidence"` (default), `"support"`, or `"lift"`.
 - **`graph_title`** *(Character string)*: Title of the heatmap. Default is an empty string (`""`).
+- **`graph_title_size`** *(Numeric)*: Size of the graph title text. Default is `14`.
+- **`x_axis_title`** *(Character string)*: Title for the x-axis. Default is `"Antecedents"`.
+- **`x_axis_title_size`** *(Numeric)*: Size of the x-axis title text. Default is `12`.
+- **`x_axis_text_size`** *(Numeric)*: Size of the x-axis text. Default is `11`.
+- **`x_axis_text_angle`** *(Numeric)*: Angle of the x-axis text. Default is `45`.
+- **`y_axis_title`** *(Character string)*: Title for the y-axis. Default is `"Consequents"`.
+- **`y_axis_title_size`** *(Numeric)*: Size of the y-axis title text. Default is `12`.
+- **`y_axis_text_size`** *(Numeric)*: Size of the y-axis text. Default is `11`.
+- **`y_axis_text_angle`** *(Numeric)*: Angle of the y-axis text. Default is `0`.
+- **`legend_title`** *(Character string)*: Title of the legend. Defaults to the value of `metric`.
+- **`legend_text_size`** *(Numeric)*: Size of the legend text. Default is `8`.
+- **`legend_position`** *(Character string)*: Position of the legend. Options are `"right"` (default), `"left"`, `"top"`, `"bottom"`, or `"none"`.
 - **`low_color`** *(Character string)*: Color for the lower bound of the gradient. Default is `"lightblue"`.
 - **`high_color`** *(Character string)*: Color for the upper bound of the gradient. Default is `"navy"`.
 - **`include_zero`** *(Logical)*: If `TRUE`, includes zero values for missing antecedent-consequent combinations. Default is `FALSE`.
+
 
 #### Return Value
 

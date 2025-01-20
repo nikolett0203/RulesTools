@@ -18,9 +18,14 @@
 #'   \item{eDNAConc}{Numeric. Environmental DNA concentration, measured in copies per microlitre.}
 #' }
 #'
-#' @source Nolan, K. P., Loeza-Quintana, T., Little, H. A., et al. (2022). Detection of brook trout in spatiotemporally 
-#' separate locations using validated eDNA technology. *Journal of Environmental Studies and Sciences*, 13, 66–82. 
-#' \doi{10.1007/s13412-022-00800-x}
+#' @source Adapted from Nolan, K. P., Loeza-Quintana, T., Little, H. A., et al. (2022). 
+#'   Detection of brook trout in spatiotemporally separate locations using validated eDNA technology. 
+#'   *Journal of Environmental Studies and Sciences*, 13, 66–82. 
+#'   \doi{10.1007/s13412-022-00800-x}
+#' @references Nolan, K. P., Loeza-Quintana, T., Little, H. A., et al. (2022). 
+#'   Detection of brook trout in spatiotemporally separate locations using validated eDNA technology. 
+#'   *Journal of Environmental Studies and Sciences*, 13, 66–82. 
+#'   \doi{10.1007/s13412-022-00800-x}
 #'
 #' @examples
 #' data(BrookTrout)

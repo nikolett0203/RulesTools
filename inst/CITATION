@@ -1,0 +1,33 @@
+citHeader("To cite the RulesTools package in publications, use:")
+
+citation <- bibentry(
+    bibtype = "Manual",
+    title = "RulesTools: Tools for Preparing, Analyzing, and Visualizing Association Rules",
+    author = person("Nikolett", "Toth"),
+    year = 2025,
+    note = "R package version 0.1.0",
+    url = "https://github.com/nikolett0203/RulesTools"
+)
+
+citFooter("This package relies on the following data:")
+
+citation_data <- bibentry(
+    bibtype = "Article",
+    author = c(
+        person("Kathleen P.", "Nolan"),
+        person("Tzitziki", "Loeza-Quintana"),
+        person("Hannah A.", "Little"),
+        person("Joschka", "McLeod"),
+        person("Benjamin", "Ranger"),
+        person("Danielle A.", "Borque"),
+        person("Robert H.", "Hanner")
+    ),
+    title = "Detection of brook trout in spatiotemporally separate locations using validated eDNA technology",
+    journal = "Journal of Environmental Studies and Sciences",
+    year = 2023,
+    volume = 13,
+    pages = "66–82",
+    doi = "10.1007/s13412-022-00800-x"
+)
+
+list(citation, citation_data)
