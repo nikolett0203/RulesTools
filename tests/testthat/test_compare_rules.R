@@ -3,6 +3,8 @@
 utils::data("Groceries", package = "arules")
 library(arules)
 temp_file <- tempfile(pattern = "test_output_", fileext = ".csv")
+temp_file2 <- tempfile(pattern = "test_output2_", fileext = ".csv")
+temp_file3 <- tempfile(pattern = "test_output3_", fileext = ".csv")
 
 rules1 <- apriori(
   Groceries,
@@ -86,7 +88,8 @@ test_that("compare_rules() catches all unnamed arguments or duplicated argument 
 
   # all named
   expect_no_error(compare_rules(r1 = rules1, display = FALSE, r2 = rules2))
-  expect_no_error(compare_rules(r1 = rules1, r2 = rules2, display = FALSE, filename = "name.csv"))
+  expect_no_error(compare_rules(r1 = rules1, r2 = rules2, display = FALSE, filename = temp_file3))
+  unlink(temp_file3)
 })
 
 
@@ -207,9 +210,10 @@ test_that("compare_rules() validates optional parameters", {
 
   # valid filenames
   expect_no_error(compare_rules(r1 = rules1, r2 = rules2, r3 = rules3, filename = NULL))
-  expect_no_error(compare_rules(r1 = rules1, r2 = rules2, r3 = rules3, filename = "file.csv"))
+  expect_no_error(compare_rules(r1 = rules1, r2 = rules2, r3 = rules3, filename = temp_file2))
   expect_no_error(compare_rules(r1 = rules1, r2 = rules2, r3 = rules3, filename = temp_file))
   unlink(temp_file)
+  unlink(temp_file2)
 })
 
 
