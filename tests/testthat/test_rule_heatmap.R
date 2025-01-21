@@ -582,46 +582,46 @@ test_that("rule_heatmap() allows text angle customizations", {
 
   # non-numeric
   expect_error(
-    rule_heatmap(rules, x_axis_text_angle = NULL),
+    rule_heatmap(rules1, x_axis_text_angle = NULL),
     regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
   )
   expect_error(
-    rule_heatmap(rules, y_axis_text_angle = "360"),
+    rule_heatmap(rules1, y_axis_text_angle = "360"),
     regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
   )
   expect_error(
-    rule_heatmap(rules, x_axis_text_angle = NA),
+    rule_heatmap(rules2, x_axis_text_angle = NA),
     regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
   )
   expect_error(
-    rule_heatmap(rules, y_axis_text_angle = TRUE),
+    rule_heatmap(rules2, y_axis_text_angle = TRUE),
     regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
   )
 
   # non-scalar
   expect_error(
-    rule_heatmap(rules, x_axis_text_angle = Inf),
+    rule_heatmap(rules1, x_axis_text_angle = Inf),
     regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
   )
   expect_error(
-    rule_heatmap(rules, y_axis_text_angle = c(1, 2, 3, 4, 5)),
+    rule_heatmap(rules2, y_axis_text_angle = c(1, 2, 3, 4, 5)),
     regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
   )
 
   # out-of-range
   expect_error(
-    rule_heatmap(rules, x_axis_text_angle = -10),
+    rule_heatmap(rules2, x_axis_text_angle = -10),
     regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
   )
   expect_error(
-    rule_heatmap(rules, y_axis_text_angle = 360.1),
+    rule_heatmap(rules1, y_axis_text_angle = 360.1),
     regexp = "Axis text angle must be a numeric value between 0 and 360 degrees."
   )
 })
 
 test_that("rule_heatmap() works with many customizations", {
   expect_silent(rule_heatmap(
-    rules,
+    large_rules,
     graph_title = "Custom Heatmap",
     graph_title_size = 20,
     x_axis_title = "Custom Antecedents",
@@ -635,7 +635,7 @@ test_that("rule_heatmap() works with many customizations", {
   ))
 
   expect_silent(rule_heatmap(
-    rules,
+    rules1,
     metric = "LIFT",
     graph_title = "Lift Heatmap",
     graph_title_size = 10,

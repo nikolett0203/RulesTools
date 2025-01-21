@@ -1,6 +1,7 @@
 ####### TEST INPUTS #######
 
-data(Groceries)
+utils::data("Groceries", package = "arules")
+library(arules)
 
 rules1 <- apriori(
   Groceries,
