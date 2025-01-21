@@ -38,10 +38,4 @@ data(BrookTrout)
 summary(BrookTrout)
 plot(eDNAConc ~ Site, data = BrookTrout)
 }
-\references{
-Nolan, K. P., Loeza-Quintana, T., Little, H. A., et al. (2022).
-Detection of brook trout in spatiotemporally separate locations using validated eDNA technology.
-\emph{Journal of Environmental Studies and Sciences}, 13, 66–82.
-\doi{10.1007/s13412-022-00800-x}
-}
 \keyword{datasets}
