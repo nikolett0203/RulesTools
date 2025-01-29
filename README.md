@@ -1,5 +1,5 @@
 # RulesTools: Tools for Preparing, Analyzing, and Visualizing Association Rules
-![](https://cranlogs.r-pkg.org/badges/RulesTools)
+![](https://cranlogs.r-pkg.org/badges/grand-total/RulesTools) ![](https://cranlogs.r-pkg.org/badges/RulesTools)
 	
 
 **RulesTools** is an R package designed to streamline association rule mining workflows. It provides functions for preparing datasets, analyzing generated rules, and visualizing results using heatmaps and Euler diagrams.
