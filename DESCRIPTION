@@ -6,7 +6,7 @@ Authors@R:
         person("Nikolett", "Toth", email = "rules.tools.pkg@gmail.com", role = c("aut", "cre")),
         person("Jarrett", "Phillips", role = "ctb")
     )
-Description: Streamlines data preprocessing, analysis, and visualization for association rule mining. Designed to work with the 'arules' package, features include discretizing data frames, generating rule set intersections, and visualizing rules with heatmaps and Euler diagrams. 'RulesTools' also includes a dataset on Brook trout detection from Nolan et al. (2022) <doi:10.1007/s13412-022-00800-x>.
+Description: Streamlines data preprocessing, analysis, and visualization for association rule mining. Designed to work with the 'arules' package, features include discretizing data frames, generating rule set intersections, and visualizing rules with heatmaps and Euler diagrams. 'RulesTools' also includes a dataset on Brook trout detection from Nolan et al. (2023) <doi:10.1007/s13412-022-00800-x>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
