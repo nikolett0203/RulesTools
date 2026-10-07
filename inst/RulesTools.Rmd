@@ -1,0 +1,378 @@
+---
+title: "Getting Started with RulesTools"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Getting Started with RulesTools}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r setup, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.width = 7,
+  fig.height = 5,
+  fig.align = "center"
+)
+```
+
+## Introduction
+
+Association rule mining (ARM) looks for patterns of the form *"if A, then B"* in a table of categorical data. Each rule `{A} => {B}` is described by three standard measures:
+
+- **support**: the proportion of observations that contain both `A` and `B`, which is a measure of joint probability;
+- **confidence**: the proportion of observations containing `A` that also contain `B`, which is a measure of conditional probability;
+- **lift**: confidence divided by the baseline frequency (*i.e.*, support) of `B`. A lift above 1 means `B` occurs more often alongside `A` than it would by chance.
+
+The [arules](https://CRAN.R-project.org/package=arules) package provides the mining engine (`apriori()`, `eclat()`, and so on). **RulesTools** supports the steps around it:
+
+| Step | Function | Purpose |
+|------|----------|---------|
+| Prepare | `dtize_col()` | Discretize one numeric vector into labelled categories |
+| Prepare | `dtize_df()` | Discretize every numeric column of a data frame, with optional missing-value imputation |
+| Analyze | `compare_rules()` | Find the rules shared by two or more rule sets |
+| Visualize | `rule_euler()` | Euler diagram of overlapping rule sets |
+| Visualize | `rule_heatmap()` | Antecedent-by-consequent heatmap of support, confidence or lift |
+
+This vignette walks through a complete workflow using the `BrookTrout` dataset that ships with the package.
+
+## Setup
+
+```{r install, eval = FALSE}
+install.packages("arules")
+install.packages("RulesTools")
+```
+
+```{r load, message = FALSE, warning = FALSE}
+library(RulesTools)
+library(arules)
+```
+
+## The `BrookTrout` dataset
+
+`BrookTrout` contains environmental DNA (eDNA) measurements and water quality readings collected at sites at Hanlon Creek, a conservation area in Guelph, ON., Canada. The data are adapted from Nolan et al. (2023), a study that compared eDNA sampling with electrofishing for detecting native brook trout (*Salvelinus fontinalis*). Aquatic eDNA sampling entails collecting water samples using commercial eDNA samplers, here, the Halltech OSMOS and the Smith Root "ANDe".
+
+```{r data-load}
+data(BrookTrout)
+str(BrookTrout)
+```
+
+Each row is one sample. The variables are:
+
+| Variable | Type | Description |
+|----------|------|-------------|
+| `Backpack` | character | eDNA sampler type: `"OSMOS"` or `"ANDe"` |
+| `Site` | integer | Site number |
+| `eFishCatch` | integer | Number of fish caught by electrofishing |
+| `AirTemp` | numeric | Air temperature (°C) |
+| `WaterTemp` | numeric | Water temperature (°C) |
+| `pH` | numeric | Water pH |
+| `DissolvedOxygen` | numeric | Dissolved oxygen (mg/L) |
+| `Conductivity` | numeric | Conductivity (µS/cm) |
+| `VolumeFiltered` | numeric | Volume of water filtered (L) |
+| `eDNAConc` | numeric | eDNA concentration (copies per µL) |
+
+```{r data-summary}
+summary(BrookTrout)
+colSums(is.na(BrookTrout))
+```
+
+```{r data-hist, fig.height = 4}
+hist(
+  BrookTrout$eDNAConc,
+  main = "Distribution of eDNA concentration",
+  xlab = "eDNA concentration (copies/μL)"
+)
+```
+
+Our question for the rest of the vignette is: **which environmental conditions tend to occur together with high eDNA concentrations?**
+
+## Preparing the data
+
+`apriori()` works on categorical data, so the numeric measurements must be discretized first.
+
+### One column at a time: `dtize_col()`
+
+`dtize_col()` turns a numeric vector into a factor. By default it splits at the median into `"low"` and `"high"`.
+
+```{r dtize-col-default}
+pH_group <- dtize_col(BrookTrout$pH)
+table(pH_group, useNA = "ifany")
+```
+
+You can supply your own cutoff and labels. Here we split pH at the neutral pH point of 7. Intervals are closed on the right by default, so a value of exactly 7 falls in the lower group.
+
+```{r dtize-col-custom}
+pH_neutral <- dtize_col(
+  BrookTrout$pH,
+  cutoff = 7,
+  labels = c("acidic or neutral", "basic")
+)
+table(pH_neutral, useNA = "ifany")
+```
+
+Several cutoffs give several categories, as long as you supply one more label than cutoffs. With `infinity = TRUE` (the default) the outer intervals extend to `-Inf` and `Inf`. Here we use the tertiles of water temperature:
+
+```{r dtize-col-tertiles}
+tertiles <- quantile(BrookTrout$WaterTemp, probs = c(1/3, 2/3), na.rm = TRUE)
+
+water_temp <- dtize_col(
+  BrookTrout$WaterTemp,
+  cutoff = unname(tertiles),
+  labels = c("cool", "moderate", "warm")
+)
+table(water_temp, useNA = "ifany")
+```
+
+`dtize_col()` can also fill in missing values before discretizing, with `na_fill = "mean"` or `"median"`:
+
+```{r dtize-col-na}
+dtize_col(
+  c(1, 2, NA, 4, 5),
+  cutoff = "mean",
+  include_right = FALSE,
+  na_fill = "mean"
+)
+```
+
+### An entire data frame: `dtize_df()`
+
+`dtize_df()` applies the same idea to every numeric column of a data frame and leaves non-numeric columns alone. Before using it we make two preparatory choices:
+
+- `Site` is an identifier that happens to be stored as an integer. Splitting it into "low" and "high" sites would be meaningless, so we drop it.
+- `Backpack` is stored as character, so we convert it to a factor, which `arules` handles directly.
+
+```{r prep}
+bt <- subset(BrookTrout, select = -Site)
+bt$Backpack <- factor(bt$Backpack)
+```
+
+The cutoff you choose can change which observations count as "low" and "high", so it helps to compare the mean and median of each numeric column first. Here, we also include biological cutoffs based on guidelines from the literature and online sources (*e.g.*, Environment and Climate Change Canada, as well as the Canadian Council of Ministers of the Environment (CCME)). For `eDNAConc`, a limit of detection (LOD) of 13.3 was found by Nolan et al. (2023).
+
+```{r mean-median}
+num_cols <- names(bt)[vapply(bt, is.numeric, logical(1))]
+
+bio_limits <- c(
+  eFishCatch      = 0,
+  AirTemp         = 15.03,
+  WaterTemp       = 15.00,
+  pH              = 7.75,
+  DissolvedOxygen = 9.50,
+  Conductivity    = 1047,
+  VolumeFiltered  = 1.06,
+  eDNAConc        = 13.30
+)
+
+summary_tbl <- data.frame(
+  mean   = vapply(bt[num_cols], mean, numeric(1), na.rm = TRUE),
+  median = vapply(bt[num_cols], median, numeric(1), na.rm = TRUE),
+  bio    = bio_limits[num_cols]
+)
+
+round(summary_tbl, 2)
+```
+
+```{r dtize-df}
+bt_median <- dtize_df(bt, cutoff = "median")
+bt_mean   <- dtize_df(bt, cutoff = "mean")
+
+head(bt_median)
+```
+
+Custom labels and interval options work just as they do in `dtize_col()`. Setting `include_right = FALSE` makes intervals closed on the left instead, so a value exactly equal to the cutoff moves into the "high" group:
+
+```{r dtize-df-options}
+bt_median_left <- dtize_df(bt, cutoff = "median", include_right = FALSE)
+
+# Custom labels
+head(dtize_df(bt, cutoff = "median", labels = c("lower half", "upper half")), 3)
+```
+
+### Missing values
+
+Left alone (`na_fill = "none"`, the default), missing values stay `NA`, and `arules` treats them as contributing no item for that variable. `dtize_df()` can instead impute them with `"mean"`, `"median"`, or `"pmm"` (predictive mean matching via the [mice](https://CRAN.R-project.org/package=mice) R package with default function arguments). For `"pmm"`, you can set the number of imputations `m`, the iterations `maxit`, and a `seed` for reproducibility.
+
+The `BrookTrout` data contains no missing values; however, the built-in `airquality` data does, so we use it to demonstrate:
+
+```{r dtize-df-pmm}
+colSums(is.na(airquality))
+
+air_disc <- dtize_df(
+  airquality,
+  cutoff = "mean",
+  na_fill = "pmm",
+  m = 5,
+  maxit = 5,
+  seed = 42
+)
+
+colSums(is.na(air_disc))
+```
+
+## Mining association rules
+
+With discretized data in hand, `apriori()` does the mining. We restrict the right-hand side to `eDNAConc=high` so every rule describes conditions associated with high eDNA concentration. Setting `default = "lhs"` keeps all other items on the left-hand side. We also cap rules at 10 items (`maxlen = 10`) to keep the rule sets small and readable.
+
+```{r mine}
+mine_rules <- function(data) {
+  apriori(
+    data,
+    parameter  = list(supp = 1/126, conf = 1/126, maxlen = 10, target = "rules"),
+    appearance = list(rhs = "eDNAConc=high", default = "lhs"),
+    control    = list(verbose = FALSE)
+  )
+}
+
+rules_median      <- mine_rules(bt_median)
+rules_median_left <- mine_rules(bt_median_left)
+rules_mean        <- mine_rules(bt_mean)
+
+c(
+  median       = length(rules_median),
+  median_left  = length(rules_median_left),
+  mean         = length(rules_mean)
+)
+```
+
+We now have three rule sets that differ only in how the data were discretized. The first two analyses use the same median cutoff but assign observations exactly equal to the cutoff to different categories. This illustrates that even boundary conventions can affect mined rules. Look at the strongest rules from the first rule set:
+
+```{r inspect}
+inspect(head(sort(rules_median, by = "lift"), 10))
+```
+
+## Comparing rule sets
+
+Are the rules stable when we change the discretization? `compare_rules()` takes any number of **named** rule sets and finds the rules they have in common.
+
+```{r compare}
+shared <- compare_rules(
+  median_right = rules_median,
+  median_left  = rules_median_left,
+  mean_cut     = rules_mean,
+  display      = FALSE
+)
+
+str(shared, max.level = 1, list.len = 5)
+```
+
+With `display = TRUE` (the default) the intersections are also printed to the console. To save them, pass a file name:
+
+```{r compare-csv, eval = FALSE}
+compare_rules(
+  median_right = rules_median,
+  median_left  = rules_median_left,
+  mean_cut     = rules_mean,
+  display      = FALSE,
+  filename     = "intersections.csv"
+)
+```
+
+## Euler diagrams
+
+An Euler diagram shows the same comparison visually: each circle is a rule set, and the numbers give how many rules fall in each region. `rule_euler()` accepts a **list** of two to four `rules` objects, and the list names become the set labels. Because the diagram is an area-proportional approximation, treat the shapes as a guide and rely on the printed counts for exact values.
+
+```{r euler-basic}
+rule_set_list <- list(
+  "Median (right-closed)" = rules_median,
+  "Median (left-closed)"  = rules_median_left,
+  "Mean"                  = rules_mean
+)
+
+rule_euler(
+  rule_set_list,
+  title = "Rules for high eDNA concentration"
+)
+```
+
+Colours, transparency, borders and text can all be customized. When set names are long, a legend can replace the labels on the diagram:
+
+```{r euler-custom}
+rule_euler(
+  rule_set_list,
+  title           = "Rules for high eDNA concentration",
+  fill_color      = c("#7832ff", "#f5a623", "#2ca58d"),
+  fill_alpha      = 0.4,
+  stroke_color    = "grey30",
+  stroke_size     = 1.2,
+  text_size       = 12,
+  show_legend     = TRUE,
+  legend_position = "bottom"
+)
+```
+
+## Heatmaps
+
+Heatmaps are better suited to inspecting individual rules. `rule_heatmap()` places antecedents on the x-axis and consequents on the y-axis, and shades each cell by `"confidence"` (the default), `"support"` or `"lift"`.
+
+A heatmap becomes unreadable with too many rules, so we first thin out the rule set. We mine rules for two consequents, remove redundant rules, sort, and keep the top 5:
+
+```{r heatmap-prep}
+rules_hm <- apriori(
+  bt_median,
+  parameter  = list(supp = 1/126, conf = 1/126, maxlen = 10, target = "rules"),
+  appearance = list(
+    rhs     = c("eDNAConc=high", "eFishCatch=high"),
+    default = "lhs"
+  ),
+  control = list(verbose = FALSE)
+)
+
+rules_hm <- rules_hm[!is.redundant(rules_hm, measure = "confidence")]
+rules_hm <- rules_hm[is.significant(rules_hm, alpha = 0.05)]
+rules_hm <- sort(rules_hm, by = c("confidence", "lift", "support"))
+rules_hm <- head(rules_hm, 5)
+
+length(rules_hm)
+```
+
+```{r heatmap-support}
+rule_heatmap(
+  rules_hm,
+  metric      = "support",
+  graph_title = "Support of top 5 mined rules"
+)
+```
+
+Switch the metric and the colour gradient to look at confidence instead:
+
+```{r heatmap-confidence}
+rule_heatmap(
+  rules_hm,
+  metric      = "confidence",
+  graph_title = "Confidence of top 5 mined rules",
+  low_color   = "#D4A221",
+  high_color  = "darkgreen"
+)
+```
+
+Antecedent and consequent combinations that do not appear in the rule set are left blank. Set `include_zero = TRUE` to fill them with zero, which makes the gaps explicit. Axis titles, text sizes, label angles and the legend are also adjustable:
+
+```{r heatmap-custom}
+rule_heatmap(
+  rules_hm,
+  metric            = "lift",
+  graph_title       = "Lift of top 5 mined rules",
+  x_axis_title      = "If (antecedent)",
+  y_axis_title      = "Then (consequent)",
+  x_axis_text_angle = 65,
+  include_zero      = TRUE
+)
+```
+
+`rule_heatmap()` returns a `ggplot` object, so you can add further `ggplot2` layers or themes to the result.
+
+
+## Notes on interpretation
+
+- **Discretization shapes the results.** The comparison above shows that the same data can yield different rules depending on the cutoff and on whether boundaries are open or closed. It is worth checking that conclusions hold across reasonable choices.
+- **Exploratory, not confirmatory.** Association rules describe co-occurrence in the sample. They do not establish causes, and in a modest dataset like `BrookTrout` many rules may reflect chance.
+- **Choose thresholds deliberately.** Lower `supp` and `conf` thresholds produce many more rules. Use `maxlen`, `appearance`, and filtering to keep the output manageable.
+
+## References
+
+Hahsler, M., Gruen, B., and Hornik, K. (2005). arules: A computational environment for mining association rules and frequent item sets. *Journal of Statistical Software*, 14(15), 1-25.
+
+Nolan, K. P., Loeza-Quintana, T., Little, H. A., et al. (2023). Detection of brook trout in spatiotemporally separate locations using validated eDNA technology. *Journal of Environmental Studies and Sciences*, 13, 66-82. <https://doi.org/10.1007/s13412-022-00800-x>
+
+Toth, N., Antonie, L., Hanner, R.H., Gillis, D.J., and Phillips, J.D. Mining association rules for targeted spatiotemporal aquatic environmental DNA (eDNA) sampling. bioRxiv. <https://doi.org/10.64898/2026.09.16.752056>.
