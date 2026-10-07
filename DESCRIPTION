@@ -24,5 +24,6 @@ Suggests:
     roxygen2 (>= 7.1.0)
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.3.2
+VignetteBuilder:  knitr
 URL: https://github.com/nikolett0203/RulesTools
 BugReports: https://github.com/nikolett0203/RulesTools/issues
