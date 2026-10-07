@@ -1,5 +1,7 @@
 ---
 title: "Getting Started with RulesTools"
+author: Jarrett D. Phillips
+date: 2026-10-07
 output: rmarkdown::html_vignette
 vignette: >
   %\VignetteIndexEntry{Getting Started with RulesTools}
