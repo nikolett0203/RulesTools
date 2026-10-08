@@ -21,7 +21,7 @@ knitr::opts_chunk$set(
 
 ## Introduction
 
-Association rule mining (ARM) looks for patterns of the form *"if A, then B"* in a table of categorical data. Each rule `{A} => {B}` is described by three standard measures:
+Association rule mining (ARM) looks for patterns of the form *"if A, then B"* in a table of categorical data called a transactional database. Each rule `{A} => {B}` is described by three standard measures:
 
 - **support**: the proportion of observations that contain both `A` and `B`, which is a measure of joint probability;
 - **confidence**: the proportion of observations containing `A` that also contain `B`, which is a measure of conditional probability;
@@ -88,7 +88,7 @@ hist(
 )
 ```
 
-Our question for the rest of the vignette is: **which environmental conditions tend to occur together with high eDNA concentrations?**
+Our question for the rest of the tutorial is: **which environmental conditions tend to occur together with high eDNA concentrations?**
 
 ## Preparing the data
 
@@ -106,12 +106,12 @@ table(pH_group, useNA = "ifany")
 You can supply your own cutoff and labels. Here we split pH at the neutral pH point of 7. Intervals are closed on the right by default, so a value of exactly 7 falls in the lower group.
 
 ```{r dtize-col-custom}
-pH_neutral <- dtize_col(
+pH_category <- dtize_col(
   BrookTrout$pH,
   cutoff = 7,
   labels = c("acidic or neutral", "basic")
 )
-table(pH_neutral, useNA = "ifany")
+table(pH_category, useNA = "ifany")
 ```
 
 Several cutoffs give several categories, as long as you supply one more label than cutoffs. With `infinity = TRUE` (the default) the outer intervals extend to `-Inf` and `Inf`. Here we use the tertiles of water temperature:
@@ -283,7 +283,7 @@ rule_set_list <- list(
 
 rule_euler(
   rule_set_list,
-  title = "Rules for high eDNA concentration"
+  title = "Mined rules for high eDNA concentration"
 )
 ```
 
@@ -292,7 +292,7 @@ Colours, transparency, borders and text can all be customized. When set names ar
 ```{r euler-custom}
 rule_euler(
   rule_set_list,
-  title           = "Rules for high eDNA concentration",
+  title           = "Mined rules for high eDNA concentration",
   fill_color      = c("#7832ff", "#f5a623", "#2ca58d"),
   fill_alpha      = 0.4,
   stroke_color    = "grey30",
@@ -369,7 +369,7 @@ rule_heatmap(
 
 - **Discretization shapes the results.** The comparison above shows that the same data can yield different rules depending on the cutoff and on whether boundaries are open or closed. It is worth checking that conclusions hold across reasonable choices.
 - **Exploratory, not confirmatory.** Association rules describe co-occurrence in the sample. They do not establish causes, and in a modest dataset like `BrookTrout` many rules may reflect chance.
-- **Choose thresholds deliberately.** Lower `supp` and `conf` thresholds produce many more rules. Use `maxlen`, `appearance`, and filtering to keep the output manageable.
+- **Choose thresholds deliberately.** Lower minimum `support` and minumum `confidence` thresholds produce many more rules. Use `maxlen`, `appearance`, and filtering to keep the output manageable.
 
 ## References
 
